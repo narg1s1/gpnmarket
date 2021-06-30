@@ -1,22 +1,22 @@
 # Gpnmarket front
 
-# Установка
+# Installation
 
-В инструкциях далее используется переменная `$GPNMARKET_FRONT` в качестве указания пути к проекту
+The following instructions use the variable `$GPNMARKET_FRONT` as the path to the project
 
 ```bash
 export GPNMARKET_FRONT=~/gpnmarket-front
 ```
 
-## Через docker
+## Through the docker
 
-Клонирование репозитория:
+Repository cloning:
 
 ```bash
-git clone git@gitlab.etpgpb.loc:newetp/gpnmarket-front.git $GPNMARKET_FRONT
+git clone git.etpgpb.loc:newetp/gpnmarket-front.git $GPNMARKET_FRONT
 ```
 
-Далее надо выполнить настройку окружения:
+The next step is to configure the environment:
 
 ```bash
 cd $GPNMARKET_FRONT/docker
@@ -24,7 +24,7 @@ cp .env.dist .env
 $EDITOR .env
 ```
 
-Выполнить настройку конфигурации фронтэнда:  
+Perform configuration of the frontend:  
 
 ```bash
 cd $GPNMARKET_FRONT/www
@@ -32,7 +32,7 @@ cp src/app/config/app.config.ts.dist src/app/config/app.config.ts
 $EDITOR src/app/config/app.config.ts 
 ```
 
-После настройки можно выполнять сборку и запуск:
+Once set up, you can build and run:
 
 ```bash
 cd $GPNMARKET_FRONT/docker
@@ -40,34 +40,34 @@ docker-compose build
 docker-compose up -d
 ```
 
-Во время сборки и запуска будет выполнена
+During assembly and start-up the following will be done
 
-1. Установка контейнера с nodejs 8.
-2. В контейнере установка пакетов angular-cli и forever
-3. Установка зависимостей
-4. Запуск проекта в режиме разработки
+1. Installation of the container with nodejs 8.
+2. In the container installing angular-cli and forever packages
+3. Installing dependencies
+4. Launch the project in development mode
 
-**Установка зависимостей выполняется при первом запуске и займёт некоторое время.** При первом запуске проверить ход установки зависимостей можно при подключении к контейнеру:
+**Dependencies are installed during the first run and will take some time to install:
 
 ```bash
 docker attach $ANGULAR_CONTAINER_NAME # имя контейнера из .env
 ```
 
-И проверить запущенный angular-сервер из docker-контейнера можно будет с помощью команды:
+And it will be possible to check the angular server running from the docker container with the command:
 
 ```bash
 forever logs 0
 ```
 
-Вывод должен завершаться записью: `Compiled successfully.`
+The output should end with the notation: `Compiled successfully.`
 
-Если всё прошло хорошо, то проект должен быть доступен по адресу `http://localhost:4200` (или на порту указанном в файле `docker/.env`)
+If all went well, the project should be available at `http://localhost:4200` (or at the port specified in the `docker/.env` file)
 
-[Управление angular-сервером с помощью forever](docs/forever.md)
+[Angular server management with forever](docs/forever.md)
 
-## Без docker
+## Without the docker
 
-Требования:
+Requirements:
 
 * nodejs >= 8
 * angular-cli
@@ -78,13 +78,13 @@ forever logs 0
 npm install --global @angular/cli
 ```
 
-Клонирование репозитория:
+Repository cloning:
 
 ```bash
 git clone git@gitlab.etpgpb.loc:newetp/gpnmarket-front.git $GPNMARKET_FRONT
 ```
 
-Выполнить настройку конфигурации фронтэнда:
+Perform configuration of the frontend:
 
 ```bash
 cd $GPNMARKET_FRONT/www
@@ -100,21 +100,21 @@ npm install
 npm start
 ```
 
-Вывод должен завершаться записью: `Compiled successfully.`
+The output should end with the entry: `Compiled successfully.`
 
-Если всё прошло хорошо, то проект должен быть доступен по адресу `http://localhost:4200`
+If all went well, the project should be available at `http://localhost:4200`
 
-## Настройка основого nginx
+## Configuring the main nginx
 
-Для объединения сервера и фронта на одном домене настраиваем nginx на основной системе.
+To combine server and front end on the same domain, configure nginx on the main system.
 
-Сначала выбираем локальный домен, например gpnmarket.gpb.local, и заносим в hosts новую запись:
+First select the local domain, for example gpnmarket.gpb.local, and make a new entry in the hosts:
 
 ```
 127.0.0.1 gpnmarket.gpb.local
 ```
 
-Затем создаём конфиг nginx:
+Then we create the nginx config:
 
 ```
 server {
@@ -139,40 +139,40 @@ server {
 }
 ```
 
-# Запуск для работы с удаленным бэком на processor-test.isource.ru
+# Run to work with the remote backend at processor-test.isource.ru
 1) npm run start:cross
 
 
-# Запуск для работы с удаленным бэком на processor-preprod.isource.ru
-1) в app.config.ts заменяем все '-test' на '-preprod' и строку: 
+# Run to work with a remote backend on processor-preprod.isource.ru
+1) In app.config.ts, replace all '-test' with '-preprod' and the line: 
 clientId: 'gpnmarket-loc' 
-на
+to
 clientId: 'gpnmarket-preprod' 
 2) npm run start:cross:preprod
 
-# Сборка для тестового сервера
+# Build for the test server
 
-Команда для сборки:
+The command to build:
 
 ```bash
 cd $GPNMARKET_FRONT/www
 npm run build
 ```
 
-Результаты сборки будут доступны в папке `$GPNMARKET_FRONT/www/dist`
+The results of the build will be available in the folder `$GPNMARKET_FRONT/www/dist`
 
-# Релизная сборка
+# Release build
 
-Команда для сборки:
+Build command:
 
 ```bash
 cd $GPNMARKET_FRONT/www
 npm run build -- --prod
 ```
 
-Результаты сборки будут доступны в папке `$GPNMARKET_FRONT/www/dist`
+The results of the build will be available in the folder `$GPNMARKET_FRONT/www/dist`.
 
-Если для настроенных виртуальных серверов с собранными приложениями появялется ошибка 404, то нужно в файл настройки вирутального сервера добавить:
+If you get a 404 error for the configured virtual servers with built applications, you should add to the configuration file of the virtual server:
 
 ```
         location / {
@@ -180,60 +180,59 @@ npm run build -- --prod
         }     
 ```
 
-#Запуск e2e тестов
+#Starting e2e tests
 
-Для запуска е2е тестов локально необходимо:
+To run e2e tests locally you need to:
 
-1. Скопировать файл www/e2e/protractor.conf.js.dist в эту же директорию без .dist
-2. В скопированном файле protractor.conf.js необходимо:
- - в const baseUrl указать локальный адрес приложения;
- - в params указать логин и пароль для заказчика и бэкофиса, а так же параметр user (ФИО, которое отображается в верхнем правом углу после логина) 
-3. Запустить автотесты
+1. Copy the file www/e2e/protractor.conf.js.dist to the same directory without .dist
+2. In the copied file protractor.conf.js you must:
+ - in const baseUrl specify the local address of the application;
+ - In params specify login and password for the client and backoffice, and also the parameter user (name, which is displayed in the upper right corner after the login) 
+3. Run autotests
 ```bash
 ng e2e
 ```
-В случае, если проект по умолчанию собирается не на 4200 порту, то запускать с указанием сконфигурированного порта, например
+If the project is not built on port 4200 by default, start it with the configured port, for example
 ```bash
 ng e2e --port 4201
 ```
 # Style guide именования роутов
 
-- роуты для структурного модуля, который предоставляет несоколько экшенов, 
-должны быть разбиты c помощью параметра children
+- Routes for a struct module that provides several actions, must be partitioned with the children parameter
 
-    **Не правильно**
+    **Wrong**
     ```js
     {path: 'users', component: UserListComponent},
     {path: 'users/:id', component: UserShowComponent},
     ```
-    **Правильно**
+    **Right**
     ```js
     {path: 'users', component: UserListComponent, children [
         {path: ':id', component: UserShowComponent},
     ]},
     ```
 
-- для роутов сущностей, которые представляют коллекции, предлагается использовать множественное число
+- it is suggested to use the plural for entity roots, which represent collections
 
-    **Не правильно**
+    **Wrong**
     ```js
     {path: 'user', component: UserListComponent},
     ```
-    **Правильно**
+    **Right**
     ```js
     {path: 'users', component: UserListComponent},
     ```
 
-- Именования компонентов предлагается производить с помощью следующих слов действий:
+- The naming of the components is suggested using the following action words:
 
-    - `list` для списка 
-    - `showing` для просмотра
-    - `editing` для редактирования
-    - `creating` для создания
+    - `list` for list 
+    - `showing` for browsing
+    - `editing` for editing
+    - `creating` to create
     
     **Пример**
     ```bash
-    Именования компонентов:
+    Component naming:
     
     UserListComponent
     UserShowingComponent
@@ -241,11 +240,11 @@ ng e2e --port 4201
     UserCreatingComponent
     ```
 
-- Для каждого роута, который защищен у нас AccessGuard, мы должны определить routerId. 
-  Данный параметр должен соответствовать полю route_id в БД.  
-  Для общности названия routeId предлагается система именования. Имя роута состоит из
-   названия сущности и действия разделенные символом точки `.`. Слова, обозначающие действие, 
-   используем такие же, как для наименования компонентов.
+- For each router that is protected by AccessGuard, we must define a routerId. 
+  This parameter must match the route_id field in the database.  
+  A naming system is suggested for the generality of the routeId name. The router name consists of
+   entity name and action separated by a dot character `.`. The words denoting the action, 
+   we use the same as for naming components.
 
     **Пример**
     ```js
@@ -256,7 +255,7 @@ ng e2e --port 4201
     ]},
     ```
     
-- Если имя роута состоит из нескольких слов, то разделяем слова символом ``-``
+- If the name of the root consists of several words, then we separate the words with the symbol ``-``
 
     **Пример**
     ```js
