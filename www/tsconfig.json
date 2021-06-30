@@ -20,7 +20,7 @@
       "dom"
     ],
     "paths": {
-      "uxg": ["dist/uxg"]
+      "uxg": ["projects/uxg/src/public-api.ts"]
     }
   }
 }
