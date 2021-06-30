@@ -1,0 +1,41 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <ng-container *ngIf="!user.isCustomer(); else customerView">
+    <uxg-dropdown
+      lg
+      class="reason-select"
+      formControlName="reason"
+      placeholder="Выберите причину отмены позиции">
+      <div uxgDropdownItem *ngFor="let reason of positionCancelReason" [value]="reason[0]">
+        {{ reason[1] }}
+      </div>
+    </uxg-dropdown>
+
+    <ng-container *ngIf="form.get('reason').value === 'OTHER'">
+      <div class="app-row">
+      <textarea class="comments"
+                uxgInput
+                formControlName="comment"
+                placeholder="Введите причину отмены позиции">
+      </textarea>
+      </div>
+    </ng-container>
+
+    <br>
+
+    <app-document-upload-list
+      (fileSelected)="form.get('documents').setValue($event.files)"
+      [documents]="form.get('documents').value">
+    </app-document-upload-list>
+
+  </ng-container>
+  <ng-template #customerView>
+    <p>Вы уверены, что хотите отменить позиции?</p>
+  </ng-template>
+
+  <div class="app-row app-justify-content-end actions">
+    <button type="button" uxgButton secondary lg (click)="close.emit($event); form.reset()">Отмена</button>
+    <button uxgButton primary lg [disabled]="form.invalid">
+      Отменить
+    </button>
+  </div>
+</form>

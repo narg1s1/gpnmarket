@@ -1,0 +1,96 @@
+$border-radius: 18px;
+
+.app-col {
+  padding: 0;
+  position: relative;
+}
+
+.btn-categories {
+  padding: 0 10px;
+  margin: 0 32px 0 0;
+  min-width: 95px;
+}
+
+.input-search {
+  border: 1px solid #D5DDE2;
+  padding: 10px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.btn-reset {
+  position: absolute;
+  color: black;
+  right: 58px;
+  top: 0;
+  margin: 0;
+  height: 32px;
+  min-width: unset;
+}
+
+.btn-search {
+  height: 32px;
+  min-width: 32px;
+  margin: 0 0 0 12px;
+  padding: 0;
+}
+
+.new-request {
+  font-size: 14px;
+  padding-left: 20px;
+}
+
+.search-bar {
+  background-color: #E5E8EF;
+  flex: 0 0 56px;
+  position: sticky;
+  top: 64px;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+}
+
+.search {
+  position: relative;
+  display: inline-flex;
+  padding: 0;
+  padding-right: 7px;
+}
+
+.btn-primary {
+  .btn, &.btn {
+    background-color: #2585F5;
+    color: white;
+    padding: 0;
+
+    &:disabled {
+      border-color: white;
+      background-color: white;
+      color: black;
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.search-dropdown {
+  position: absolute;
+  z-index: 100;
+  height: auto;
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #d7d7d7;
+  background: white;
+  top: 31px;
+  border-radius: 3px;
+  width: 617.5px; /* todo временное решение */
+}
+
+.search-item {
+  padding: 0 15px;
+}
+
+.search-item:hover {
+  background-color: #D4D9E2;
+  cursor: pointer;
+}

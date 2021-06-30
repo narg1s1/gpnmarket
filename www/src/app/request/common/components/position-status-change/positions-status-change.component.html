@@ -1,0 +1,16 @@
+<div class="app-section">
+  Вы можете изменить статус нескольких позиций сразу, если все позиции находятся
+  в одном статусе. В селекте показаны только доступные для смены статусы.
+</div>
+
+<div class="app-col status">
+  <div class="app-position-status-icon" [ngClass]="newStatus"></div>
+  <uxg-dropdown
+    lg
+    class="status-select"
+    [(ngModel)]="newStatus"
+    [placeholder]="getStatusLabel(newStatus)"
+    [disabled]="statuses.length === 0">
+    <div uxgDropdownItem *ngFor="let status of statuses" [value]="status[0]">{{ status[1] }}</div>
+  </uxg-dropdown>
+</div>

@@ -1,0 +1,25 @@
+@import "../uxg";
+
+@mixin accordion($theme) {
+.app-accordion {
+  &-title {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    font-size: uxg($theme, font-size-l);
+    font-weight: bold;
+
+    :first-child {
+      flex-grow: 1;
+    }
+
+    &-icon {
+      transition: transform 250ms;
+    }
+  }
+
+  &-body {
+    margin-top: .9em;
+  }
+}
+}

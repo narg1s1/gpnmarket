@@ -1,0 +1,382 @@
+<div (click)="view === 'popup' ? markNotificationAsRead() : null"
+     [ngSwitch]="notification?.body?.type" class="notification-card"
+     [class]="view"
+     [ngClass]="{ 'not_seen': notification?.status === 'STATUS_SENT', 'auto_height': notification?.body?.type === 'REQUEST_CREATION_ERROR' }">
+
+  <div class="notification-link" [routerLink]="getLink(notification)?.pathname" [queryParams]="getLink(notification)?.queryParams" queryParamsHandling="merge">
+    <ng-container *ngIf="view === 'popup'">
+      <button uxgButton icon clear class="btn-close-popup app-secondary-color" (click)="onHideNotification($event, notification)">
+        <uxg-icon shape="app-cross" size="14"></uxg-icon>
+      </button>
+    </ng-container>
+
+    <!-- Назначение младшего БО как ответственного по позициям -->
+    <ng-container *ngSwitchCase="'REQUEST_POSITION_CHANGE_RESPONSIBLE_USER'">
+      <div class="app-row notification-card-header app-primary-color" [ngClass]="'status-' + notification?.body?.type + '-badge'">
+        <b class="app-col">Вы назначены исполнителем по позициям заявки</b>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis" title="№ {{ notification?.body?.requestNumber || notification?.body?.rows[0]?.requestNumber }} | {{ notification?.body?.requestName }}">
+          № {{ notification?.body?.requestNumber || notification?.body?.rows[0]?.requestNumber }} | {{ notification?.body?.requestName }}
+        </div>
+      </div>
+
+      <div class="app-row position-item" *ngFor="let position of notification?.body?.requestPositions?.slice(0,2)">
+        <div class="app-col app-secondary-color app-ellipsis"> {{position.name}} {{position.quantity}} {{position.measureUnit}} </div>
+      </div>
+    </ng-container>
+
+    <!-- Назначение младшего БО как ответственного по заявке -->
+    <ng-container *ngSwitchCase="'REQUEST_CHANGE_RESPONSIBLE_USER'">
+      <div class="app-row notification-card-header app-primary-color" [ngClass]="'status-' + notification?.body?.type + '-badge'">
+        <b class="app-col">Вы назначены исполнителем по заявке</b>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis" title="№ {{ notification?.body?.requestNumber || notification?.body?.rows[0]?.requestNumber }} | {{ notification?.body?.requestName }}">
+          № {{ notification?.body?.requestNumber || notification?.body?.rows[0]?.requestNumber }} | {{ notification?.body?.requestName }}
+        </div>
+      </div>
+
+      <div class="app-row position-item" *ngFor="let position of notification?.body?.requestPositions?.slice(0,2)">
+        <div class="app-col app-secondary-color app-ellipsis"> {{position.name}} {{position.quantity}} {{position.measureUnit}} </div>
+      </div>
+    </ng-container>
+
+    <!-- Новая заявка -->
+    <ng-container *ngSwitchCase="'NEW_REQUEST'">
+      <div class="app-row notification-card-header app-primary-color" [ngClass]="'status-' + notification?.body?.type + '-badge'">
+        <b class="app-col">Поступила новая заявка</b>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis" title="№ {{ notification?.body?.requestNumber || notification?.body?.rows[0]?.requestNumber }} | {{ notification?.body?.requestName }}">
+          № {{ notification?.body?.requestNumber || notification?.body?.rows[0]?.requestNumber }} | {{ notification?.body?.requestName }}
+        </div>
+      </div>
+
+      <div class="app-row">
+        <div class="app-col app-secondary-color app-ellipsis"> {{ notification?.body?.contragentName }} </div>
+      </div>
+    </ng-container>
+
+    <!-- Новая позиция в заявке -->
+    <ng-container *ngSwitchCase="'NEW_REQUEST_POSITION'">
+      <div class="app-row notification-card-header app-primary-color" [ngClass]="'status-' + notification?.body?.type + '-badge'">
+        <b class="app-col">Добавлена новая позиция в заявку</b>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis"  title="№ {{notification?.body?.requestNumber}} | {{notification?.body?.requestName}}">
+          № {{notification?.body?.requestNumber}} | {{notification?.body?.requestName}}
+        </div>
+      </div>
+
+      <div class="app-row">
+        <div class="app-col app-secondary-color app-ellipsis"> {{notification?.body?.items[0]?.requestPositionName}} </div>
+      </div>
+    </ng-container>
+
+    <!-- Отредактирована позиция -->
+    <ng-container *ngSwitchCase="'REQUEST_POSITION_EDIT'">
+      <div class="app-row notification-card-header app-primary-color" [ngClass]="'status-' + notification?.body?.type + '-badge'">
+        <b class="app-col">Подтвердите редактирование позиции</b>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis"  title="№ {{notification?.body?.requestNumber}} | {{notification?.body?.requestName}}">
+          № {{notification?.body?.requestNumber}} | {{notification?.body?.requestName}}
+        </div>
+      </div>
+
+      <div class="app-row position-item" *ngFor="let position of notification?.body?.requestPositions?.slice(0,2)">
+        <div class="app-col app-secondary-color app-ellipsis"> {{position.name}} {{position.quantity}} {{position.measureUnit}} </div>
+      </div>
+    </ng-container>
+
+    <!-- Согласовано добавление/редактирование новых позиций -->
+    <ng-container *ngSwitchCase="'REQUEST_POSITION_APPROVE'">
+      <div class="app-row notification-card-header app-primary-color" [ngClass]="'status-' + notification?.body?.type + '-badge'">
+        <b class="app-col">{{ notification?.title }}</b>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis" title="№ {{notification?.body?.requestNumber}} | {{notification?.body?.requestName}}">
+          № {{notification?.body?.requestNumber}} | {{notification?.body?.requestName}}
+        </div>
+      </div>
+
+      <div class="app-row position-item" *ngFor="let position of notification?.body?.requestPositions?.slice(0,2)">
+        <div class="app-col app-secondary-color app-ellipsis"> {{position.name}} {{position.quantity}} {{position.measureUnit}} </div>
+      </div>
+    </ng-container>
+
+    <!-- Изменение статуса заявки -->
+    <ng-container *ngSwitchCase="'REQUEST_CHANGE_STATUS'">
+      <div class="app-row notification-card-header app-primary-color"
+           [ngSwitch]="notification?.body?.requestStatus" [ngClass]="'status-' + notification?.body?.type + '-badge'">
+        <ng-container *ngSwitchCase="'NEW'">
+          <b class="app-col">Заявка принята в работу</b>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'COMPLETED'">
+          <b class="app-col">По заявке заказ выполнен</b>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'ON_CUSTOMER_APPROVAL'">
+          <b class="app-col">Подтвердите создание позиций в заявке</b>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'NOT_RELEVANT'">
+          <b class="app-col">Заявка отменена</b>
+        </ng-container>
+
+        <ng-container *ngSwitchDefault>
+          <b class="app-col">{{ notification?.title }}</b>
+        </ng-container>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis" title="№ {{ notification?.body?.requestNumber }} | {{ notification?.body?.requestName }}">
+          № {{ notification?.body?.requestNumber }} | {{ notification?.body?.requestName }}
+        </div>
+      </div>
+
+      <div class="app-row position-item" *ngFor="let position of notification?.body?.items.slice(0,2)">
+        <div class="app-col app-secondary-color app-ellipsis"> {{ position.requestPositionName }} </div>
+      </div>
+    </ng-container>
+
+    <!-- Изменение статуса позиции -->
+    <ng-container *ngSwitchCase="'REQUEST_POSITION_CHANGE_STATUS'">
+      <div *ngFor="let row of notification?.body?.rows.slice(0,1)">
+        <div class="app-row notification-card-header app-primary-color" [ngClass]="'status-' + row.items[0].requestPositionStatus + '-badge'">
+          <b class="app-col">{{ getNotificationHeaderTitle(row.items[0]) }}</b>
+        </div>
+
+        <div class="app-row notification-card-request app-secondary-color app-ellipsis">
+          <div class="app-col app-ellipsis"  title="№ {{ row.requestNumber }} | {{ row.requestName }}">
+            № {{ row.requestNumber }} | {{ row.requestName }}
+          </div>
+        </div>
+
+        <div class="app-row">
+          <div class="app-col app-secondary-color app-ellipsis"> {{ row.items[0]?.requestPositionName }} </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Согласование/отклонение/отправка на доработку позиций ТП -->
+    <ng-container *ngSwitchCase="'REQUEST_TP_POSITION_CHANGE_STATUS'">
+      <div class="app-row notification-card-header app-primary-color"
+           [ngSwitch]="notification?.body?.requestTpPositionStatus"
+           [ngClass]="notification?.body?.requestPositions && 'status-' + notification?.body?.requestPositions[0]?.status + '-badge'">
+        <ng-container *ngSwitchCase="'ACCEPTED'">
+          <b class="app-col">Согласованы позиции технического предложения</b>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'SENT_TO_EDIT'">
+          <b class="app-col">Отправлены на доработку позиции технического предложения</b>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'DECLINED'">
+          <b class="app-col">Отклонены позиции технического предложения</b>
+        </ng-container>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis" title="{{ notification?.body?.requestName }}">
+          № {{ notification?.body?.requestNumber }} | {{ notification?.body?.requestName }}
+        </div>
+      </div>
+
+      <div class="app-row position-item" *ngFor="let position of notification?.body?.requestPositions?.slice(0,2)">
+        <div class="app-col app-secondary-color app-ellipsis"> {{ position.name }} </div>
+      </div>
+    </ng-container>
+
+    <!-- Согласование/отклонение/отправка на доработку позиций ТКП -->
+    <ng-container *ngSwitchCase="'REQUEST_TCP_POSITION_CHANGE_STATUS'">
+      <div class="app-row notification-card-header app-primary-color"
+           [ngSwitch]="notification?.body?.requestTcpPositionStatus"
+           [ngClass]="notification?.body?.requestPositions && 'status-' + notification?.body?.requestPositions[0]?.status + '-badge'">
+        <ng-container *ngSwitchCase="'SENT_TO_EDIT'">
+          <b class="app-col">Отправлены на доработку позиции технико-коммерч. предложения</b>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'SENT_TO_REVIEW'">
+          <b class="app-col">Подготовлены технико-коммерческие предложения по позициям:</b>
+        </ng-container>
+
+        <ng-container *ngSwitchDefault>
+          <b class="app-col">Позиции были отправлены на доработку.</b>
+        </ng-container>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color" *ngIf="notification?.body?.requestNumber || notification?.body?.requestName; else procedureAndGroupNumber">
+        <div class="app-col app-ellipsis" title="{{ notification?.body?.requestName }}">
+          № {{ notification?.body?.requestNumber }} | {{ notification?.body?.requestName }}
+        </div>
+      </div>
+
+      <ng-template #procedureAndGroupNumber>
+        <div class="app-row notification-card-request app-secondary-color" *ngIf="notification?.body?.groupName || notification?.body?.procedureNumber">
+          <div class="app-col app-ellipsis" title="{{ notification?.body?.groupName }}">
+            № процедуры: {{ notification?.body?.procedureNumber }} | Группа: {{ notification?.body?.groupName }}
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="app-row position-item" *ngFor="let position of notification?.body?.requestPositions?.slice(0,2)">
+        <div class="app-col app-secondary-color app-ellipsis"> {{ position.name }} </div>
+      </div>
+
+      <div class="app-row position-item" *ngIf="notification?.body?.comment">
+        Комментарий: &nbsp; <div class="app-col">{{notification?.body?.comment}}</div>
+      </div>
+    </ng-container>
+
+    <!-- Отправка на доработку позиций КП -->
+    <ng-container *ngSwitchCase="'REQUEST_OFFER_POSITION_CHANGE_STATUS'">
+      <div class="app-row notification-card-header app-primary-color"
+           [ngSwitch]="notification?.body?.requestOfferPositionStatus"
+           [ngClass]="notification?.body?.requestPositions && 'status-' + notification?.body?.requestPositions[0]?.status + '-badge'">
+        <ng-container *ngSwitchCase="'SENT_TO_EDIT'">
+          <b class="app-col">Отправлены на доработку позиции коммерческого предложения</b>
+        </ng-container>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis" title="{{ notification?.body?.requestName }}">
+          № {{ notification?.body?.requestNumber }} | {{ notification?.body?.requestName }}
+        </div>
+      </div>
+
+      <div class="app-row position-item" *ngFor="let position of notification?.body?.requestPositions?.slice(0,2)">
+        <div class="app-col app-secondary-color app-ellipsis"> {{ position.name }} </div>
+      </div>
+    </ng-container>
+
+    <!-- Уведомления по Договору -->
+    <ng-container *ngSwitchCase="'REQUEST_CONTRACT_CHANGE_STATUS'">
+      <div class="app-row notification-card-header app-primary-color"
+           [ngSwitch]="notification?.body?.requestContractStatus"
+           [ngClass]="'status-' + notification?.body?.type + '-badge'">
+
+        <ng-container *ngSwitchCase="'ON_APPROVAL'">
+          <b class="app-col">Согласование договора по позициям заявки</b>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'APPROVED'">
+          <b class="app-col">Договор по позициям заявки согласован и ожидает подписания</b>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'REJECTED'">
+          <b class="app-col">Договор по позициям заявки требует доработки</b>
+        </ng-container>
+
+        <ng-container *ngSwitchDefault>
+          <b class="app-col">{{ notification?.title }}</b>
+        </ng-container>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis" title="{{ notification?.body?.requestName }}">
+          № {{ notification?.body?.requestNumber }} | {{ notification?.body?.requestName }}
+        </div>
+      </div>
+
+      <div class="app-row position-item" *ngFor="let position of notification?.body?.requestPositions?.slice(0,2)">
+        <div class="app-col app-secondary-color app-ellipsis"> {{ position.name }} </div>
+      </div>
+    </ng-container>
+
+    <!-- Сформирован Excel c позициями -->
+    <ng-container *ngSwitchCase="'NEW_REGISTRY_EXCEL'">
+      <div class="app-row notification-card-header app-primary-color">
+        <b class="app-col">{{ notification?.title }}</b>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col">
+          Документ сформирован. <br> Вы можете загрузить его, перейдя по
+          <a class="app-link" [style.text-decoration]="'underline'" [href]="notification?.body?.registryExcelUrl" target="_blank">ссылке</a>.
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Создана процедура -->
+    <ng-container *ngSwitchCase="'NEW_PROCEDURE'">
+      <div class="app-row notification-card-header app-primary-color">
+        <b class="app-col">{{ notification?.title }}</b>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col">
+          Вы можете перейти к созданной процедуре по
+          <a class="app-link" [style.text-decoration]="'underline'" [href]="notification?.body?.newProcedureUrl" target="_blank">ссылке</a>.
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Возникли ошибки при загрузке позиций из шаблона -->
+    <ng-container *ngSwitchCase="'REQUEST_CREATION_ERROR'">
+      <div class="app-row notification-card-header app-primary-color">
+        <b class="app-col">{{ notification?.title }}</b>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis" title="{{ notification?.body?.requestName }}">
+          № {{ notification?.body?.requestNumber }} | {{ notification?.body?.requestName }}
+        </div>
+      </div>
+
+      <div class="app-row">
+        <div class="app-col app-secondary-color">
+          Ссылка для перехода в заявку:
+          <a class="app-link" [style.text-decoration]="'underline'" [href]="notification?.body?.url" target="_blank">Заявка</a>.
+        </div>
+      </div>
+
+      <div class="app-row" *ngIf="notification?.body?.errorText">
+        <div class="app-col app-secondary-color">
+          Причина: "{{notification?.body?.errorText}}"
+        </div>
+      </div>
+
+      <div class="app-row" *ngIf="notification?.body?.excelDocumentsWithErrorsUrl?.length">
+        <div class="app-col app-secondary-color">
+          Найдены ошибки в шаблонах, подробности в файлах:
+
+          <ul [style.list-style-type]="'none'">
+            <li *ngFor="let doc of notification?.body?.excelDocumentsWithErrorsUrl; let index = index">
+              <a [style.text-decoration]="'underline'" target="_blank" [href]="doc.webUrl">Файл {{ index + 1 }}</a>
+            </li>
+          </ul>
+
+          <br>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Отображение старых уведомлений без поля type -->
+    <ng-container *ngSwitchDefault>
+      <div class="app-row notification-card-header app-primary-color">
+        <b class="app-col">{{ notification?.title }}</b>
+      </div>
+
+      <div class="app-row notification-card-request app-secondary-color">
+        <div class="app-col app-ellipsis" title="{{ notification?.body?.requestName }}">
+          № {{ notification?.body?.requestNumber }} | {{ notification?.body?.requestName }}
+        </div>
+      </div>
+    </ng-container>
+
+    <div class="app-col"></div>
+
+    <div class="app-row notification-card-footer">
+      <div class="app-col date app-ghost-color">{{ formatDate(notification?.created_at) }}</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+@import "../../../../../../../theme";
+
+.parameters {
+  max-height: calc(70vh - 180px);
+  overflow-y: scroll;
+  padding-right: 6px;
+  margin-right: -22px;
+  padding-top: 10px;
+  @include scrollbar($theme);
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.app-col:not(:first-child) {
+  padding-left: 20px;
+  max-width: 160px;
+}
+
+.divider {
+  margin: 0;
+}
+
+.paymentTerms {
+  margin: 0 -30px 24px;
+  padding: 20px 30px;
+  background: #F4F6FB;
+}
+
+.input-label {
+  color: #666666;
+  cursor: default;
+  height: 18px;
+  display: table;
+  font-size: 11px;
+  line-height: 18px;
+  padding-top: 3px;
+  position: absolute;
+  transform: translateY(-100%);
+}

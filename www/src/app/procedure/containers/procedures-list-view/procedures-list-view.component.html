@@ -1,0 +1,301 @@
+<ng-container uxgFilter>
+
+  <uxg-tabs class="app-col">
+    <uxg-tab-title
+      #tab1="routerLinkActive"
+      [active]="tab1.isActive"
+      routerLinkActive
+      [routerLink]="'/procedures'"
+      [routerLinkActiveOptions]="{exact: true}"
+      [queryParamsHandling]="'preserve'">Процедуры ({{ (proceduresTotalCount$ | async) }})</uxg-tab-title>
+    <uxg-tab-title
+      #tab2="routerLinkActive"
+      [active]="tab2.isActive"
+      routerLinkActive
+      [routerLink]="'/procedures/requests'"
+      [routerLinkActiveOptions]="{exact: true}">Запросы от поставщиков
+      <span class="app-tabs-item-count" *ngIf="newRequestsCount">{{newRequestsCount}}</span>
+    </uxg-tab-title>
+  </uxg-tabs>
+
+  <br>
+
+  <div *ngIf="tab1.isActive">
+    <div class="app-row">
+      <div class="app-col"></div>
+      <div class="app-col-auto filter-button">
+        <uxg-filter-button></uxg-filter-button>
+      </div>
+    </div>
+
+    <div class="app-row">
+      <div class="app-col table-col">
+        <app-procedures-list
+          #proceduresListComponent
+          [procedures]="proceduresList$ | async"
+          [view]="'full-list'"
+          [status]="status$ | async"
+          [filterForm]="filterForm"
+          (importProcedureOffers)="selectedProcedure = $event; importProcedureOffersModal.open()"
+          (procedureBargain)="prepareProcedureBargainModal($event)"
+          (cancelProcedure)="selectedProcedure = $event; cancelProcedureModal.open()"
+        ></app-procedures-list>
+        <br>
+        <app-pagination [total]="proceduresTotalCount$ | async" [pageSize]="pageSize" [pages$]="pages$" (change)="fetchFilters$.next({page: $event})"></app-pagination>
+      </div>
+      <uxg-filter [formGroup]="filterForm" (filter)="fetchFilters$.next({filters: $event})">
+        <uxg-filter-section label="Номер процедуры" *ngIf="filterForm.get('procedureId')">
+          <input uxgInput type="text" formControlName="procedureId" placeholder="Номер процедуры" />
+        </uxg-filter-section>
+
+        <uxg-filter-section label="Наименование процедуры" *ngIf="filterForm.get('procedureTitle')">
+          <input uxgInput type="text" formControlName="procedureTitle" placeholder="Наименование процедуры" />
+        </uxg-filter-section>
+
+        <uxg-filter-section label="ОКПД2" *ngIf="filterForm.get('okpd2')">
+          <uxg-dropdown-input
+            appSuggestions
+            formControlName="okpd2"
+            placeholder="OКПД2"
+            [$]="availableOkpd2List$"
+            [searchFn]="searchOkpd2"
+            #okpd2="appSuggestions"
+            [appControlWrap]="false"
+            [displayByFn]="getOkpd2Name">
+            <ng-container *ngFor="let suggestion of okpd2.suggestions$ | async">
+              <div uxgDropdownItem [value]="suggestion.code" [attr.title]="suggestion.name">
+                <b>{{suggestion.code}}</b>&nbsp;{{ suggestion.name }}
+              </div>
+            </ng-container>
+          </uxg-dropdown-input>
+        </uxg-filter-section>
+
+        <uxg-filter-section label="Кем создана процедура" *ngIf="filterForm.get('users')">
+          <uxg-filter-checkbox-list
+            formControlName="users"
+            searchPlaceholder="Автор процедуры"
+            [foldedSearch]="false"
+            [items$]="usersFilter$"
+            [limit]="5"
+            (search)="usersSearch$.next($event)">
+          </uxg-filter-checkbox-list>
+        </uxg-filter-section>
+
+        <uxg-filter-section label="Заказчик" *ngIf="filterForm.get('customersIds')">
+          <uxg-filter-checkbox-list
+            formControlName="customersIds"
+            searchPlaceholder="Наименование контрагента или ИНН/КПП"
+            [foldedSearch]="false"
+            [items$]="contragentsFilter$"
+            [limit]="5"
+            (search)="contragentsSearch$.next($event)">
+          </uxg-filter-checkbox-list>
+        </uxg-filter-section>
+
+        <uxg-filter-section label="Тип процедуры" *ngIf="filterForm.get('purchaseForm')">
+          <p class="app-row app-align-items-center">
+            <uxg-radio-item class="app-control" #purchaseForm1 value="any" formControlName="purchaseForm"></uxg-radio-item>
+            <label (click)="purchaseForm1.select($event)">&nbsp; Любая</label>
+          </p>
+          <p class="app-row app-align-items-center">
+            <uxg-radio-item class="app-control" #purchaseForm2 value="opened" formControlName="purchaseForm"></uxg-radio-item>
+            <label (click)="purchaseForm2.select($event)">&nbsp; Открытая</label>
+          </p>
+          <p class="app-row app-align-items-center">
+            <uxg-radio-item class="app-control" #purchaseForm3 value="closed" formControlName="purchaseForm"></uxg-radio-item>
+            <label (click)="purchaseForm3.select($event)">&nbsp; Закрытая</label>
+          </p>
+        </uxg-filter-section>
+
+        <uxg-filter-section label="Уторговывание" *ngIf="filterForm.get('isRetrade')">
+          <div class="app-row app-align-items-center">
+            <label class="app-col" (click)="retradeRef.switch($event)">Уторговывание</label>
+            <uxg-switcher class="app-col-auto" #retradeRef formControlName="isRetrade"></uxg-switcher>
+          </div>
+        </uxg-filter-section>
+
+        <uxg-filter-section label="Статус процедуры" *ngIf="filterForm.get('statuses')">
+          <uxg-filter-checkbox-list
+            formControlName="statuses"
+            searchPlaceholder="Статус процедуры"
+            [foldedSearch]="true"
+            [items$]="availableStatusesList$"
+            [limit]="5">
+          </uxg-filter-checkbox-list>
+        </uxg-filter-section>
+
+        <uxg-filter-section label="Дата публикации" *ngIf="filterForm.get('datePublishedFrom') && filterForm.get('datePublishedTo')">
+          <div class="app-row">
+            <div class="app-col" [style.padding-right.px]="15">
+              <div class="app-control-wrap" [style.padding]="0">
+                <input #datePublishedFrom uxgInput uxgDatepicker placeholder="Дата с" class="delivery-date" formControlName="datePublishedFrom">
+                <label class="app-control-icon" (click)="datePublishedFrom.focus()">
+                  <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+                </label>
+              </div>
+            </div>
+
+            <div class="app-col">
+              <div class="app-control-wrap" [style.padding]="0">
+                <input #datePublishedTo uxgInput uxgDatepicker placeholder="Дата по" class="delivery-date" formControlName="datePublishedTo">
+                <label class="app-control-icon" (click)="datePublishedTo.focus()">
+                  <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+                </label>
+              </div>
+            </div>
+          </div>
+        </uxg-filter-section>
+
+        <uxg-filter-section label="Окончание приема заявок" *ngIf="filterForm.get('dateEndRegistrationFrom') && filterForm.get('dateEndRegistrationTo')">
+          <div class="app-row">
+            <div class="app-col" [style.padding-right.px]="15">
+              <div class="app-control-wrap" [style.padding]="0">
+                <input #dateEndRegistrationFrom uxgInput uxgDatepicker placeholder="Дата с" class="delivery-date" formControlName="dateEndRegistrationFrom">
+                <label class="app-control-icon" (click)="dateEndRegistrationFrom.focus()">
+                  <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+                </label>
+              </div>
+            </div>
+
+            <div class="app-col">
+              <div class="app-control-wrap" [style.padding]="0">
+                <input #dateEndRegistrationTo uxgInput uxgDatepicker placeholder="Дата по" class="delivery-date" formControlName="dateEndRegistrationTo">
+                <label class="app-control-icon" (click)="dateEndRegistrationTo.focus()">
+                  <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+                </label>
+              </div>
+            </div>
+          </div>
+        </uxg-filter-section>
+
+        <uxg-filter-section label="Дата подведения итогов" *ngIf="filterForm.get('dateSummingUpFrom') && filterForm.get('dateSummingUpTo')">
+          <div class="app-row">
+            <div class="app-col" [style.padding-right.px]="15">
+              <div class="app-control-wrap" [style.padding]="0">
+                <input #dateSummingUpFrom uxgInput uxgDatepicker placeholder="Дата с" class="delivery-date" formControlName="dateSummingUpFrom">
+                <label class="app-control-icon" (click)="dateSummingUpFrom.focus()">
+                  <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+                </label>
+              </div>
+            </div>
+
+            <div class="app-col">
+              <div class="app-control-wrap" [style.padding]="0">
+                <input #dateSummingUpTo uxgInput uxgDatepicker placeholder="Дата по" class="delivery-date" formControlName="dateSummingUpTo">
+                <label class="app-control-icon" (click)="dateSummingUpTo.focus()">
+                  <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+                </label>
+              </div>
+            </div>
+          </div>
+        </uxg-filter-section>
+
+      </uxg-filter>
+    </div>
+  </div>
+
+  <div *ngIf="tab2.isActive">
+    <div class="app-row">
+      <div class="app-col">
+        <app-requests-from-suppliers
+          [requestsFiltersSubject$]="requestsFiltersSubject$"
+          (requestsRecieved)="onRequestsRecieved($event)"></app-requests-from-suppliers>
+      </div>
+      <uxg-filter [formGroup]="requestsFilterForm" (filter)="requestsFiltersSubject$.next({filters: $event})">
+        <uxg-filter-section label="Наименование процедуры">
+          <input uxgInput type="text" formControlName="procedureTitle" placeholder="Наименование процедуры" />
+        </uxg-filter-section>
+      </uxg-filter>
+    </div>
+  </div>
+</ng-container>
+
+
+<!-- Подтверждение вскрытия заявок -->
+<uxg-modal #importProcedureOffersModal size="s">
+  <ng-container *ngIf="selectedProcedure && importProcedureOffersModal.state">
+    <h2 class="modal-title"><b>Подтвердите вскрытие заявок</b></h2>
+
+    <div class="app-section">Вы уверены, что хотите вскрыть заявки?</div>
+
+    <ng-template uxgModalFooter>
+      <div class="app-row app-align-items-center">
+        <div *ngIf="loading || (status$ | async) === 'fetching'"><span class="spinner spinner-inline"></span></div>
+        <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+        <button type="button" uxgButton primary lg
+                [disabled]="loading || (status$ | async) === 'fetching'"
+                (click)="importProcedureOffers(selectedProcedure.id)">
+          Подтвердить
+        </button>
+      </div>
+    </ng-template>
+  </ng-container>
+</uxg-modal>
+
+<!-- Уторговывание процедуры -->
+<uxg-modal #procedureBargainModal size="l">
+  <ng-container *ngIf="selectedProcedure && procedureBargainModal.state">
+    <h2>Уторговывание процедуры №{{ selectedProcedure?.number}}</h2>
+
+    <app-request-procedure-form
+      [request]="(request$ | async)"
+      [action]="'bargain'"
+      [procedure]="selectedProcedure"
+      [procedureSource]="selectedProcedure?.source"
+      (cancel)="selectedProcedure = null"
+      (complete)="refreshProcedures(); selectedProcedure = null; procedureBargainModal.close()"
+    ></app-request-procedure-form>
+  </ng-container>
+</uxg-modal>
+
+
+<!-- Подтверждение отмены процедуры -->
+<uxg-modal #cancelProcedureModal size="s">
+  <ng-container *ngIf="selectedProcedure && cancelProcedureModal.state">
+    <form [formGroup]="cancelProcedureForm">
+      <h2 class="modal-title"><b>Подтвердите отмену процедуры</b></h2>
+
+      <div class="app-section">Вы уверены, что хотите отменить процедуру? Укажите причину:</div>
+
+      <br>
+
+      <div class="app-row">
+        <uxg-dropdown
+          lg
+          [required]="true"
+          [style.width.%]="100"
+          formControlName="initiatorRole"
+          placeholder="Выберите причину отмены процедуры">
+          <div
+            uxgDropdownItem
+            *ngFor="let reason of procedureCancelReasons"
+            [value]="reason[0]">
+            {{ reason[1] }}
+          </div>
+        </uxg-dropdown>
+      </div>
+
+      <br>
+
+      <div class="app-row">
+        <textarea
+          [style.height.px]="70"
+          [required]="true"
+          uxgInput
+          formControlName="comment"
+          placeholder="Добавьте комментарий (обязательно)">
+        </textarea>
+      </div>
+
+      <ng-template uxgModalFooter>
+        <div class="app-row app-align-items-center">
+          <div *ngIf="loading || (status$ | async) === 'fetching'"><span class="spinner spinner-inline"></span></div>
+          <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+          <button type="button" uxgButton primary lg
+                  [disabled]="loading || (status$ | async) === 'fetching' || cancelProcedureForm.invalid"
+                  (click)="cancelProcedure()">Подтвердить</button>
+        </div>
+      </ng-template>
+    </form>
+  </ng-container>
+</uxg-modal>

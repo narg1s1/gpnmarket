@@ -1,0 +1,30 @@
+<div class="app-card" >
+  <h1>Suggest</h1>
+    <uxg-dropdown-input #ac [(ngModel)]="suggest" placeholder="Наименование МТР" [lg]="true" (focus)="ac.toggle(true)">
+      <div class="app-dropdown-items-header app-ghost-color">ТИП ЖИЛЫ</div>
+      <div uxgDropdownItem value="A">А <span class="app-ghost-color">— алюминиевая жила, если буквы нет — жила медная</span></div>
+      <div uxgDropdownItem value="wqd@wqd">АС <span class="app-ghost-color">— алюминиевая жила и свинцовая оболочка</span></div>
+      <div uxgDropdownItem value="Обязательное">АА <span class="app-ghost-color">— алюминиевая жила и свинцовая оболочка</span></div>
+      <br/>
+      <div class="app-dropdown-items-header app-ghost-color">ЧАСТО ЗАКУПАЛОСЬ</div>
+      <div uxgDropdownItem>Кабель КВВГнг(А)-FRLS 4х1,5</div>
+      <div uxgDropdownItem>Кабель ВВГнг(А) 1х35мк-0,66</div>
+      <div uxgDropdownItem>Кабель ВВГнг(А) 1х35мк-0,66</div>
+      <div uxgDropdownItem>Кабель КВВГнг(А) 14х1,5</div>
+      <div uxgDropdownItem>Кабель ВБШвнг(А)-ХЛ 2х6ок-0,66</div>
+    </uxg-dropdown-input>
+  <br/>
+  <uxg-code language="html">{{example2}}</uxg-code>
+</div>
+
+<div class="app-card">
+  <h1>Dropdown</h1>
+  <uxg-dropdown class="app-dropdown" placeholder="Drop me down...">
+    <div uxgDropdownItem>Option 1</div>
+    <div uxgDropdownItem value="string">Option with string value</div>
+    <div uxgDropdownItem [value]="12">Option int value</div>
+    <div uxgDropdownItem disabled>Disabled option</div>
+  </uxg-dropdown>
+  <br/>
+  <uxg-code language="html">{{example}}</uxg-code>
+</div>

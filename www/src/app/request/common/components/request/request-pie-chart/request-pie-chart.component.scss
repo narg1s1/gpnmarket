@@ -1,0 +1,27 @@
+h6 {
+  margin: 10px 0;
+}
+
+.pie-chart {
+  position: relative;
+  display: block;
+
+  &:after {
+    content: "";
+    top:0;
+    left: 0;
+    position: absolute;
+    width: calc(100% - 40px);
+    height: calc(100% - 40px);
+    border-radius: 50%;
+    background-color: white;
+    margin: 20px;
+  }
+
+  canvas { display: block; }
+}
+
+.percent {
+  width: 40px;
+  font-weight: 500;
+}

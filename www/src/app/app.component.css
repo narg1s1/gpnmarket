@@ -1,0 +1,25 @@
+.breadcrumbs {
+  margin: 10px 0 30px;
+}
+
+.file-link {
+  height: 28px;
+  display: inline-block;
+  line-height: 28px;
+  vertical-align: top;
+  margin-left: 10px;
+}
+
+.app-header.no-stick {
+  position: static;
+}
+
+.separator {
+  border-left: 1px #D5DDE2 solid;
+  height: 32px;
+  margin: 0 24px;
+}
+
+.isource img {
+  width: 132px;
+}

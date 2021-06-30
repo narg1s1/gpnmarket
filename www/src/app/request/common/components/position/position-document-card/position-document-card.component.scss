@@ -1,0 +1,17 @@
+@import "src/theme";
+
+:host {
+  display: block;
+  margin-top: 30px;
+}
+
+hr {
+  border: none;
+  border-top: 1px uxg($theme, color-border) dotted;
+  margin: 14px 0;
+}
+
+.no-files-label {
+  padding: 25px 0;
+  text-align: center;
+}

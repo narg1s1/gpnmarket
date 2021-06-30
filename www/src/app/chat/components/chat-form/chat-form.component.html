@@ -1,0 +1,41 @@
+<form class="app-row" [formGroup]="form" (ngSubmit)="submit()" >
+  <div>
+    <button type="button" uxgButton lg icon link secondary appUploadFile
+            (select)="selectFiles($event)"
+            [multiple]="true"
+            [disabled]="itemIsDraft || allItemsAreDrafts">
+      <uxg-icon shape="app-attach"></uxg-icon>
+    </button>
+  </div>
+
+  <div class="app-col">
+    <textarea uxgInput formControlName="text"
+              [placeholder]="itemIsDraft ?
+                'Позиция в статусе Черновик, невозможно отправлять сообщения' :
+                (allItemsAreDrafts ? 'Позиции в заявке в статусе Черновик, невозможно отправлять сообщения' : 'Комментарий')"
+              (keydown.enter)="submit($event)"></textarea>
+    <button class="send" uxgButton lg icon link>
+      <uxg-icon shape="app-message" size="24"></uxg-icon>
+    </button>
+  </div>
+</form>
+
+<uxg-modal #attachmentModal (stateChange)="resetAttachments()">
+  <form [formGroup]="form" *ngIf="!isLoading; else loading" (ngSubmit)="submit()">
+    <h2>{{attachments.length | pluralize: false : "Выбран" : "Выбрано" : "Выбрано"}} {{attachments.length | pluralize: "файл" : "файла" : "файлов"}}</h2>
+    <div class="app-control-wrap">
+      <textarea uxgInput placeholder="Комментарий" formControlName="text" (keydown.enter)="submit($event)"></textarea>
+    </div>
+
+    <div class="app-row app-justify-content-end app-align-items-center">
+      <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+      <button uxgButton primary lg [disabled]="isLoading">Отправить</button>
+    </div>
+  </form>
+</uxg-modal>
+
+<ng-template #loading>
+  <div class="text-center">
+    <span class="spinner spinner-md"></span>
+  </div>
+</ng-template>

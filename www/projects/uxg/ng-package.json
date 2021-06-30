@@ -1,0 +1,13 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/uxg",
+  "lib": {
+    "entryFile": "src/public-api.ts",
+    "umdModuleIds": {
+      "@clr/icons" : "@clr/icons",
+      "@clr/angular" : "@clr/angular",
+      "flatpickr" : "flatpickr",
+      "flatpickr/dist/l10n/ru" : "Russian"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+<ng-container *ngIf="(category$ | async) as category">
+  <h1>{{ category.name }}</h1>
+  <div class="app-row" *ngIf="category.positionsCount > 0; else categories">
+    <div class="clr-col">
+      <ng-template #loading class="load-block"><span class="spinner spinner-md"></span></ng-template>
+      <app-catalog-positions-list *ngIf="(positions$ | async) as positions; else loading" [positions]="positions">
+      </app-catalog-positions-list>
+    </div>
+    <!--
+    todo временно скрываем фильтры
+    <div class="clr-col-3 app-grow-0">
+      <app-catalog-filter (filter)="filter($event)"></app-catalog-filter>
+    </div>-->
+  </div>
+  <ng-template #categories>
+    <div class="app-row" *ngIf="(categoryChilds$ | async) as categories">
+      <div class="clr-col-xl-3 clr-col-lg-4 clr-col-md-6" *ngFor="let category of categories.reverse()">
+        <ul>
+          <li>
+            <h3><a [routerLink]="['/catalog', category.id]">{{ category.name }}</a></h3>
+            <ul *ngIf="category.child.length > 0">
+              <li *ngFor="let childCategory of category.child.reverse()">
+                <a [routerLink]="['/catalog', childCategory.id]">{{ childCategory.name }}</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <ng-container *ngIf="categories.length === 0">
+        <div class="clr-row position-list no-positions">
+          Позиций не найдено
+        </div>
+      </ng-container>
+    </div>
+  </ng-template>
+</ng-container>

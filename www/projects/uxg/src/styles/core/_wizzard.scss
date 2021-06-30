@@ -1,0 +1,55 @@
+@import "../uxg";
+
+@mixin wizzard($theme) {
+.app-wizzard {
+  & > .app-col:not(:last-child) {
+    margin-right: 10px;
+  }
+
+  &-item {
+    width: 40px;
+    height: 40px;
+    border: 2px solid;
+    border-radius: 50%;
+    box-sizing: border-box;
+    text-align: center;
+    line-height: 36px;
+    font-size: uxg($theme, font-size-xl);
+    font-weight: bold;
+    position: relative;
+
+    & ~ div {
+      margin-left: .5em;
+    }
+
+    &.active {
+      color: uxg($theme, color-primary);
+
+      ~ div {
+        color: uxg($theme, color-font-primary);
+      }
+    }
+
+    &.completed &-icon {
+      color: uxg($theme, color-primary);
+    }
+
+    &-icon {
+      overflow: visible;
+      position: absolute;
+      right: -1px;
+      top: -2px;
+
+      svg {
+        stroke: uxg($theme, color-default);
+        stroke-width: 6px;
+        paint-order: stroke;
+      }
+    }
+  }
+
+  &-button-hidden {
+    display: none;
+  }
+}
+}

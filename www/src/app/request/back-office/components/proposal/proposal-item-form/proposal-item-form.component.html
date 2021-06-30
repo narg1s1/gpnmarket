@@ -1,0 +1,143 @@
+<form appFormValidation [formGroup]="form" (ngSubmit)="submit()">
+  <div class="app-section"><b>{{position.name}}</b></div>
+  <div class="app-row app-align-items-center">
+    <div class="app-col app-col-6" *ngIf="form.get('manufacturingName'); else quantityWithMeasureUnit">
+      <div class="app-control-wrap">
+        <input #manufacturingNameRef uxgInput type="text" lg formControlName="manufacturingName"/>
+        <label class="app-control-label" (click)="manufacturingNameRef.focus()">Заводское наименование</label>
+        <div class="app-control-error" *ngIf="form.get('manufacturingName').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+    </div>
+    <div class="app-col app-col-4">
+      <div class="app-control-wrap">
+        <input #priceWithoutVatRef appPriceInputFilter class="hidden-arrows" min="0" type="number" uxgInput lg formControlName="priceWithoutVat"/>
+        <label class="app-control-label" (click)="priceWithoutVatRef.focus()">Цена за единицу без НДС</label>
+        <div class="app-control-error" *ngIf="form.get('priceWithoutVat').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+    </div>
+    <div class="app-col app-col-2">
+      <uxg-dropdown lg placeholder="Валюта" formControlName="currency">
+        <div uxgDropdownItem [value]="currency[0]" *ngFor="let currency of currencies">{{ currency[1] }}</div>
+      </uxg-dropdown>
+    </div>
+  </div>
+  <div class="app-row app-align-items-center">
+    <ng-template #quantityWithMeasureUnit>
+      <div class="app-col app-col-3">
+        <div class="app-control-wrap">
+          <input #quantityRef uxgInput type="text" lg formControlName="quantity"/>
+          <label class="app-control-label" (click)="quantityRef.focus()">Количество</label>
+          <div class="app-control-error" *ngIf="form.get('quantity').errors as e">
+            <span *ngIf="e.required">Обязательное поле</span>
+          </div>
+        </div>
+      </div>
+      <div class="app-col app-col-3">
+        <uxg-dropdown-input
+          lg appSuggestions strictMode formControlName="measureUnit" placeholder="Ед. измерения"
+          [$]="okeiList$" [searchFn]="okeiService.searchOkei" #okei="appSuggestions" [appControlWrap]="true"
+          [displayByFn]="getOkeiSymbol"
+        >
+          <ng-container *ngIf="(okei.suggestions$ | async) as okeiSuggestions">
+            <div uxgDropdownItem *ngFor="let suggestion of okeiSuggestions"
+                 [value]="suggestion"
+                 [attr.title]="suggestion.name | lowercase"
+            >{{suggestion.symbol | lowercase }} <span class="app-ghost-color">- {{suggestion.name | lowercase}}</span>
+            </div>
+          </ng-container>
+          <ng-template #errors>
+            <div class="app-control-error" *ngIf="form.get('measureUnit').errors as e">
+              <span *ngIf="e.required">Обязательное поле</span>
+              <span *ngIf="e.notFromList">Выберите из списка</span>
+            </div>
+          </ng-template>
+        </uxg-dropdown-input>
+      </div>
+    </ng-template>
+    <ng-container *ngIf="form.get('manufacturingName')">
+      <ng-container *ngTemplateOutlet="quantityWithMeasureUnit"></ng-container>
+    </ng-container>
+    <div class="app-col app-col-4">
+      <div class="app-control-wrap">
+        <input #deliveryDateRef uxgInput lg uxgDatepicker formControlName="deliveryDate"/>
+        <label class="app-control-label" (click)="deliveryDateRef.focus()">Срок поставки</label>
+        <label class="app-control-icon" (click)="deliveryDateRef.focus()">
+          <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+        </label>
+        <div class="app-control-error" *ngIf="form.get('deliveryDate').errors as e">
+          <span *ngIf="e.field">Неверная дата</span>
+        </div>
+      </div>
+    </div>
+    <div class="app-col app-col-2"></div>
+  </div>
+  <div class="app-row">
+    <div class="app-col app-col-6">
+      <div class="app-control-wrap">
+        <input #manufacturer uxgInput type="text" lg formControlName="manufacturer"/>
+        <label class="app-control-label" (click)="manufacturer.focus()">Изготовитель</label>
+        <div class="app-control-error" *ngIf="form.get('manufacturer').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+    </div>
+    <div class="app-col app-col-4">
+      <div class="app-control-wrap">
+        <input #standard uxgInput type="text" lg formControlName="standard"/>
+        <label class="app-control-label" (click)="standard.focus()">Стандарт</label>
+      </div>
+    </div>
+    <div class="app-col app-col-2"></div>
+  </div>
+  <div class="app-row">
+    <div class="app-col">
+      <uxg-dropdown-input formControlName="paymentTerms" placeholder="Условия оплаты" lg>
+        <div uxgDropdownItem *ngFor="let term of paymentTerms" [value]="term[0]">{{ term[1] }}</div>
+        <ng-template #errors>
+          <div class="app-control-error" *ngIf="form.get('paymentTerms').errors as e">
+            <span *ngIf="e.required">Обязательное поле</span>
+          </div>
+        </ng-template>
+      </uxg-dropdown-input>
+    </div>
+  </div>
+  <div class="app-row" *ngIf="tradingScheme === 'TRADE' && proposalItem">
+    <div class="app-col">
+      <p class="proposal-item-uppercase">Сумма наценки</p>
+      <div class="app-row">
+        <div class="app-col">
+          <uxg-radio-item class="app-control proposal-item-radio" #radio1 name="radio" value="ABSOLUTE" formControlName="increaseType" ></uxg-radio-item>
+          <label class="proposal-item-label" (click)="radio1.select($event)">&nbsp;&nbsp;Рубли</label>
+        </div>
+        <div class="app-col">
+          <uxg-radio-item class="app-control proposal-item-radio" #radio2 name="radio" value="RELATIVE" formControlName="increaseType" ></uxg-radio-item>
+          <label class="proposal-item-label" (click)="radio2.select($event)">&nbsp;&nbsp;Проценты</label>
+        </div>
+      </div>
+    </div>
+    <div class="app-col">
+      <div class="app-control-wrap">
+        <input #increaseValueRef uxgInput type="number" lg formControlName="increaseValue"/>
+        <label class="app-control-label" (click)="increaseValueRef.focus()">Величина наценки</label>
+        <div class="app-control-error" *ngIf="form.get('increaseValue')?.errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+          <span *ngIf="e.pattern">Разрешены только числа</span>
+          <span *ngIf="e.invalidIncreaseValuePercent">Минимальная скидка в процентах: -90%</span>
+          <span *ngIf="e.invalidIncreaseValueAbsolute">Минимальная скидка в рублях: -90% от цены</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="app-row app-align-items-center">
+    <div class="app-col">
+      Все поля, кроме стандарта, являются <b class="app-error-color">обязательными</b> к заполнению! Документы
+      прикладывать не обязательно.
+    </div>
+    <button uxgButton lg secondary type="button" (click)="close.emit()">Отмена</button>
+    <button uxgButton lg primary>{{proposalItem ? 'Сохранить' : 'Добавить'}}</button>
+  </div>
+</form>

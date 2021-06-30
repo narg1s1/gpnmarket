@@ -1,0 +1,127 @@
+<ng-container *ngIf="(status$ | async) !== 'fetching'; else placeholder">
+  <div class="app-row">
+    <div class="app-col">
+      <div class="app-row app-align-items-center" [class.app-layout]="view === 'grid'">
+
+        <uxg-tabs class="app-col">
+          <uxg-tab-title #sentToReviewTab [disabled]="(positionsOnReview$ | async)?.length === 0" [active]="true">
+            <ng-container *ngIf="(positionsOnReview$ | async) as posWithProposalsOnReview">
+              Необходимо рассмотреть <span class="counter">({{posWithProposalsOnReview?.length}})</span>
+            </ng-container>
+          </uxg-tab-title>
+
+          <uxg-tab-title #reviewedTab [disabled]="(positionsReviewed$ | async)?.length === 0">
+            <ng-container *ngIf="(positionsReviewed$ | async) as posWithProposalsReviewed">
+              Рассмотренные <span class="counter">({{ posWithProposalsReviewed?.length }})</span>
+            </ng-container>
+          </uxg-tab-title>
+        </uxg-tabs>
+
+        <ng-container *ngIf="(proposalsLength$ | async)">
+          <div class="app-secondary-color">Режим отображения:</div>
+          <div class="app-btn-group">
+            <button uxgButton [primary]="view==='grid'" [secondary]="view==='list'" icon (click)="switchView('grid')">
+              <uxg-icon shape="app-grid-view"></uxg-icon>
+            </button>
+            <button disabled uxgButton [primary]="view==='list'" [secondary]="view==='grid'" icon (click)="switchView('list')">
+              <uxg-icon shape="app-list-view"></uxg-icon>
+            </button>
+          </div>
+          <!--  <button uxgButton secondary>Фильтр</button> -->
+        </ng-container>
+      </div>
+
+      <br/>
+
+      <ng-container [ngSwitch]="view" *ngIf="(reviewedTab.active ? positionsReviewed$ : positionsOnReview$) | async as positions">
+        <!-- grid -->
+        <div class="grid-table" *ngSwitchCase="'grid'">
+          <app-grid-contragents
+            *ngIf="positions.length"
+            [gridRows]="gridRows"
+            [suppliers]="suppliers(positions)"
+          ></app-grid-contragents>
+          <ng-container *ngFor="let position of positions">
+            <app-grid-row
+              *ngIf="(priceOrder$ | async) as priceOrder"
+              [chooseBy$]="chooseBy$"
+              [position]="convertPosition(position, priceOrder)"
+              [suppliers]="suppliers(positions)"
+              [proposals]="convertProposals(position)"
+              [isReviewed]="isReviewed(position)"
+              [getProposal]="getProposalBySupplier(position)"
+              (show)="showedProposal = $event; modalData = {proposal: $event, position: convertPosition(position, priceOrder)}"
+            >
+              <div><b>{{ position.name }}</b></div>
+              <div class="app-ghost-color">&nbsp;| {{ position.quantity }} {{position.okeiItem?.symbol | lowercase}}</div>
+              <div class="app-ghost-color">&nbsp;| {{ (priceOrder$ | async).dateDelivery | date:"dd.MM.yyyy" }}</div>
+              <div class="app-col"></div>
+              <!-- @TODO Ждём бэк на отклонение предложений по позиции -->
+              <!--label (click)="rejectRadio.select($event)">Отклонить все по позиции &nbsp; </label>
+              <uxg-radio-item
+                class="app-control"
+                #rejectRadio
+                [name]="position.id"
+                [value]="position"
+                [formControl]="proposalOnReview.rejectedProposalPosition"
+                (click)="$event.stopPropagation()"
+              ></uxg-radio-item-->
+            </app-grid-row>
+          </ng-container>
+        </div>
+
+        <!-- empty -->
+        <div *ngIf="positions.length === 0">
+          <h1 class="text-center" [style.opacity]="0.1">
+            <br/>
+            <uxg-icon shape="app-publish" size="270"></uxg-icon><br/>
+            Список ценовых запросов пуст
+          </h1>
+        </div>
+
+      </ng-container>
+    </div>
+    <div class="app-col-aside detachable" *ngIf="view==='list'"></div>
+  </div>
+  <uxg-modal [(state)]="modalData" size="l">
+    <h2>{{ (priceOrder$ | async).name }}</h2>
+    <app-kim-price-order-proposal-detail
+      *ngIf="modalData"
+      [priceOrder]="priceOrder$ | async"
+      [proposal]="modalData.proposal"
+      [position]="modalData.position"
+    ></app-kim-price-order-proposal-detail>
+
+    <ng-template uxgModalFooter>
+      <button uxgButton lg secondary uxgModalClose>Закрыть</button>
+    </ng-template>
+
+  </uxg-modal>
+
+</ng-container>
+
+<app-grid-footer
+  [disabled]="(status$ | async) !== 'received' || disabled"
+  (approve)="reviewSelected()"
+  [chooseBy$]="chooseBy$"
+  [source]="'price-order'"
+  [hidden]="reviewedTab?.active || proposalsOnReview?.length === 0"
+  [total]="total"
+></app-grid-footer>
+
+<ng-template #placeholder>
+  <div class="app-row" [class.app-layout]="view === 'grid'">
+    <div class="app-col">
+      <div class="app-row">
+        <div class="app-col app-row">
+          <div class="placeholder-row" *ngFor="let i of [].constructor(2)" [style.height.px]="40" [style.width.px]="200"></div>
+        </div>
+        <div class="placeholder-row" [style.height.px]="40" [style.width.px]="80"></div>
+      </div>
+
+      <div class="placeholder" *ngFor="let i of [].constructor(10)" [style.height.px]="160"></div>
+    </div>
+    <div class="app-col-aside detachable"></div>
+  </div>
+</ng-template>
+

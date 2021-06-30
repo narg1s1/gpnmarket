@@ -1,0 +1,99 @@
+<ng-container *ngIf="(status$ | async) !== 'fetching'; else placeholder">
+  <ng-container *ngIf="(activeList$ | async) as technicalProposals">
+    <ng-container *ngIf="request$ | async as request" uxgFilter>
+      <div class="app-row">
+        <div class="app-col app-table app-no-border tab-row">
+          <div class="app-row app-align-items-center">
+            <uxg-tabs class="app-col">
+              <uxg-tab-title #sentToReviewTab
+                             [active]="true"
+                             (toggle)="onToggle($event, technicalProposalsStatus.SENT_TO_REVIEW)"
+                             [disabled]="(proposalsSentToReview$ | async).length === 0">
+                <ng-container *ngIf="(proposalsSentToReview$ | async) as proposals">
+                  Необходимо рассмотреть <span class="counter">({{ proposals?.length }})</span>
+                </ng-container>
+              </uxg-tab-title>
+
+              <uxg-tab-title #sentToEditTab
+                             (toggle)="onToggle($event, technicalProposalsStatus.SENT_TO_EDIT)"
+                             [disabled]="(proposalsSentToEdit$ | async).length === 0">
+                <ng-container *ngIf="(proposalsSentToEdit$ | async) as proposals">
+                  На доработке <span class="counter">({{ proposals?.length }})</span>
+                </ng-container>
+              </uxg-tab-title>
+
+              <uxg-tab-title #reviewedTab
+                             (toggle)="onToggle($event, technicalProposalsStatus.ACCEPTED)"
+                             [disabled]="(proposalsReviewed$ | async).length === 0">
+                <ng-container *ngIf="(proposalsReviewed$ | async) as proposals">
+                  Рассмотренные <span class="counter">({{ proposals?.length }})</span>
+                </ng-container>
+              </uxg-tab-title>
+            </uxg-tabs>
+
+            <uxg-filter-button></uxg-filter-button>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-row" >
+        <div class="app-col">
+            <ng-container *ngIf="technicalProposals.length !== 0; else emptyList">
+              <app-request-customer-technical-proposal
+                *ngFor="let technicalProposal of technicalProposals; let i = index"
+                [request]="request"
+                [technicalProposal]="technicalProposal"
+                [technicalProposalIndex]="i"
+                [currentList]="activeTab"
+              ></app-request-customer-technical-proposal>
+            </ng-container>
+
+            <ng-template #emptyList>
+              <div class="ghost-color empty-list">Список технических предложений пуст</div>
+            </ng-template>
+        </div>
+
+        <uxg-filter [formGroup]="form" [count]="proposalsLength$ | async" (filter)="store.dispatch(filter(request, $event))">
+          <uxg-filter-section label="Заявка">
+            <input uxgInput type="text" formControlName="positionName" placeholder="Наименование позиции" />
+          </uxg-filter-section>
+
+          <uxg-filter-section label="Контрагент" *ngIf="(contragentsFilter$ | async).length">
+            <uxg-filter-checkbox-list
+              formControlName="contragents" searchPlaceholder="Заказчик"
+              [foldedSearch]="true"
+              [items$]="contragentsFilter$"
+              [limit]="5"
+              (search)="contragentsSearch$.next($event)">
+            </uxg-filter-checkbox-list>
+          </uxg-filter-section>
+
+          <uxg-filter-section label="Согласование">
+            <uxg-filter-checkbox-list formControlName="tpStatus" [items$]="statusesFilter$"></uxg-filter-checkbox-list>
+          </uxg-filter-section>
+        </uxg-filter>
+      </div>
+    </ng-container>
+  </ng-container>
+</ng-container>
+
+<ng-template #placeholder>
+  <div class="app-row">
+    <div class="app-col">
+      <div class="app-row">
+        <div class="app-col app-row">
+          <div class="placeholder-row" *ngFor="let i of [].constructor(2)" [style.height.px]="40" [style.width.px]="200"></div>
+        </div>
+      </div>
+
+      <div class="placeholder" *ngFor="let i of [].constructor(10)" [style.height.px]="160"></div>
+    </div>
+    <div class="app-col-aside detachable"></div>
+  </div>
+</ng-template>
+
+<ng-template #loading>
+  <div class="text-center">
+    <span class="spinner spinner-md"></span>
+  </div>
+</ng-template>

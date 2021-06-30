@@ -1,0 +1,155 @@
+<ng-container *ngIf="proposal" [ngSwitch]="state">
+  <div class="app-card" *ngSwitchCase="'view'">
+    <div class="app-row app-align-items-center">
+      <h3 class="app-col">
+        <app-contragent-info-link [contragent]="proposal.supplier"></app-contragent-info-link>
+      </h3>
+      <div class="app-ghost-color app-bold" *ngIf="publishedCount === 0">
+        <uxg-icon shape="app-draft"></uxg-icon>
+        <span>Черновик</span>
+      </div>
+      <div class="app-ghost-color app-bold"
+           *ngIf="!isReviewed && !isPartiallyReviewed && !isSentToEdit && !isInQueue && publishedCount > 0">
+        <uxg-icon shape="app-waiting" class="is-solid"></uxg-icon>
+        <span>Отправлено {{ publishedCount }} из {{ proposal.items.length }}</span>
+      </div>
+      <div class="app-success-color app-bold" *ngIf="isReviewed && !isInQueue">
+        <uxg-icon shape="app-check"></uxg-icon>
+        <span>Рассмотрено</span>
+      </div>
+      <div class="app-warning-color app-bold" *ngIf="isPartiallyReviewed && !isReviewed && !isInQueue">
+        <uxg-icon shape="app-warning"></uxg-icon>
+        <span>Частично рассмотрено</span>
+      </div>
+      <div class="app-warning-color app-bold" *ngIf="isSentToEdit && !isInQueue">
+        <uxg-icon shape="app-warning"></uxg-icon>
+        <span>На доработке</span>
+      </div>
+      <div class="app-ghost-color app-bold" *ngIf="isInQueue">
+        <uxg-icon shape="app-waiting"></uxg-icon>
+        <span>В обработке</span>
+      </div>
+
+      <ng-container *ngIf="featureService.authorize('editProposal')">
+        <button uxgButton icon link (click)="state = 'edit'" [disabled]="!editable">
+          <uxg-icon shape="app-pen"></uxg-icon>
+        </button>
+      </ng-container>
+
+      <button uxgButton icon link (click)="folded = !folded" [disabled]="proposal.items.length === 0">
+        <uxg-icon shape="app-chevron" [attr.dir]="folded ? 'down' : 'up'"></uxg-icon>
+      </button>
+    </div>
+
+    <ng-container *ngIf="!folded">
+      <div class="app-table app-no-border" *ngIf="proposal.items.length">
+        <hr/>
+        <div class="app-row app-uppercase app-ghost-color app-bold">
+          <small class="app-col app-ellipsis name">Наименование позиции</small>
+          <small class="app-col app-ellipsis manufacturing-name" *ngIf="source === 'TECHNICAL_COMMERCIAL_PROPOSAL'">
+            Заводское наименование
+          </small>
+          <small class="app-col app-ellipsis manufacturer">Изготовитель</small>
+          <small class="app-col app-ellipsis manufacturing-name" *ngIf="source === 'COMMERCIAL_PROPOSAL'">
+            Стандарт
+          </small>
+          <small class="app-col total">Сумма без НДС</small>
+          <small class="app-col quantity">Количество</small>
+          <small class="app-col price">Цена за ед. без НДС</small>
+          <small class="app-col date">Срок пост.</small>
+          <small class="status text-center">Статус</small>
+        </div>
+
+        <div class="app-row" *ngFor="let item of proposal.items">
+          <div class="app-col app-ellipsis name">{{getPosition(item)?.name}}</div>
+          <div class="app-col app-ellipsis manufacturing-name" *ngIf="source === 'TECHNICAL_COMMERCIAL_PROPOSAL'">
+            {{item.manufacturingName}}
+          </div>
+          <div class="app-col app-ellipsis manufacturer">{{item?.manufacturer}}</div>
+          <div class="app-col app-ellipsis manufacturing-name" *ngIf="source === 'COMMERCIAL_PROPOSAL'">
+            {{item?.standard}}
+          </div>
+          <div class="app-col total">
+            {{(item.priceWithoutVat * item.quantity) || null | number:'1.0-2'}} <span class="app-ghost-color">{{getCurrencySymbol(item.currency, "narrow")}}</span>
+          </div>
+          <div class="app-col quantity" [class.app-error-color]="!helper.isQuantityValid(item, getPosition(item))">
+            {{item.quantity}}
+            <span class="app-ghost-color" [class.app-error-color]="!helper.isQuantityValid(item, getPosition(item))">
+              {{item.measureUnit}}
+            </span>
+          </div>
+
+          <div class="app-col price">
+            {{item.priceWithoutVat | number:'1.0-2'}}
+            <span class="app-ghost-color">{{getCurrencySymbol(item.currency, "narrow")}}</span>
+          </div>
+
+          <div class="app-col date" [class.app-error-color]="!helper.isDateValid(item, getPosition(item))">
+            {{item.deliveryDate | date:"dd.MM.yyyy"}}
+          </div>
+
+          <div class="status text-center app-ghost-color" *ngIf="item.inQueue; else statuses">
+            <uxg-icon shape="app-waiting"></uxg-icon>
+          </div>
+
+          <ng-template #statuses>
+            <div class="status text-center"
+                 [class.app-ghost-color]="item.status !== 'APPROVED'"
+                 [class.app-success-color]="item.status === 'APPROVED'"
+                 [class.app-warning-color]="item.status === 'SENT_TO_EDIT'"
+                 [ngSwitch]="item.status">
+              <uxg-icon shape="app-draft" *ngSwitchCase="'NEW'"></uxg-icon>
+              <uxg-icon shape="app-unknown" *ngSwitchCase="'SENT_TO_REVIEW'"></uxg-icon>
+              <uxg-icon shape="app-warning" *ngSwitchCase="'SENT_TO_EDIT'"></uxg-icon>
+              <uxg-icon shape="app-check" *ngSwitchDefault></uxg-icon>
+            </div>
+          </ng-template>
+        </div>
+
+      </div>
+
+      <ng-container *ngIf="proposal.deliveryType || proposal.warrantyConditions || proposal.deliveryAdditionalTerms">
+        <hr/>
+        <div class="app-row section">
+          <div class="app-col" *ngIf="proposal.deliveryType">
+            <small class="app-uppercase app-ghost-color app-bold">Тип и стоимость доставки</small>
+            <ng-container *ngIf="proposal.deliveryType === 'INCLUDED'">
+              <span class="conditions-info">Стоимость включена в стоимость позиций</span>
+            </ng-container>
+            <ng-container *ngIf="proposal.deliveryType === 'NOT_INCLUDED'">
+              <span class="conditions-info">Стоимость доставки {{proposal.deliveryPrice}} {{getCurrencySymbol(proposal.deliveryCurrency, "narrow")}}</span>
+            </ng-container>
+            <ng-container *ngIf="proposal.deliveryType === 'PICKUP'">
+              <span class="conditions-info">Самовывоз {{proposal.deliveryPickup}}</span>
+            </ng-container>
+          </div>
+          <div class="app-col" *ngIf="proposal.deliveryAdditionalTerms">
+            <small class="app-uppercase app-ghost-color app-bold">Дополнительные условия поставки</small>
+            <span class="conditions-info">{{proposal.deliveryAdditionalTerms}}</span>
+          </div>
+          <div class="app-col" *ngIf="proposal.warrantyConditions">
+            <small class="app-uppercase app-ghost-color app-bold">Гарантийные условия</small>
+            <span class="conditions-info">{{proposal.warrantyConditions}}</span>
+          </div>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="proposal.documents.length">
+        <hr/>
+        <small class="app-uppercase app-ghost-color app-bold">Документы предложения</small>
+        <app-document-simple-list [gridable]="true" [enableUpload]="false" [documents]="proposal.documents">
+        </app-document-simple-list>
+      </ng-container>
+    </ng-container>
+  </div>
+  <app-common-proposal-form
+    *ngSwitchCase="'edit'"
+    [proposal]="proposal"
+    [availablePositions]="availablePositions"
+    [request]="request"
+    [groupId]="groupId"
+    [source]="source"
+    [selectedContragents]="selectedContragents"
+    (close)="state = 'view'"
+    (edit)="edit.emit($event)"
+  ></app-common-proposal-form>
+</ng-container>

@@ -1,0 +1,19 @@
+<div class="notification-container" *ngIf="message$ | async as message">
+  <button class="close" type="button" (click)="close$.next();">
+    <uxg-icon shape="app-cross" size="20" role="none"></uxg-icon>
+  </button>
+
+  <div class="user-container">
+    <div class="avatar"><img src="../../../../assets/images/avatar.svg"></div>
+    <div class="user-info">
+      <span class="user-name">{{ message.author.fullName }}</span><br>
+<!--      <span class="sub-name app-ghost-color">{{ getSubName() }}</span>-->
+    </div>
+  </div>
+
+  <div class="message" (click)="navigateToContext(message.conversation.context.id)">
+    <div class="message-body">{{ message.text }}</div>
+
+    <div class="message-date app-ghost-color">{{ message.createdAt | humanDate }}</div>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<div class="app-row im" *ngIf="(status$ | async) !== 'fetching'; else loading">
+
+  <!-- request list -->
+  <div class="app-col im-list" [class.disabled]="(status$ | async) === 'updating'">
+    <ul>
+      <li class="search"><input uxgInput placeholder="Поиск по заявкам" [formControl]="search"/></li>
+      <li *ngFor="let item of items$ | async">
+        <a
+          routerLinkActive="active"
+          [routerLink]="item.request.id"
+          [attr.title]="item.request.name"
+        >
+          <b>{{item.request.number}}&nbsp;</b>
+          <span class="app-col app-ellipsis">{{item.request.name}}</span>
+          <small *ngIf="sumAllUnreadCount(item) as count">{{count}}</small>
+        </a>
+      </li>
+      <li *ngIf="!fullListLoaded" class="app-row"><button class="app-col "uxgButton secondary (click)="dispatch()">Еще</button></li>
+    </ul>
+  </div>
+
+  <!-- position list & chat  -->
+  <div class="app-col">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
+
+<ng-template #loading>
+  <div class="text-center">
+    <span class="spinner spinner-md"></span>
+  </div>
+</ng-template>

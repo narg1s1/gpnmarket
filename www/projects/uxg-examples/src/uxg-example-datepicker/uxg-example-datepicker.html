@@ -1,0 +1,35 @@
+<div class="app-card">
+  <h2>Datepicker</h2>
+  <br/>
+
+  <div class="app-control-wrap">
+    <input
+      #deliveryDate
+      uxgInput
+      lg
+      uxgDatepicker
+      [(ngModel)]="datepicker"
+      [dateFormat]="'d.m.Y'"
+      [defaultDate]="datepicker">
+    <label class="app-control-label" (click)="deliveryDate.focus()">
+        Дата
+    </label>
+    <label class="app-control-icon" (click)="deliveryDate.focus()">
+        <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+    </label>
+  </div>
+
+  <br/>
+  <br/>
+
+  <h2>Sources</h2>
+  <br/>
+
+  <h3>Template: </h3>
+  <uxg-code language="html">{{datepickerExampleHTML}}</uxg-code>
+
+  <br/>
+
+  <h3>Options: </h3>
+  <uxg-code language="javascript">{{datepickerExampleJS}}</uxg-code>
+</div>

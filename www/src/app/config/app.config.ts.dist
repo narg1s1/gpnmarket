@@ -1,0 +1,131 @@
+import { GpnmarketConfigInterface } from "../core/config/gpnmarket-config.interface";
+import * as Sentry from "@sentry/browser";
+
+export const AppConfig: GpnmarketConfigInterface = {
+  clientId: 'gpnmarket-front',
+  endpoints: {
+    api: 'api/',
+    ws: 'ws://localhost:3000',
+    apiChat: 'https://chat-test.isource.ru/',
+    wsChat: 'wss://chat-test.isource.ru/ws',
+    wsNotifications: 'wss://notifications-test.isource.ru/ws',
+  },
+  files: {
+    allowedExtensions: [
+      'odt', 'ott', 'oth', 'odm', 'ods', 'ots', // OpenOffice
+      'rtf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', // MS Office
+      'bmp', 'jpg', 'gif', 'png', 'svg', // Картинки
+      'zip', '7z', 'tar', 'rar', 'gz', // архивы
+      'pdf', 'txt', '7z', 'cdw', 'sld', 'drw', '3ds', 'ma', 'obj' // Чертежи и прочее
+    ],
+    allowedMimeTypes: [
+      'application/vnd.oasis.opendocument.text', 'application/vnd.oasis.opendocument.spreadsheet', 'application/vnd.oasis.opendocument.presentation', // OpenOffice
+      'application/rtf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', // MS Office
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-powerpoint', // MS Office
+      'image/bmp', 'image/jpeg', 'image/gif', 'image/png', 'image/svg+xml', // Картинки
+      'application/zip', 'application/x-7z-compressed', 'application/x-tar', 'application/vnd.rar', 'application/x-rar-compressed', 'application/octet-stream', 'application/gzip', // архивы
+      'application/pdf', 'text/plain', 'image/cdw', 'application/vnd.ogc.sld+xml', 'application/vnd.ogc.se+xml', 'application/drafting', 'image/x-3ds', 'application/mathematica', 'application/object' // Чертежи и прочее
+    ],
+    deniedExtensions: [],
+    singleFileSizeLimit: 10485760,
+    totalFilesSizeLimit: 20971520
+  },
+  keycloak: {
+    config: {
+      url: 'https://gpnnsi-keycloak-test.etpgpb.ru/auth',
+      realm: 'master',
+      clientId: 'gpnmarket-loc',
+    },
+    initOptions: {
+      checkLoginIframe: false,
+    },
+    loadUserProfileAtStartUp: false,
+    bearerExcludedUrls: [
+      'https://test-chats.ezgg.site/',
+      'https://suggestions.dadata.ru/',
+      'https://notifications-test.isource.ru/',
+    ],
+  },
+  dadata: {
+    apiKey: 'fc06e6b8af300332f72a366ccdd3dad784e773cd',
+  },
+  sentry: {
+    enabled: false,
+    dsn: "https://88e1e59f21a84941acebb6f614d142e9@o398925.ingest.sentry.io/5255352",
+    environment: 'local',
+    level: Sentry.Severity.Error
+  },
+  paginator: {
+    pageSize: 10,
+    requestPageSize: 50,
+  },
+  procedure: {
+    url: 'https://demo2.etpgpb.ru/#com/procedure/view/procedure/',
+    resultUrl: 'https://demo2.etpgpb.ru/#com/applic/viewapplics/lot/',
+    maxPositionsForCreateProcedure: 8800
+  },
+  priceOrder: {
+    url: 'https://demo2.etpgpb.ru/#nsi/priceorder/directCustomer/orderId/'
+  },
+  profile: {
+    url: 'https://profile.ezgg.site/api/v1/'
+  },
+  intelplan: {
+    url: 'https://intelplan.gpb.isale.pro/api/v1/'
+  },
+  element: {
+    url: 'https://element-test.isource.ru/api/v1/'
+  },
+  notifications: {
+    url: 'https://notifications-test.isource.ru/api/v1/notifications'
+  },
+  instructions: {
+    forCustomer: "assets/Краткая инструкция (внешние клиенты).pdf",
+    forBackoffice: "assets/Краткая инструкция БО (по внешним клиентам).pdf",
+  },
+  menu: {
+    additionalItems: [
+      {
+        text: 'Профиль',
+        base: 'https://profile.ezgg.site',
+        path: '/',
+        feature: "backofficeProfile"
+      },
+      {
+        text: 'Интелплан',
+        base: 'https://intelplan.gpb.isale.pro',
+        path: '/',
+        feature: "backofficeIntelplan"
+      },
+      {
+        text: 'Профиль',
+        base: 'https://profile.ezgg.site',
+        path: '/',
+        feature: "customerProfile"
+      },
+      {
+        text: 'Интелплан',
+        base: 'https://intelplan.gpb.isale.pro',
+        path: '/',
+        feature: "customerIntelplan"
+      },
+    ]
+  },
+  disabledFeatures: [
+    "deliveryMonitor",
+    "catalog",
+    "contractGeneration",
+    "createProcedure"
+  ],
+  metrika: {
+    id: null,
+    options: {
+      defer: true,
+      webvisor: true,
+      trackHash: false
+    }
+  },
+  ga: {
+    id: null
+  }
+};

@@ -1,0 +1,6 @@
+<div class="app-breadcrumbs">
+  <ng-container *ngFor="let breadcrumb of breadcrumbs; index as i">
+    <uxg-icon class="app-breadcrumbs-separator" *ngIf="i" shape="app-top" [attr.dir]="'right'" size="12"></uxg-icon>
+    <a class="app-breadcrumbs-breadcrumb" [routerLink]="breadcrumb.link" [queryParams]="breadcrumb.queryParams">{{breadcrumb.label}}</a>
+  </ng-container>
+</div>

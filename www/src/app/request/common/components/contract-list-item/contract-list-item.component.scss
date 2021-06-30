@@ -1,0 +1,50 @@
+:host {
+  display: block;
+  &:not(:last-child) { margin-bottom: 24px }
+}
+
+hr { margin: 14px 0; }
+
+.app-table > .app-row {
+  padding: 8px 0;
+
+  .app-col, [class*=app-col-] {
+    box-sizing: border-box;
+
+    &:first-child { padding-left: 0; }
+    &:last-child { padding-right: 0; }
+  }
+}
+
+.app-striped {
+  &-head [class*=app-col] { padding-bottom: 14px }
+  &-body {
+    & [class*=app-col] { padding-top: 9px; padding-bottom: 9px; }
+
+    &.app-row:nth-child(even) {
+      background: #F4F6FB;
+      margin: 0 -20px;
+      padding: 0 20px;
+    }
+  }
+}
+
+.certificates-list {
+  padding-top: 15px;
+
+  & .cert-item {
+    margin-bottom: 20px;
+  }
+}
+
+.cert-info {
+  padding-left: 15px;
+
+  & .name {
+    font-weight: bold;
+  }
+}
+
+.btn-download {
+  float: right;
+}

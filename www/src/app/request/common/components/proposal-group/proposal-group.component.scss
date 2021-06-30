@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  &:not(:last-child) { margin-bottom: 24px }
+}
+
+hr { margin: 14px 0; }
+
+.app-table > .app-row {
+  padding: 8px 0;
+
+  .app-col {
+    & .app-icon {
+      vertical-align: sub;
+    }
+
+    &:first-child { padding-left: 0; }
+    &:last-child { padding-right: 0; }
+  }
+}

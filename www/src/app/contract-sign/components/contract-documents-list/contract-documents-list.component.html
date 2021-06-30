@@ -1,0 +1,15 @@
+<ul class="list-unstyled" [class.small]="size === 's'">
+  <li class="document" *ngFor="let document of getDocuments()">
+    <document-icon (click)="onDownloadDocument(document)" [name]="document.filename" [size]="size"></document-icon>
+
+    <div (click)="onDownloadDocument(document)" title="{{ document.filename }}">
+      <div class="title">{{ document.filename }}</div>
+
+      <div class="description">
+        <span *ngIf="document.created">
+          {{ document.created  | date : ' d MMMM y ' }}
+        </span>
+      </div>
+    </div>
+  </li>
+</ul>

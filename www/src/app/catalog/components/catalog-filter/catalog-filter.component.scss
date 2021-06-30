@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  margin-top: 20px;
+
+  .clr-checkbox-wrapper.attribute-checkbox {
+    padding-bottom: 10px;
+  }
+
+  label {
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+
+  }
+}

@@ -1,0 +1,25 @@
+@import "../../../../../../theme";
+
+* + .popover-item {
+  margin-left: .5rem;
+}
+
+.proposal-group-list {
+  overflow: hidden;
+}
+
+.template {
+  padding-bottom: 20px;
+}
+
+.dragAndDropArea {
+  margin: 20px 0 10px 0;
+}
+
+.doc-error-message {
+  width: 150px;
+  text-align: right;
+  font-weight: bold;
+  margin-right: 10px;
+  color: uxg($theme, color-control-invalid);
+}

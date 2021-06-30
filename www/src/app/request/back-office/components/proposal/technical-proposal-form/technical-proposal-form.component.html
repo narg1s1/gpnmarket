@@ -1,0 +1,254 @@
+<form appFormValidation [formGroup]="form" (ngSubmit)="submit()">
+  <div class="app-card">
+
+    <!-- page title -->
+    <div class="app-row">
+      <div class="app-col">
+        <h3 *ngIf="!isEditing">Новое техническое предложение</h3>
+        <h3 *ngIf="isEditing">Редактирование технического предложения</h3>
+      </div>
+      <!-- Пока не реализовано на бэка -->
+      <!--      <div class="app-col app-grow-0" *ngIf="isEditing">-->
+      <!--        <button type="button" uxgButton icon link (click)="visibleChange.emit(false)">-->
+      <!--          <uxg-icon shape="app-trash"></uxg-icon>-->
+      <!--        </button>-->
+      <!--      </div>-->
+      <div class="app-col app-grow-0" *ngIf="closable">
+        <button type="button" uxgButton icon link (click)="visibleChange.emit(false)">
+          <uxg-icon shape="app-cross"></uxg-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- contragent -->
+    <div class="app-row app-align-items-center">
+      <div class="app-col">
+        <div class="app-control-wrap">
+          <uxg-dropdown-input
+            formControlName="contragent" placeholder="Наименование контрагента" appSuggestions #sug="appSuggestions"
+            [$]="contragents$" [lg]="true" [strictMode]="true" [displayByFn]="getContragentName" [searchFn]="searchContragents"
+          >
+            <ng-container *ngIf="(sug.suggestions$ | async) as contragents">
+              <div uxgDropdownItem *ngFor="let contragent of contragents" [value]="contragent">
+                {{contragent.shortName || contragent.fullName}}
+                <span class="app-ghost-color">{{contragent.inn | splitNumber}}</span>
+              </div>
+            </ng-container>
+            <ng-template #errors>
+              <div class="app-control-error" *ngIf="form.get('contragent').errors as e">
+                <span *ngIf="e.required">Обязательное поле</span>
+                <span *ngIf="e.notFromList">Выберите контрагента из списка</span>
+              </div>
+            </ng-template>
+          </uxg-dropdown-input>
+        </div>
+      </div>
+      <div class="app-col app-secondary-color">
+        Начните вводить наименование контрагента или его ИНН и система предложит вам варианты
+      </div>
+    </div>
+
+    <hr/>
+
+    <!-- documents -->
+    <app-documents-form-control
+      [documents]="defaultTPValue('documents')"
+      [files]="formDocuments.value"
+      [disabled]="form.get('documents').disabled"
+      [invalid]="invalidDocControl"
+      [docType]="'ТП'"
+      (select)="filesSelected($event)"
+      (remove)="formDocuments.removeAt($event)"
+    ></app-documents-form-control>
+
+
+    <hr/>
+    <br>
+    <div class="app-row">
+      <div class="app-col">
+        <button type="button" uxgButton secondary
+                (click)="uploadTemplateModal.open()"
+                [disabled]="form.get('contragent').invalid">Загрузить из шаблона
+        </button>
+      </div>
+      <div class="app-col app-secondary-color">
+        Чтобы загрузить позиции и заводские наименования из шаблона нужно выбрать поставщика выше
+      </div>
+    </div>
+    <br>
+    <div class="app-secondary-color" [ngClass]="{'error-message' : showErrorMessage}">
+      Вы можете либо приложить необходимые документы, либо заполнить все заводские наименования, либо приложить
+      документы и заполнить все заводские наименования.
+    </div>
+    <br/>
+    <br/>
+
+    <!-- positions -->
+    <div class="app-row">
+      <div class="app-col">
+        <small class="app-ghost-color app-bold">НАИМЕНОВАНИЕ ПОЗИЦИИ</small>
+
+        <div class="app-row app-align-items-center">
+          <button
+            type="button" uxgButton secondary (click)="positionsModal.open()"
+            [disabled]="form.get('positions').disabled">Выбрать позиции
+          </button>
+          <div class="app-col" *ngIf="form.get('positions') as c">
+            <ng-container *ngIf="c.dirty && c.touched">
+              <div class="app-control-error" *ngIf="c.errors as e">
+                <span class="error-message" *ngIf="e.required">Выберите позиции для создания предложения</span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+      <div class="app-col">
+        <small class="app-ghost-color app-bold">ЗАВОДСКОЕ НАИМЕНОВАНИЕ</small>
+        <div class="app-row app-align-items-center">
+
+          <button
+            type="button" uxgButton secondary (click)="manufacturingNameModal.open()"
+            [disabled]="form.get('positions').disabled || form.get('positions').value?.length <= 0">Заполнить
+            наименования
+          </button>
+          <div class="app-col">
+            <ng-container *ngIf="showErrorMessage">
+              <div class="app-control-error">
+                <span class="error-message">Заполните наименования для каждой позиции</span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="positions">
+      <div class="app-row" *ngFor="let positionWithName of form.get('positions').value">
+        <div class="app-col">
+          {{positionWithName.position.name}}
+        </div>
+        <div class="app-col">
+          <ng-container *ngIf="positionWithName.manufacturingName as name; else manufacturingNameError">
+            <span class="app-secondary-color">{{ name }}</span>
+          </ng-container>
+          <ng-template #manufacturingNameError>
+            <ng-container *ngIf="!isManufacturingNamePristine && form.get('positions').hasError('manufacturing_name_error')">
+              <span class="app-error-color app-bold">Необходимо заполнить!</span>
+            </ng-container>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <hr/>
+
+    <!-- footer -->
+    <div class="app-row app-align-items-center">
+      <div class="app-col app-secondary-color">
+        Черновики технических предложений видны только сотрудникам бэкофиса, но не заказчику
+      </div>
+      <div class="app-row app-col app-col-auto app-align-items-center">
+        <span *ngIf="isLoading" class="spinner spinner-inline">Загрузка...</span>
+        <button uxgButton secondary (click)="publish.setValue(false);" [disabled]="form.disabled" *ngIf="technicalProposal?.status !== 'SENT_TO_EDIT'">
+          Сохранить {{isEditing ? 'изменения' : 'черновик'}}
+        </button>
+        <button uxgButton primary (click)="publish.setValue(true)" [disabled]="form.disabled">
+          Отправить на согласование
+        </button>
+      </div>
+    </div>
+
+    <!-- modals -->
+    <uxg-modal #positionsModal size="l">
+      <h2>Выбор позиций для технического предложения</h2>
+      <div class="app-secondary-color">
+        Выберите все необходимые позиции или группы позиций в заявке <b>№{{request.number}}</b>, по которым вы хотите
+        создать техническое предложение от одного контрагента.
+      </div>
+      <br/>
+      <br/>
+      <ng-container *ngIf="(positionsWithManufacturer$ | async) as positionsWithManufacturer">
+        <select-items-with-search
+          #positionsSearch
+          placeholder="Наименование позиции или группы"
+          formControlName="positions"
+          class="select-list select-list-positions"
+          [liveUpdate]="false"
+          [items]="positionsWithManufacturer"
+          (ngModelChange)="positionsModal.close()"
+          [filterFn]="positionsWithManufacturerFilter"
+          [disabledFn]="positionSelectDisabled"
+          [trackBy]="trackByPositionId"
+        >
+          <ng-template let-formGroup="formGroup" let-positionWithMan="item">
+            <div class="app-row" [formGroup]="formGroup" *ngIf="positionWithMan.position as position">
+              <div class="app-col app-grow-0">
+                <uxg-checkbox formControlName="checked"></uxg-checkbox>
+              </div>
+              <div class="app-col app-bold select-list-item-title">{{ position.name }}</div>
+              <div class="app-col app-col-auto select-list-item-quantity">
+                <span>{{ position.quantity }} </span>
+                <span class="app-ghost-color">{{ position.measureUnit | lowercase }}</span>
+              </div>
+              <div class="app-col app-col-auto select-list-item-date">
+                <ng-container *ngIf="position.isDeliveryDateAsap; else deliveryDate">Как можно скорее</ng-container>
+                <ng-template #deliveryDate>{{ position.deliveryDate | date : 'dd.MM.yyyy' }}</ng-template>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #footerContentTpl>
+            <div class="app-row select-list-item-footer app-uppercase app-ghost-color app-bold">
+              <div class="app-col app-grow-0"></div>
+              <div class="app-col app-bold"></div>
+              <div class="app-col app-col-auto select-list-item-quantity">Кол-во</div>
+              <div class="app-col app-col-auto select-list-item-date">Дата поставки</div>
+            </div>
+          </ng-template>
+        </select-items-with-search>
+
+        <ng-template uxgModalFooter>
+          <button type="button" uxgButton lg secondary uxgModalClose>Отмена</button>
+          <button uxgButton lg primary (click)="positionsSearch.submit()"
+                  [disabled]="!positionsSearch.checkedFormItems.length">Все готово
+          </button>
+        </ng-template>
+      </ng-container>
+    </uxg-modal>
+
+    <uxg-modal #manufacturingNameModal size="l">
+      <h2>Заполнение заводских наименований</h2>
+      <app-request-proposal-form-manufacturing-name
+        [source]="procedureSource.TECHNICAL_PROPOSAL"
+        (cancel)="manufacturingNameModal.close()"
+        (ngModelChange)="manufacturingNameModal.close()"
+        [disabledFn]="positionManufacturerNameDisabled"
+        [showManufacturer]="false"
+        formControlName="positions"
+      ></app-request-proposal-form-manufacturing-name>
+    </uxg-modal>
+
+    <uxg-modal #uploadTemplateModal size="l">
+      <h2>Загрузить позиции и заводские наименования из шаблона</h2>
+      <div class="app-secondary-color">
+        Вы можете загрузить позиции и заводские наименования списком, если заполните шаблон xls таблицы (
+        <a class="app-link" (click)="onDownloadTemplate()">
+          <document-icon name=".xls" size="s"></document-icon>
+          <b> скачать шаблон</b>
+        </a>), и загрузите файл в систему.
+      </div>
+      <div class="dragAndDropArea">
+        <app-template-upload
+          [invalid]="invalidUploadTemplate"
+          (fileSelected)="onChangeFilesList($event)"></app-template-upload>
+      </div>
+      <ng-template uxgModalFooter>
+        <div class="doc-error-message" *ngIf="invalidUploadTemplate">Пожалуйста, загрузите необходимый шаблон</div>
+
+        <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+        <button uxgButton primary lg (click)="onSendTemplatePositions()">Загрузить</button>
+      </ng-template>
+    </uxg-modal>
+
+  </div>
+</form>

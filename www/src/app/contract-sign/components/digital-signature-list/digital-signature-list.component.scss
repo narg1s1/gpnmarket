@@ -1,0 +1,34 @@
+@import "src/theme";
+
+.certificates-list {
+  padding-top: 15px;
+
+  & .cert-item {
+    margin-bottom: 20px;
+
+    &.valid {
+      & .date-valid-to {
+        color: uxg($theme, color-font-success);
+      }
+    }
+
+    &.not-valid {
+      pointer-events: none;
+      cursor: not-allowed;
+      color: uxg($theme, color-font-ghost);
+
+      & .date-valid-to {
+        color: uxg($theme, color-font-alert);
+      }
+    }
+  }
+}
+
+.cert-info {
+  padding-left: 15px;
+
+  & .name {
+    font-weight: bold;
+    margin-bottom: 3px;
+  }
+}

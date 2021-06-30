@@ -1,0 +1,85 @@
+<div class="position-view positions-list" *ngIf="(position$ | async) as position">
+  <div class="position-document">
+    <span class="document-label">Нормативный документ:</span>{{position.productionDocument}}
+  </div>
+  <h1>{{position.name}}</h1>
+  <div class="app-row">
+    <div class="clr-col-9 tabs">
+      <uxg-tabs>
+        <uxg-tab-title #tab1>Характеристики</uxg-tab-title>
+        <uxg-tab-title #tab2>Документы</uxg-tab-title>
+        <uxg-tab-title #tab3>Поставщики</uxg-tab-title>
+      </uxg-tabs>
+      <div *ngIf="tab1.active" class="app-row position-info w-100">
+        <div class="clr-col-4 img">
+          <img *ngIf="position.image; else noImage" src="{{ position.image }}"/>
+          <ng-template #noImage>
+            <img src="../../../../assets/images/no-image.png" alt="Изображение отсуствует">
+          </ng-template>
+        </div>
+        <div class="app-col info">
+          <div class="info-title">
+            Описание
+          </div>
+          <div class="description">
+            {{position.description}}
+          </div>
+          <div class="info-title tech">
+            Технические характеристики
+          </div>
+          <div class="attributes" *ngIf="(attributes$ | async) as attributes">
+            <div class="app-row w-100 attr-line" *ngFor="let attribute of attributes">
+              <div class="clr-col-7 attribute-name">
+                <span class="name">{{attribute.name}}</span>
+              </div>
+              <div class="clr-col-5 attribute-values">
+                <span *ngFor="let value of attribute.values"><b>{{value.value}}</b></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="clr-col-3 price-card">
+      <span class="card-title">доступность и доставка</span>
+      <div class="price-info">Наличие на складе
+      </div>
+      <b>Под заказ</b>
+
+      <div *ngIf="position.supplierContragent">
+        <div class="price-info">Поставщик</div>
+        <app-contragent-info-link
+                [contragent]="position.supplierContragent">
+        </app-contragent-info-link>
+      </div>
+
+      <div class="price-info">Срок поставки</div>
+      <b>{{position.productionTime}} дней</b>
+      <div class="price">
+        <b>{{position.price | currency: 'RUB' :"symbol":"1.0-2"}}</b>
+        <div class="one-item"> За 1 {{position.measureUnit}}
+        </div>
+      </div>
+      <div class="price-info">Количество</div>
+      <div class="app-row">
+        <input #quantity
+               [disabled]="isPositionInCart(position)"
+               type="number"
+               class="quantity"
+               min="1"
+               value="1"
+               (input)="setValidQuantity($event.target.value, quantity)">
+        <button uxgButton primary lg *ngIf="!isPositionInCart(position) && quantity.value > 0; else disabledButton" class="in-cart"
+                (click)="onAddPositionToCart(position, +quantity.value)">
+          <img src="../../../../assets/images/cart-button.svg">
+        </button>
+        <ng-template #disabledButton>
+          <button uxgButton primary lg class="in-cart disabled-cart" disabled>
+            <img src="../../../../assets/images/cart.svg">
+          </button>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>

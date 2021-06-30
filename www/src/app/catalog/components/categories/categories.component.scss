@@ -1,0 +1,129 @@
+:host {
+  z-index: 10000;
+}
+
+:host, .categories-wrap {
+  animation: catalog-accordion 200ms cubic-bezier(0.4, 0, 0.2, 1) 0s;
+}
+
+.categories-wrap {
+  position: absolute;
+  top: 120px;
+  margin-top: 0;
+  margin-bottom: 30px;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  overflow: hidden;
+  box-shadow: 0 5px 15px 0 rgba(0, 0, 0, .12), 0 9px 46px 0 rgba(0, 0, 0, .06);
+
+
+  .c2 {
+    position: relative;
+    margin: 0 auto;
+    padding: 0;
+    background-color: white;
+
+    .c3 {
+      display: flex;
+      justify-content: center;
+      min-width: 960px;
+      min-height: 350px;
+      padding: 0 130px 0 130px;
+
+      .main-categories {
+        list-style: none;
+        position: relative;
+        min-width: 220px;
+        padding: 24px 0;
+        background: white;
+
+        li a {
+          display: block;
+          padding: 14px 16px;
+          cursor: pointer;
+          color: #333;
+          font-weight: 500;
+        }
+
+        .main-category-item-selected {
+          background-color: #E5E8EF;
+          border-radius: 4px;
+        }
+      }
+
+      .child-categories {
+        width: 724px;
+
+        .child-categories-container {
+          background-color: white;
+          height: 100%;
+          padding: 8px 24px 8px 8px;
+          cursor: pointer;
+
+          .child-categories-wrap {
+            width: 724px;
+            height: 100%;
+            padding: 27px 0 15px;
+            background: white;
+            -webkit-column-count: 2;
+            column-count: 2;
+
+            .child-category-item {
+              padding: 0 4px 12px 0;
+              -webkit-column-break-inside: avoid;
+              break-inside: avoid;
+
+              .child-category-header {
+                font-size: 17px;
+                line-height: 22px;
+                font-weight: 400;
+                color: black;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                display: block;
+                padding-bottom: 10px;
+
+                &:hover {
+                  color: #0085FF;
+                }
+              }
+
+              .subitem {
+                padding: 4px 0;
+              }
+
+              .subitem-text {
+                font-size: 14px;
+                line-height: 18px;
+                color: black;
+                display: block;
+                opacity: .6;
+
+                &:hover {
+                  color: #0085FF;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.categories {
+  padding-right: 20px;
+  border-right: 1px solid #E5E8EF;
+}
+
+@keyframes catalog-accordion {
+  from {
+    max-height: 0;
+  }
+
+  to {
+    max-height: 350px;
+  }
+}

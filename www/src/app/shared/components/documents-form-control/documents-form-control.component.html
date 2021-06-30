@@ -1,0 +1,76 @@
+<!-- upload documents -->
+<small class="app-ghost-color app-bold">ДОКУМЕНТЫ ПРЕДЛОЖЕНИЯ</small>
+<div class="app-row" *ngIf="dragAndDrop; else noDragAndDrop">
+  <div class="app-col app-bold">
+    <div appUploadFile class="upload-area" [ngClass]="{'invalid' : invalid}" hoverClass="upload-area-hover" (dropFile)="selectFile($event)">
+      <div>Перетащите документы сюда</div>
+    </div>
+  </div>
+
+  <div class="app-col app-row app-justify-content-between app-flex-column">
+    <div class="app-secondary-color">
+      Вы можете перетащить документы в окно слева, или нажать на кнопку ниже, и выбрать необходимые документы в
+      проводнике
+    </div>
+    <div>
+      <button
+        type="button" uxgButton secondary appUploadFile
+        [disabled]="disabled"
+        [multiple]="true"
+        (select)="selectFile($event)"
+      >Выбрать документы
+      </button>
+    </div>
+  </div>
+</div>
+
+<ng-template #noDragAndDrop>
+  <div class="app-row">
+    <div class="app-col download-button">
+      <button
+        type="button" uxgButton secondary appUploadFile
+        [disabled]="disabled"
+        [multiple]="true"
+        (select)="selectFile($event)"
+      >Выбрать документы
+      </button>
+    </div>
+    <div class="app-col app-justify-content-between app-flex-column">
+      <div class="app-secondary-color">
+        Прикладываемый/ые документы относятся к полному {{docType}} контрагента, и отображаются для всех {{docType}} по позициям от этого контрагента.
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<br/>
+
+<!-- document list -->
+<ng-container *ngIf="documents?.length || files?.length">
+  <small class="app-ghost-color app-bold">ЗАГРУЖЕННЫЕ ДОКУМЕНТЫ</small>
+  <div class="documents">
+    <div class="app-row">
+      <div class="app-col" *ngFor="let document of documents">
+        <ng-container *ngTemplateOutlet="documentRef; context: {document: document}"></ng-container>
+      </div>
+      <div class="app-col" *ngFor="let file of files; index as i">
+        <app-file [appFile]="file" (delete)="removeFile(i)" [disableDelete]="disabled || i==0"></app-file>
+      </div>
+
+      <ng-template #documentRef let-document="document" let-i="i">
+        <document-icon [name]="document.name || document.filename"></document-icon>
+        <div class="documents-title">
+          <div>{{ document.name || document.filename }}</div>
+          <div *ngIf="document.size > 0" class="app-secondary-color">
+            {{document.size | bytesToSize : 2}}
+          </div>
+        </div>
+        <div class="app-align-self-start" *ngIf="!disabled && i>=0">
+          <button type="button" uxgButton link icon clear (click)="removeFile(i)">
+            <uxg-icon shape="app-trash"></uxg-icon>
+          </button>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</ng-container>

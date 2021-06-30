@@ -1,0 +1,23 @@
+<ng-container *ngIf="(request$ | async) as request">
+  <app-request
+    #commonRequestComponent
+    [positions]="(positions$ | async) || []"
+    [request]="request"
+    [status]="status$ | async"
+    [positionsStatus]="positionsStatus$ | async"
+    [total]="totalCount$ | async"
+    [totalCountWithoutNotRelevantAndCanceled]="totalCountWithoutNotRelevantAndCanceled$ | async"
+    [pageSize]="pageSize"
+    (filter)="fetchFilters$.next($event)"
+    (addPosition)="store.dispatch(refresh(requestId)); fetchFilters$.next({})"
+    (approvePositions)="approvePositions($event.positionIds, $event.useAllPositions)"
+    (rejectPositions)="rejectPositions($event.positionIds, $event.rejectionMessage, $event.useAllPositions)"
+  ></app-request>
+</ng-container>
+
+<ng-template #loading>
+  <div class="text-center">
+    <span class="spinner spinner-md"></span>
+  </div>
+</ng-template>
+

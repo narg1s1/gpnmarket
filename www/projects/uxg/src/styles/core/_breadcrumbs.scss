@@ -1,0 +1,20 @@
+@import "../uxg";
+
+@mixin breadcrumbs($theme) {
+.app-breadcrumbs {
+  display: flex;
+  align-items: center;
+
+  &-separator {
+    color: uxg($theme, color-font-ghost);
+  }
+
+  &, a.app-breadcrumbs-breadcrumb {
+    color: uxg($theme, color-font-secondary);
+
+    &:hover {
+      color: uxg($theme, color-font-primary);
+    }
+  }
+}
+}

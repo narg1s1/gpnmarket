@@ -1,0 +1,32 @@
+<h2 class="app-row app-align-items-center">
+  <span class="app-col">Фильтр</span>
+
+  <button uxgButton clear (click)="reset.observers.length ? reset.emit() : formGroup.reset()" *ngIf="activeFilters.length > 0">
+    <!-- @TODO использовать компонент uxg-icon -->
+    <svg class="app-icon" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M14 0.557243L13.0232 0L11.2703 3H11.2644L10.7744 3.8487L4 15.4428L4.97679 16L6.72969 13H10V11H7.89829L9.06689 9H12V7H10.2355L11.4041 5H14V3H12.5727L14 0.557243ZM2 3H9.93071L8.77601 5H2V3ZM4 7H7.62131L6.46661 9H4V7Z"/>
+    </svg>
+    <span>Сбросить все</span>
+  </button>
+</h2>
+
+<ng-content></ng-content>
+
+<div class="app-col"></div>
+
+<div class="app-row" *ngIf="isOpen || !liveFilter">
+  <button uxgButton primary strength lg class="app-col" [disabled]="count === 0" (click)="close(); !liveFilter && filter.emit()">
+    Показать <span [style.opacity]="0.6">{{ count > 0 ? count : null }}</span>
+  </button>
+</div>
+
+<div>&nbsp;</div>
+
+<div class="app-aside-modal-backdrop" (click)="close()">
+  <div class="close">
+    <!-- @TODO использовать компонент uxg-icon -->
+    <svg class="app-icon" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13.6568 3.75735L12.2426 2.34314L8 6.58577L3.75737 2.34314L2.34316 3.75735L6.58579 7.99998L2.34314 12.2426L3.75735 13.6568L8 9.4142L12.2427 13.6568L13.6569 12.2426L9.41422 7.99998L13.6568 3.75735Z"/>
+    </svg>
+  </div>
+</div>

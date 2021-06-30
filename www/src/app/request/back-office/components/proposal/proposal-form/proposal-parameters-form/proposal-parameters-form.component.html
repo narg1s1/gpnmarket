@@ -1,0 +1,88 @@
+<form appFormValidation (ngSubmit)="submit()">
+  <div class="paymentTerms">
+    <label class="input-label">Условия оплаты</label>
+    <uxg-dropdown placeholder="Условия оплаты" [formControl]="paymentTermsControl">
+      <div uxgDropdownItem *ngFor="let term of paymentTerms" [value]="term[0]">{{term[1]}}</div>
+    </uxg-dropdown>
+  </div>
+
+  <div class="divider"></div>
+  <div class="parameters">
+    <ng-container *ngFor="let form of formArray?.controls" [formGroup]="form">
+      <span class="app-bold">{{ form.get("name").value }}</span>
+      <div class="app-row">
+        <div class="app-col">
+          <div class="app-control-wrap">
+            <input #priceWithoutVat uxgInput formControlName="priceWithoutVat" type="number" class="hidden-arrows" min="0"/>
+            <label class="app-control-label" (click)="priceWithoutVat.focus()">Цена за единицу без НДС</label>
+            <div class="app-control-error" *ngIf="form.get('priceWithoutVat').errors as e">
+              <span *ngIf="e.required">Обязательное поле</span>
+            </div>
+          </div>
+        </div>
+          <div class="app-col">
+            <div class="app-control-wrap">
+              <input #quantity uxgInput formControlName="quantity" type="number" class="hidden-arrows" [warning]="!isQuantityValid(form)"/>
+              <label class="app-control-label" (click)="quantity.focus()">Количество</label>
+              <div class="app-control-error" *ngIf="form.get('quantity').errors as e">
+                <span *ngIf="e.required">Обязательное поле</span>
+              </div>
+            </div>
+          </div>
+          <div class="app-col">
+
+            <uxg-dropdown-input appSuggestions strictMode formControlName="measureUnit" placeholder="Ед. измерения"
+                                [$]="okeiList$"
+                                [searchFn]="okeiService.searchOkei"
+                                [displayByFn]="getOkeiSymbol"
+                                #okei="appSuggestions"
+                                [appControlWrap]="true">
+              <ng-container *ngIf="(okei.suggestions$ | async) as okeiSuggestions">
+                <div uxgDropdownItem *ngFor="let suggestion of okeiSuggestions"
+                     [value]="suggestion"
+                     [attr.title]="suggestion.name | lowercase"
+                >{{suggestion.symbol | lowercase }} <span class="app-ghost-color">- {{suggestion.name | lowercase}}</span></div>
+              </ng-container>
+              <ng-template #errors>
+                <div class="app-control-error" *ngIf="form.get('measureUnit').errors as e">
+                  <span *ngIf="e.required">Обязательное поле</span>
+                  <span *ngIf="e.notFromList">Выберите из списка</span>
+                </div>
+              </ng-template>
+
+            </uxg-dropdown-input>
+          </div>
+          <div class="app-col">
+            <div class="app-control-wrap">
+            <uxg-dropdown placeholder="Валюта" formControlName="currency">
+              <div uxgDropdownItem [value]="currency[0]" *ngFor="let currency of currencies">{{ currency[1] }}</div>
+            </uxg-dropdown>
+            </div>
+          </div>
+          <div class="app-col">
+            <div class="app-control-wrap">
+              <input #deliveryDate uxgInput uxgDatepicker formControlName="deliveryDate" placeholder="Срок поставки" [warning]="!isDateValid(form)"/>
+              <label class="app-control-icon" (click)="deliveryDate.focus()">
+                <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+              </label>
+              <div class="app-control-error" *ngIf="form.get('deliveryDate').errors as e">
+                <span *ngIf="e.field">Неверная дата</span>
+              </div>
+            </div>
+          </div>
+        </div>
+    </ng-container>
+  </div>
+  <div class="divider"></div>
+  <div class="app-row app-uppercase app-ghost-color app-bold section">
+    <div class="app-col"><small>Цена за единицу без НДС</small></div>
+    <div class="app-col"><small class="app-uppercase app-ghost-color">Количество</small></div>
+    <div class="app-col"><small class="app-uppercase app-ghost-color">Ед. измерения</small></div>
+    <div class="app-col"><small class="app-uppercase app-ghost-color">Валюта</small></div>
+    <div class="app-col"><small class="app-uppercase app-ghost-color"></small></div>
+  </div>
+  <div class="app-row app-justify-content-end">
+    <button uxgButton lg secondary type="button" (click)="cancel.emit()">Отмена</button>
+    <button uxgButton lg primary type="button" (click)="submit()">Сохранить</button>
+  </div>
+</form>

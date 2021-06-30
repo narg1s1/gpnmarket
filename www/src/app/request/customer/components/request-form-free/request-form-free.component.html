@@ -1,0 +1,36 @@
+<div class="free-form-request-content">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+
+    <div class="app-control-wrap">
+      <input #nameRef uxgInput type="text" lg formControlName="name"/>
+      <label class="app-control-label" (click)="nameRef.focus()">Наименование заявки</label>
+      <div class="app-control-error" *ngIf="form.get('name').errors as e">
+        <span *ngIf="e.required">Обязательное поле</span>
+      </div>
+    </div>
+
+    <div class="app-secondary-color app-section">
+      Загрузите сюда опросный лист или другой документ, который поможет нам понять какое оборудование или услуга вам нужны
+    </div>
+    <div class="app-section">
+      <app-document-upload-list
+        [dragAndDropAvailable]="true"
+        (fileSelected)="form.get('documents').setValue($event.files)">
+      </app-document-upload-list>
+    </div>
+
+    <div class="app-section comment app-align-items-center">
+      <div class="app-row">
+        <h3>Комментарий</h3>
+        <div class="app-ghost-color">(необязательно, если нужно дополнить опросный лист)</div>
+      </div>
+      <textarea rows="3" placeholder="Текст комментария" formControlName="comments"></textarea>
+    </div>
+
+    <div class="app-row app-justify-content-end app-align-items-center">
+      <div *ngIf="isLoading"><span class="spinner spinner-inline"></span></div>
+      <button type="button" uxgButton lg secondary (click)="cancel.emit()">Отмена</button>
+      <button uxgButton lg primary [disabled]="form.invalid || form.disabled">Опубликовать</button>
+    </div>
+  </form>
+</div>

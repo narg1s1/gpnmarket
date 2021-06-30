@@ -1,0 +1,74 @@
+<nav class="app-menu">
+  <div class="app-layout app-row">
+    <!-- Лого -->
+    <a routerLink="/"><img class="app-menu-logo" src="assets/images/logo.svg"/></a>
+
+    <ng-container *ngIf="user.isAuth()">
+    <!-- Пункты меню -->
+    <ng-container *ngFor="let link of menu">
+      <a *ngIf="!link.base" class="app-link-no-color app-menu-item" [routerLink]="link.path" routerLinkActive="active">{{ link.text }}</a>
+      <a *ngIf="link.base" class="app-link-no-color app-menu-item" [href]="link.base + link.path">{{ link.text }}</a>
+    </ng-container>
+
+    <div class="app-col"></div>
+
+    <!-- Сообщения -->
+    <ng-container *ngIf="featureService.authorize('chat')">
+      <div class="app-menu-icon">
+        <a routerLink="im" routerLinkActive="active" class="app-secondary-color">
+          <div class="app-ghost-color"><uxg-icon shape="app-comment-big" size="24"></uxg-icon></div>
+          <small class="counter" *ngIf="unreadMessagesCount$ | async as count">{{ count }}</small>
+        </a>
+
+        <app-chat-notification></app-chat-notification>
+      </div>
+    </ng-container>
+
+    <!-- Уведомления -->
+    <ng-container *ngIf="featureService.authorize('notifications')">
+      <div class="app-menu-icon">
+        <button uxgButton clear (click)="openNotificationsModal();">
+          <div class="app-ghost-color"><uxg-icon shape="app-ring" size="24"></uxg-icon></div>
+
+          <small class="counter" *ngIf="unreadNotificationsCount$ | async as notificationsCount">
+            {{ notificationsCount }}
+          </small>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Корзина -->
+    <ng-container *ngIf="featureService.authorize('cart')">
+      <a class="app-menu-icon" routerLink="cart" routerLinkActive="active" *ngIf="cartStoreService.getCount() > 0">
+        <uxg-icon class="app-ghost-color" shape="app-basket-big" size="24"></uxg-icon>
+        <small class="counter">{{ cartStoreService.getCount() }}</small>
+      </a>
+
+      <div *ngIf="cartStoreService.getCount() === 0" class="app-menu-icon app-ghost-color">
+        <uxg-icon shape="app-basket-big" size="24"></uxg-icon>
+      </div>
+    </ng-container>
+
+    <!-- Профиль -->
+    <div class="app-menu-login">
+      <uxg-popover #popover>
+        <div uxgPopoverTrigger class="app-row app-align-items-center">
+          <img src="assets/images/avatar.svg"/>
+          <div>
+            <div class="app-ellipsis username">{{ user.getShortUserFio() }}</div>
+            <div class="app-ghost-color app-ellipsis contragent">{{ userBriefInfo }}</div>
+          </div>
+        </div>
+        <div *uxgPopoverContent="'app-popover-content-bottom-right'">
+          <button uxgButton clear (click)="popover.hide(); logout();">Выход</button>
+        </div>
+      </uxg-popover>
+    </div>
+    </ng-container>
+  </div>
+</nav>
+
+<ng-container *ngIf="!document.body.classList.contains('notifications-modal-open') && featureService.authorize('notifications')">
+  <app-notification-popup #notificationPopupComponent [view]="'popup'"></app-notification-popup>
+</ng-container>
+

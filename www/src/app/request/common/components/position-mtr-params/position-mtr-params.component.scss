@@ -1,0 +1,46 @@
+.attributes {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 900px;
+}
+
+.attribute-item {
+  margin-right: 20px;
+  margin-bottom: .5em;
+  width: calc(50% - 20px);
+}
+
+.dots {
+  position: relative;
+  align-items: flex-start;
+  padding-left: 0;
+
+  &:after {
+    position: absolute;
+    right: 5px;
+    left: 5px;
+    height: 1px;
+    margin: 16px 0 0;
+    content: '';
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAABCAAAAAA+i0toAAAAAnRSTlMA/1uRIrUAAAAMSURBVHheY7j1/z8ABY8C2UtBe8oAAAAASUVORK5CYII=) 0 0 repeat-x;
+  }
+}
+
+.attribute-values {
+  display: inline-flex;
+  vertical-align: top;
+  padding: 0;
+  position: relative;
+  font-weight: 500;
+}
+
+.mtr {
+  & .origin-name-section, & .attributes-section {
+    margin-bottom: 25px;
+
+    & .title {
+      padding-bottom: 13px;
+    }
+  }
+}

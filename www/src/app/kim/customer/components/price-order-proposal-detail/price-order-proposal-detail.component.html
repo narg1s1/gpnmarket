@@ -1,0 +1,45 @@
+<ng-container *ngIf="proposal?.sourceProposal.proposalSupplier.documents?.length">
+  <small class="app-uppercase app-ghost-color app-bold">Документы предложения</small>
+  <app-document-simple-list [gridable]="true" [enableUpload]="false" [documents]="proposal?.sourceProposal.proposalSupplier.documents">
+  </app-document-simple-list>
+</ng-container>
+<small class="app-uppercase app-ghost-color app-bold">Параметры запроса</small>
+<div class="modal-section">
+  <div class="app-row modal-section-header">
+    <div class="app-col app-ghost-color">Наименование контрагента</div>
+    <!-- @TODO Ждём бэк -->
+    <!--div class="app-col app-ghost-color">Способ оплты</div-->
+  </div>
+  <div class="app-row">
+    <div class="app-col app-bold">
+      <app-contragent-info-link [contragent]="proposal?.sourceProposal.proposalSupplier.supplier" hiddenName="Наименование скрыто"></app-contragent-info-link>
+    </div>
+    <!-- @TODO Ждём бэк -->
+    <!--div class="app-col app-bold">{{ proposal.paymentTerms }}</div-->
+  </div>
+</div>
+<div class="modal-section modal-info">
+  <div class="app-row app-ghost-color">
+    <div class="app-col">Количество</div>
+    <div class="app-col">Цена за единицу без НДС</div>
+    <div class="app-col">Срок поставки</div>
+    <div class="app-col">Сумма без НДС</div>
+  </div>
+  <div class="app-row">
+    <h2 class="app-col">
+      <span [class.app-error-color]="!helper.isQuantityValid(position, proposal)">{{proposal.quantity}} </span>
+      <span class="app-ghost-color">{{position.measureUnit | lowercase}}</span>
+    </h2>
+    <h2 class="app-col">
+      {{proposal.priceWithoutVat | number:'1.0-2'}}
+      <span class="app-ghost-color">{{getCurrencySymbol(proposal.currency, "narrow")}}</span>
+    </h2>
+    <h2 class="app-col" [class.app-error-color]="!helper.isDateValid(position, proposal)">
+      {{proposal.deliveryDate | date:"dd.MM.yyyy"}}
+    </h2>
+    <h2 class="app-col">
+      {{proposal.priceWithoutVat * proposal.quantity | number:'1.0-2'}}
+      <span class="app-ghost-color">{{getCurrencySymbol(proposal.currency, "narrow")}}</span>
+    </h2>
+  </div>
+</div>

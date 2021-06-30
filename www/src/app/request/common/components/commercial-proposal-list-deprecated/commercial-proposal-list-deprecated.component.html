@@ -1,0 +1,65 @@
+<div class="cards app-row" *ngIf="requestPosition.linkedOffers.length !== 0">
+  <ng-container *ngFor="let linkedOffer of requestPosition.linkedOffers">
+
+    <div class="card-wrap clr-col-xl-6 clr-col-lg-12">
+      <div class="card" [class.winner]="linkedOffer.isWinner">
+        <div class="card-header">
+          <ng-container *ngIf="linkedOffer.supplierContragent; else noname">
+          <app-contragent-info-link [contragent]="linkedOffer.supplierContragent"></app-contragent-info-link>
+          </ng-container>
+          <ng-template #noname>
+            Поставщик
+          </ng-template>
+          <uxg-icon title="Победитель" *ngIf="linkedOffer.isWinner" shape="app-star" class="is-solid"></uxg-icon>
+        </div>
+        <div class="card-block">
+          <div class="app-row">
+            <div class="app-col">Цена без НДС</div>
+            <div class="app-col">{{ linkedOffer.priceWithoutVat * linkedOffer.quantity | currency : linkedOffer.currency }}</div>
+          </div>
+          <div class="app-row">
+            <div class="app-col">Количество</div>
+            <div class="app-col">{{linkedOffer.quantity}} {{linkedOffer.measureUnit}}</div>
+          </div>
+          <div class="app-row">
+            <div class="app-col">Дата поставки</div>
+            <div class="app-col">{{linkedOffer.deliveryDate | date :'shortDate'}}</div>
+          </div>
+          <div class="app-row">
+            <div class="app-col">Условия оплаты</div>
+            <div class="app-col">{{linkedOffer.paymentTerms}}</div>
+          </div>
+          <div class="app-row" *ngIf="isCustomerView && canChoiceWinner()">
+            <div class="app-col"></div>
+            <div class="app-col">
+              <button uxgButton primary (click)="onChoiceWinner(linkedOffer)">Выбрать победителя
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-block" *ngIf="linkedOffer.technicalProposals.length > 0 || canUploadTp()">
+          <div class="card-title">Технические предложения</div>
+          <app-document-simple-list
+            [enableUpload]="!isNotActual(requestPosition)"
+            [documents]="linkedOffer.technicalProposals"
+            (selected)="onUploadTechnicalProposals($event, linkedOffer)"
+          ></app-document-simple-list>
+        </div>
+        <div class="card-block" *ngIf="linkedOffer.documents.length > 0 || canUploadKp()">
+          <div class="card-title">Коммерческие предложения</div>
+          <app-document-simple-list
+            [enableUpload]="!isNotActual(requestPosition)"
+            [documents]="linkedOffer.documents"
+            (selected)="onUploadDocuments($event, linkedOffer)"
+          ></app-document-simple-list>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<ng-container *ngIf="!requestPosition.linkedOffers || requestPosition.linkedOffers.length === 0">
+  <div class="app-row no-offers">
+    <p>Коммерческие предложения по позиции отсутствуют</p>
+  </div>
+</ng-container>

@@ -1,0 +1,91 @@
+@import "src/theme";
+
+:host {
+  ::ng-deep {
+    #address_input {
+      background-color: white;
+      padding: 10px 15px;
+      border: 1px solid #e5e8ef;
+      margin-top: 21px;
+      border-radius: 4px;
+      height: 40px;
+    }
+
+    ngx-dadata.invalid input {
+      border: 1px solid red !important;
+    }
+  }
+}
+
+.app-col {
+  padding: .25em .5em;
+
+  &:first-child {
+    padding-left: 0
+  }
+
+  &:last-child {
+    padding-right: 0
+  }
+}
+
+.select-role, .internal {
+  display: inline-flex;
+  margin: 31px 0;
+
+  & > *:not(:last-of-type) {
+    padding-right: 15px;
+  }
+}
+
+.select-role {
+  padding: 0 20px;
+
+  & div:first-of-type:after {
+    content: "";
+    border-right: 1px solid #e5e8ef;
+    margin: 0 0 0 15px;
+    height: 20px;
+  }
+}
+
+.internal {
+  padding-left: 20px;
+}
+
+.add-contragent {
+  padding-top: 20px;
+}
+
+.alert.autofill-alert {
+  border-radius: 4px
+}
+
+.last-edit {
+  margin-bottom: 20px;
+}
+
+
+.rating-stars .star {
+  display: inline-block;
+  margin: 0 5px 0 0;
+  width: 20px;
+
+  &.active {
+    color: uxg($theme, color-primary);
+  }
+}
+
+.rating-label {
+  margin-top: 18px;
+  font-size: 13px;
+  padding-bottom: 5px;
+}
+
+.rating-stars {
+  margin-left: -3px;
+}
+
+::ng-deep .invalid .app-dropdown-handler {
+  border: 1px solid uxg($theme, color-control-invalid);
+}

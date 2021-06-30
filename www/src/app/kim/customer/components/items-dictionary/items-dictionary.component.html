@@ -1,0 +1,99 @@
+<ng-container *ngIf="itemsDictionary$ | async; else startSearch">
+  <form (ngSubmit)="router.navigate(['/kim','customer', 'items-dictionary', searchText.value])">
+    <div class="app-row">
+      <div class="app-col">
+        <div class="app-control-wrap">
+          <input #search uxgInput lg [formControl]="searchText"/>
+          <label class="app-control-label" (click)="search.focus()">Поиск по справочнику товаров</label>
+        </div>
+      </div>
+
+      <div class="app-col search">
+        <button uxgButton icon primary lg
+                [disabled]="!searchText.value">
+          <uxg-icon shape="app-search"></uxg-icon>
+        </button>
+      </div>
+
+      <div class="app-col desc">
+        <span class="app-ghost-color">
+          Если вы не нашли нужный товар в каталоге, его можно поискать по классификатору,
+          если он будет найден вы можете добавить его в корзину и создать по нему ценовой запрос.
+        </span>
+      </div>
+    </div>
+  </form>
+</ng-container>
+
+<ng-template #startSearch>
+  <div class="start-search-block">
+    <h1>Поиск по справочнику товаров</h1>
+
+    <form (ngSubmit)="router.navigate(['/kim','customer', 'items-dictionary', searchText.value])">
+      <div class="app-row app-justify-content-center">
+        <div class="app-col start-search">
+          <div class="app-control-wrap">
+            <input #search uxgInput lg [formControl]="searchText"/>
+            <label class="app-control-label" (click)="search.focus()">Поиск по справочнику товаров</label>
+          </div>
+        </div>
+
+        <div class="app-col search">
+          <button uxgButton icon primary lg
+                  [disabled]="!searchText.value">
+            <uxg-icon shape="app-search"></uxg-icon>
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div class="app-row app-justify-content-center">
+      <div class="app-col">
+        <span class="app-ghost-color start-desc">
+        Если вы не нашли нужный товар в каталоге, его можно поискать по классификатору,
+        если он будет найден вы можете добавить его в корзину и создать по нему ценовой запрос.
+        </span>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<ng-container *ngIf="(itemsDictionary$ | async) !== null">
+  <ng-container *ngIf="(itemsDictionary$ | async).length !==0; else noItems">
+    <div class="app-row app-uppercase app-ghost-color app-bold">
+      <small class="app-col app-ellipsis name">Наименование</small>
+      <small class="app-col app-ellipsis dictionary-name">Раздел классификатора ОКПД2</small>
+      <small class="app-col measure">Ед. изм.</small>
+      <small class="app-col quantity">Количество</small>
+    </div>
+    <ng-container [formGroup]="form">
+      <div class="app-card" formArrayName="itemsDictionary">
+        <div class="app-row app-align-items-center item" *ngFor="let itemDictionary of itemsDictionary$ | async; index as i" [formGroupName]="i">
+          <div class="app-col app-ellipsis app-bold name" title="{{itemDictionary.dictionaryPositionName}}"
+          >{{itemDictionary.dictionaryPositionName}}
+          </div>
+
+            <div class="app-col app-ellipsis app-secondary-color dictionary-name">
+              <ng-container *ngIf="itemDictionary.classifierCategory">
+              {{itemDictionary.classifierCategory.okpd2}} {{itemDictionary.classifierCategory.name}}
+              </ng-container>
+            </div>
+          <div class="app-col app-ghost-color measure">
+          </div>
+          <div class="app-col quantity">
+            <input uxgInput formControlName="quantity">
+            <button uxgButton icon primary [disabled]="formItemsDictionary.at(i)?.invalid" (click)="addItem(formItemsDictionary.at(i))">
+              <uxg-icon shape="app-basket"></uxg-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</ng-container>
+<ng-template #noItems>
+  <h2 class="text-center" [style.opacity]="0.1">
+    <uxg-icon shape="app-search" size="270"></uxg-icon>
+    <br/>
+    Извините, по вашему запросу<br/> ничего не найдено
+  </h2>
+</ng-template>

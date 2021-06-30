@@ -1,0 +1,21 @@
+.name, .email, .phone, .count {
+  line-height: 32px;
+}
+.name { flex-grow: .4 }
+.email { flex-grow: .3 }
+.phone { flex-grow: .2 }
+.count {
+  flex-grow: .1;
+  min-width: 105px;
+}
+.edit {
+  flex-basis: 32px;
+  flex-grow: 0;
+  min-width: 80px;
+}
+
+.settings {
+  .app-col {
+    display: flex;
+  }
+}

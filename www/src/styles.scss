@@ -1,0 +1,122 @@
+/* Подключение шрифтов */
+@import "assets/styles/fonts";
+
+$font_ptroot: PT Root UI, Roboto, sans-serif;
+/* deprecated section, do not use this styles */
+$clr-use-custom-properties: false;
+$color_black: #000000;
+$color_blue: #0085FF;
+$color_orange: #FF9E00;
+$color_green: #417505;
+$color_red: #FF2519;
+$color_gray: #999999;
+$color_light_gray: #D4D9E2;
+$font_size_basic: 14px;
+@import "~@clr/ui/src/main";
+
+@import "assets/styles/deprecated/card-items";
+@import "assets/styles/deprecated/input-fields";
+@import "assets/styles/deprecated/alerts";
+@import "assets/styles/deprecated/styles";
+/* end of deprecated sectiion */
+
+
+@import "~nouislider/distribute/nouislider.min.css";
+@import "~flatpickr/dist/flatpickr.min.css";
+
+@import "src/theme";
+@include core($theme);
+@import "assets/styles/grid";
+@import "assets/styles/proposals-grid";
+@import "assets/styles/filter";
+@import "assets/styles/statuses";
+
+body,
+html {
+  height: 100%;
+}
+
+body, body p, h1, h2, h3, h4, h5, h6 {
+  font-family: $font_ptroot;
+  line-height: normal;
+}
+
+body {
+  color: uxg($theme, color-font-primary);
+  background: uxg($theme, color-bg);
+
+  &.modal-open, &.notifications-modal-open {
+    overflow: hidden;
+  }
+
+  *:focus {
+    outline: 0;
+  }
+}
+
+// Стиль скрывает слой с модалкой плагина КриптоПро, которая появляется, если не установлен плагин в браузере
+#cadesplugin_ovr {
+  display: none !important;
+}
+
+::-ms-clear {
+  display:none;
+}
+
+a, a:hover, a:visited, [routerlink]:hover, [ng-reflect-router-link]:hover {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.app-position-status {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+
+  > * + * {
+    margin-left: .5em
+  }
+
+  &-icon {
+    width: .858em;
+    height: .858em;
+    border-radius: uxg($theme, counter-border-radius);
+
+    @each $status, $color in $statuses {
+      &.#{$status} { background-color: $color }
+    }
+  }
+}
+
+.activity-type {
+  &-OFFER_STATUS {
+    background-color: map-get($statuses, PROPOSALS_PREPARATION) !important;
+  }
+  &-POSITION_TECHNICAL_COMMERCIAL_PROPOSAL_STATUS {
+    background-color: map-get($statuses, TECHNICAL_COMMERCIAL_PROPOSALS_PREPARATION) !important;
+  }
+}
+
+.placeholder {
+  background: #F2F2F2;
+  margin-bottom: 24px;
+  border-radius: uxg($theme, card-border-radius);
+
+  &-row {
+    @extend .placeholder;
+
+    & + & {
+      margin-left: 1em;
+    }
+  }
+}
+
+.app-tabs-item {
+  &:not(&-active) .counter {
+    @extend .app-ghost-color;
+  }
+
+  .counter {
+    @extend .app-font-normal;
+  }
+}

@@ -1,0 +1,17 @@
+<div class="app-wizzard app-row app-ghost-color app-align-items-center">
+  <ng-container *ngFor="let step of wizzard; index as i">
+    <div *ngIf="i > 0" class="app-col app-grow-0 app-basis-auto">
+      <uxg-icon shape="app-arrow right"></uxg-icon>
+    </div>
+
+    <div class="app-col app-grow-0 app-basis-auto">
+      <div class="app-row app-align-items-center">
+        <div class="app-wizzard-item" [class.active]="wizzard.isCurrent(step)" [class.completed]="step.completed">
+          <uxg-icon *ngIf="getStepIcon(step) as shape" class="app-wizzard-item-icon" [attr.shape]="shape"></uxg-icon>
+          {{ i + 1 }}
+        </div>
+        <div>{{ step.label }}</div>
+      </div>
+    </div>
+  </ng-container>
+</div>

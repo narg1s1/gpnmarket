@@ -1,0 +1,68 @@
+@import "src/theme";
+
+.position-annotation {
+  margin-top: -24px;
+}
+
+.dashboard {
+  margin-top: -17px;
+  margin-bottom: 50px;
+}
+
+.actions {
+  .app-row:first-child,
+  .app-col:first-child {
+    padding-left: 0;
+  }
+
+  .app-col {
+    flex-grow: 0;
+    flex-basis: auto;
+
+    &.separator {
+      border-left: 1px #D5DDE2 solid;
+      flex-grow: 0;
+      padding: 0;
+      height: 16px;
+      align-self: center;
+    }
+  }
+}
+
+.status {
+  display: flex;
+  align-items: center;
+
+  .app-position-status-icon {
+    margin-right: 7px;
+    margin-left: -19px;
+  }
+}
+
+.group-name {
+  white-space: nowrap;
+  max-width: 400px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: block;
+  float: right;
+  padding-left: 5px;
+}
+
+.modal-body {
+  margin-right: -15px;
+  padding-right: 15px;
+  @include scrollbar($theme);
+}
+
+::ng-deep h3.sector-title {
+  margin: 0 0 16px 0;
+}
+
+hr {
+  margin: 14px 0;
+}
+
+.approver {
+  background-color: uxg($theme, color-bg);
+}

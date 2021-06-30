@@ -1,0 +1,66 @@
+:host {
+  display: block;
+  animation: host-show 200ms;
+  transform-origin: top;
+}
+
+.app-col:not(:last-child) {
+  padding-right: 24px;
+}
+
+.section {
+  margin-bottom: 10px;
+
+  & ~ .section {
+    margin-top: 20px;
+  }
+
+  &:first-child { margin-top: 0 }
+}
+
+.position-info-item {
+  margin: 16px 0;
+}
+
+.app-col-sm {
+  flex-grow: .15;
+  max-width: 100px;
+  flex-basis: 100px;
+}
+.app-col-m {
+  flex-grow: .15;
+  max-width: 200px;
+  flex-basis: 200px;
+}
+
+.button-params {
+  width: 100%;
+  max-width: none;
+}
+
+uxg-checkbox + label { margin-left: .5em; }
+
+@keyframes host-show {
+  0% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.type {
+  min-width: 300px;
+}
+
+.actions {
+  margin-top: 16px;
+}
+
+.delete {
+  text-align: end;
+  align-self: flex-end;
+}

@@ -1,0 +1,30 @@
+:host {
+  display: block;
+  margin-top: 56px;
+}
+
+h3 {
+  font-size: 17px;
+  margin: 0;
+}
+
+ul {
+  list-style: none;
+
+  li {
+    margin: 8px 0;
+
+    & > ul {
+      margin: 0;
+    }
+  }
+}
+
+
+a, a:link, a:visited {
+  color: #000;
+}
+
+a:hover {
+  color: #1565c0;
+}

@@ -1,0 +1,193 @@
+<div class="app-card" [formGroup]="form">
+  <!-- title -->
+  <div class="app-row app-align-items-center">
+    <div class="app-col-auto checkbox-space" *ngIf="onReview && !folded">
+      <uxg-checkbox formControlName="checked" uxgSelectAllFor="positions" *ngFor="let c of [form.get('positions')]">
+      </uxg-checkbox>
+    </div>
+
+    <h3 class="app-col">
+      <app-contragent-info-link
+        hiddenName="Поставщик №{{ hiddenSupplierNumber }}"
+        [contragent]="proposal.supplier">
+      </app-contragent-info-link>
+    </h3>
+
+    <div class="app-ghost-color app-bold" *ngIf="onReview && !isInQueue">
+      <uxg-icon shape="app-waiting"></uxg-icon>
+      <span>Необходимо рассмотреть</span>
+    </div>
+
+    <div class="app-warning-color app-bold" *ngIf="!reviewed && !onReview && !isInQueue">
+      <uxg-icon shape="app-warning"></uxg-icon>
+      <span>На доработке</span>
+    </div>
+
+    <div class="app-success-color app-bold" *ngIf="reviewed && !isInQueue">
+      <uxg-icon shape="app-check"></uxg-icon>
+      <span>Рассмотрено</span>
+    </div>
+
+    <div class="app-ghost-color app-bold" *ngIf="isInQueue">
+      <uxg-icon shape="app-waiting"></uxg-icon>
+      <span>В обработке</span>
+    </div>
+
+    <button uxgButton icon link (click)="folded = !folded">
+      <uxg-icon shape="app-chevron" [attr.dir]="folded ? 'down' : 'up'"></uxg-icon>
+    </button>
+  </div>
+
+  <ng-container *ngIf="!folded">
+
+    <div class="app-table app-no-border" [class.on-review]="onReview" *ngIf="proposal.items.length">
+
+      <div class="app-row">
+        <div class="app-col">
+          <hr/>
+          <div class="app-row app-uppercase app-ghost-color app-bold position-list">
+            <div class="app-col-auto checkbox-space" *ngIf="onReview"></div>
+            <small class="app-col app-ellipsis name">Наименование позиции</small>
+            <small class="app-col app-ellipsis manufacturing-name" *ngIf="source === 'TECHNICAL_COMMERCIAL_PROPOSAL'">
+              Заводское наименование
+            </small>
+            <small class="app-col app-ellipsis manufacturer">Изготовитель</small>
+            <small class="app-col app-ellipsis manufacturing-name" *ngIf="source === 'COMMERCIAL_PROPOSAL'">
+              Стандарт
+            </small>
+            <small class="app-col total">Сумма без НДС</small>
+            <small class="app-col quantity">Количество</small>
+            <small class="app-col price">Цена за ед.</small>
+            <small class="app-col date">Срок пост.</small>
+            <small class="status text-center">Статус</small>
+          </div>
+
+          <ng-container formArrayName="positions">
+            <div class="app-row position-list"
+                 *ngFor="let item of proposal.items; index as i"
+                 [class.app-ghost-color]="isProposalPositionReviewed(item) || item.inQueue"
+                 [formGroupName]="i">
+              <div class="app-col-auto checkbox-space" *ngIf="onReview">
+                <uxg-checkbox class="app-control" #checked
+                              formControlName="checked">
+                </uxg-checkbox>
+              </div>
+
+              <div class="app-col app-ellipsis name">{{getPosition(item).name}}</div>
+              <div class="app-col app-ellipsis manufacturing-name" *ngIf="source === 'TECHNICAL_COMMERCIAL_PROPOSAL'">
+                {{item.manufacturingName}}
+              </div>
+              <div class="app-col app-ellipsis manufacturer">{{item?.manufacturer}}</div>
+              <div class="app-col app-ellipsis manufacturing-name" *ngIf="source === 'COMMERCIAL_PROPOSAL'">
+                {{item?.standard}}
+              </div>
+              <div class="app-col total">
+                {{(item.priceWithoutVat * item.quantity) || null | number:'1.0-2'}} <span class="app-ghost-color">{{getCurrencySymbol(item.currency, "narrow")}}</span>
+              </div>
+              <div class="app-col quantity" [class.app-error-color]="!helper.isQuantityValid(item, getPosition(item))">
+                {{item.quantity}}
+                <span class="app-ghost-color" [class.app-error-color]="!helper.isQuantityValid(item, getPosition(item))">
+                  {{item.measureUnit}}
+                </span>
+              </div>
+
+              <div class="app-col price">
+                {{item.priceWithoutVat | number:'1.0-2'}}
+                <span class="app-ghost-color">{{getCurrencySymbol(item.currency, "narrow")}}</span>
+              </div>
+
+              <div class="app-col date" [class.app-error-color]="!helper.isDateValid(item, getPosition(item))">
+                {{item.deliveryDate | date:"dd.MM.yyyy"}}
+              </div>
+
+              <div class="status text-center app-ghost-color" *ngIf="item.inQueue; else statuses">
+                <uxg-icon shape="app-waiting"></uxg-icon>
+              </div>
+
+              <ng-template #statuses>
+                <div class="status text-center"
+                    [class.app-ghost-color]="item.status !== 'APPROVED'"
+                    [class.app-success-color]="item.status === 'APPROVED'"
+                    [class.app-warning-color]="item.status === 'SENT_TO_EDIT'"
+                    [ngSwitch]="item.status">
+                  <uxg-icon shape="app-draft" *ngSwitchCase="'NEW'"></uxg-icon>
+                  <uxg-icon shape="app-unknown" *ngSwitchCase="'SENT_TO_REVIEW'"></uxg-icon>
+                  <uxg-icon shape="app-warning" *ngSwitchCase="'SENT_TO_EDIT'"></uxg-icon>
+                  <uxg-icon shape="app-check" *ngSwitchDefault></uxg-icon>
+                </div>
+              </ng-template>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+    </div>
+
+    <ng-container *ngIf="proposal.deliveryType || proposal.warrantyConditions || proposal.deliveryAdditionalTerms">
+      <hr/>
+      <div class="app-row section">
+        <div class="app-col" *ngIf="proposal.deliveryType">
+          <small class="app-uppercase app-ghost-color app-bold">Тип и стоимость доставки</small>
+          <ng-container *ngIf="proposal.deliveryType === 'INCLUDED'">
+            <span class="conditions-info">Стоимость включена в стоимость позиций</span>
+          </ng-container>
+          <ng-container *ngIf="proposal.deliveryType === 'NOT_INCLUDED'">
+            <span class="conditions-info">Стоимость доставки {{proposal.deliveryPrice}} {{getCurrencySymbol(proposal.deliveryCurrency, "narrow")}}</span>
+          </ng-container>
+          <ng-container *ngIf="proposal.deliveryType === 'PICKUP'">
+            <span class="conditions-info">Самовывоз {{proposal.deliveryPickup}}</span>
+          </ng-container>
+        </div>
+        <div class="app-col" *ngIf="proposal.deliveryAdditionalTerms">
+          <small class="app-uppercase app-ghost-color app-bold">Дополнительные условия поставки</small>
+          <span class="conditions-info">{{proposal.deliveryAdditionalTerms}}</span>
+        </div>
+        <div class="app-col" *ngIf="proposal.warrantyConditions">
+          <small class="app-uppercase app-ghost-color app-bold">Гарантийные условия</small>
+          <span class="conditions-info">{{proposal.warrantyConditions}}</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Документы ТКП -->
+    <ng-container *ngIf="proposal.documents.length">
+      <hr/>
+      <small class="app-uppercase app-ghost-color app-bold">Документы предложения</small>
+      <app-document-simple-list [gridable]="true" [enableUpload]="false" [documents]="proposal.documents">
+      </app-document-simple-list>
+    </ng-container>
+
+    <ng-container *ngIf="onReview">
+      <hr>
+
+      <div class="app-row app-align-items-center bottom-row">
+        <div class="app-col app-secondary-color">
+          Все цены указаны <b>без НДС</b>.
+        </div>
+
+        <div class="app-col app-col-auto total-price-block">
+          <div class="app-ghost-color">Общая сумма без НДС</div>
+          <div class="total-price">
+            <b>{{ helper.getSummaryPrice(proposal.items) | number: "1.0-2" }}
+            <span class="app-ghost-color">{{ getCurrencySymbol('RUB', 'narrow') }}</span></b>
+          </div>
+        </div>
+
+        <div class="app-row app-col app-col-auto app-align-items-center">
+          <span *ngIf="isLoading" class="spinner spinner-inline">Загрузка...</span>
+          <button uxgButton secondary
+                  (click)="sendToEdit.emit()"
+                  [disabled]="selectedPositions?.length === 0 || isInQueue || isLoading">
+            На доработку
+          </button>
+
+          <button uxgButton primary
+                  (click)="approve.emit()"
+                  [disabled]="selectedPositions?.length === 0 || isInQueue || isLoading">
+            Выбрать победителя
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>

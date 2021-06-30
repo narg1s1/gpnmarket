@@ -1,0 +1,16 @@
+<ng-container *ngIf="valueChanges$ | async"></ng-container>
+<div class="app-row app-align-items-center app-section" *ngIf="search.observers.length > 0 && (!folded || foldedSearch)">
+  <input uxgInput [formControl]="searchControl" [placeholder]="searchPlaceholder" />
+</div>
+<div class="scrollable">
+  <div class="app-row app-align-items-center app-section" *ngFor="let group of formGroupsVisible; trackBy: trackByFn" [formGroup]="group">
+    <ng-container *ngTemplateOutlet="itemTpl; context:{ $implicit: group }"></ng-container>
+    <ng-container *ngIf="!itemTpl">
+      <uxg-checkbox class="app-control" formControlName="checked" #status></uxg-checkbox>
+      <label class="app-ellipsis" (click)="status.check($event)">&nbsp; {{ group.get('label').value }}</label>
+    </ng-container>
+  </div>
+</div>
+<div *ngIf="limit && formGroups.length - limit > 0">
+  <button uxgButton clear class="app-link" type="button" (click)="folded = !folded">{{folded ? 'Показать всё' : 'Свернуть' }}</button>
+</div>

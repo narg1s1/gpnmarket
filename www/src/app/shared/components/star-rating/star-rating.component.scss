@@ -1,0 +1,40 @@
+@import "src/theme";
+
+.rating-list {
+  display: inline-block;
+  list-style: none;
+  margin: 24px 0;
+
+  & li {
+    float: left;
+    padding: 0 5px;
+    color: uxg($theme, color-control-primary);
+    filter: grayscale(100%);
+    opacity: 0.2;
+
+    &.selected {
+      filter: grayscale(0%);
+      opacity: 1;
+    }
+
+    &:not(.selected):hover {
+      opacity: 0.2;
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+
+    & li:not(.selected) {
+      opacity: 0.4;
+      -webkit-filter: grayscale(0%);
+      filter: grayscale(0%);
+    }
+
+    & li:hover ~ li {
+      opacity: 0.2;
+      -webkit-filter: grayscale(100%);
+      filter: grayscale(100%);
+    }
+  }
+}

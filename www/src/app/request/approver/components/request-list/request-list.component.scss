@@ -1,0 +1,26 @@
+@import "src/theme";
+@import "src/assets/styles/helpers";
+
+.table-col {
+  overflow: hidden;
+}
+
+.app-table {
+  .number { flex-basis: 65px; }
+  .select { flex-basis: 50px; }
+
+  &.disabled {
+    opacity: .5;
+  }
+}
+
+.selection-block {
+  background: uxg($theme, color-list-hover);
+  padding: 8px 0;
+
+  & .selected-info {
+    padding-right: 15px;
+    padding-left: 60px;
+    max-width: 700px;
+  }
+}

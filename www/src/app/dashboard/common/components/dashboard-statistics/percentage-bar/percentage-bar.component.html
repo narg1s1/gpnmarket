@@ -1,0 +1,22 @@
+<div class="app-row app-align-items-center" [class]="percentage ? 'app-secondary-color' : 'app-ghost-color'">
+  <div class="app-col-8">
+    <div class="percentage-chart">
+      <div class="percentage-chart-filler" [style.width.%]="percentage"></div>
+    </div>
+  </div>
+
+  <div class="app-col-2 percentage-col">
+    <small class="percentage">{{ percentage + '%'}}</small>
+  </div>
+
+  <div class="app-col-2 count-sum-col">
+    <ng-container *ngIf="count >= 0; else sumInfo">
+      <small class="count">{{ count }}</small>
+    </ng-container>
+
+    <ng-template #sumInfo>
+      <small class="sum">{{ sum | number: "1.0-2" }} <span class="app-ghost-color">{{ getCurrencySymbol('RUB', 'narrow') }}</span></small>
+    </ng-template>
+  </div>
+</div>
+

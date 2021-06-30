@@ -1,0 +1,187 @@
+<ng-template #loading class="load-block">
+  <span class="spinner spinner-md"></span>
+</ng-template>
+
+<ng-container *ngIf="contragent; else loading">
+  <div class="basic-info">
+    <div class="app-row">
+      <div class="app-col">
+        <h3>Общая информация о контрагенте</h3>
+      </div>
+
+      <div class="app-col-auto report" *ngIf="modalView">
+        <span *ngIf="downloading" class="spinner spinner-sm"></span>
+        <button uxgButton primary
+                (click)="onDownloadPrimaInformReport()"
+                [disabled]="downloading">
+          Отчет Прима-информ
+        </button>
+      </div>
+    </div>
+
+    <div class="info-field app-row">
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Краткое наименование</div>
+        <span>{{ contragent.shortName || '—' }}</span>
+      </div>
+
+        <div class="app-col-5 app-section">
+          <div class="app-ghost-color info-label">Полное наименование</div>
+          <span>{{ contragent.fullName || '—' }}</span>
+        </div>
+    </div>
+
+    <div class="info-field app-row">
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">ИНН</div>
+        <span>{{ contragent.inn }}</span>
+      </div>
+
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">КПП</div>
+        <span>{{ contragent.kpp || '—' }}</span>
+      </div>
+
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">ОГРН/ОГРНИП</div>
+        <span>{{ contragent.ogrn || '—' }}</span>
+      </div>
+    </div>
+
+    <div class="info-field app-row">
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Дата регистрации</div>
+        <span>{{ contragent.taxAuthorityRegistrationDate ?
+          (contragent.taxAuthorityRegistrationDate | date : 'shortDate') :
+          '—' }}</span>
+      </div>
+
+      <div class="app-col-4">
+        <div class="app-ghost-color info-label">Тип контрагента в системе</div>
+        <span>{{contragent.type === 'CUSTOMER' ? roleLabel.CUSTOMER : roleLabel.SUPPLIER }}</span>
+      </div>
+
+      <div class="app-col-4"></div>
+    </div>
+  </div>
+
+  <div class="legal-info">
+    <h3>Юридический адрес</h3>
+
+    <div class="info-field app-row">
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Страна</div>
+        <span>{{ contragent.addresses[0]?.country || '—' }}</span>
+      </div>
+
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Регион/область</div>
+        <span>{{ contragent.addresses[0]?.region || '—' }}</span>
+      </div>
+
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Город/район</div>
+        <span>{{ contragent.addresses[0]?.city || '—' }}</span>
+      </div>
+    </div>
+
+    <div class="info-field app-row">
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Почтовый индекс</div>
+        <span>{{ contragent.addresses[0]?.postIndex || '—' }}</span>
+      </div>
+
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Населенный пункт</div>
+        <span>{{ contragent.addresses[0]?.locality || '—' }}</span>
+      </div>
+
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Адрес</div>
+        <span>{{ contragent.addresses[0]?.address || '—' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bank-info">
+    <h3>Банковские реквизиты</h3>
+
+    <div class="info-field app-row">
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">БИК</div>
+        <span>{{ contragent.bankRequisites ? contragent.bankRequisites[0]?.bik : '—' }}</span>
+      </div>
+
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Расчетный счет</div>
+        <span>{{ contragent.bankRequisites ? contragent.bankRequisites[0]?.account : '—' }}</span>
+      </div>
+
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Корреспондентский счет</div>
+        <span>{{ contragent.bankRequisites ? contragent.bankRequisites[0]?.correspondentAccount : '—' }}</span>
+      </div>
+    </div>
+
+    <div class="info-field app-row">
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Наименование банка</div>
+        <span>{{ contragent.bankRequisites ? contragent.bankRequisites[0]?.name : '—' }}</span>
+      </div>
+
+      <div class="app-col-auto app-section">
+        <div class="app-ghost-color info-label">Адрес банка</div>
+        <span>{{ contragent.bankRequisites ? contragent.bankRequisites[0]?.address : '—' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="contract-info">
+    <h3>Информация о договоре</h3>
+
+    <div class="info-field app-row">
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Должность подписанта</div>
+        <span>{{ contragent.contractData?.contractSignerPosition ? contragent.contractData?.contractSignerPosition : '—' }}</span>
+      </div>
+
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">ФИО подписанта</div>
+        <span>{{ contragent.contractData?.contractSignerFio ? contragent.contractData?.contractSignerFio : '—' }}</span>
+      </div>
+
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Документ, дающий право на подпись</div>
+        <span>{{ contragent.contractData?.authorizingDocument ? contragent.contractData?.authorizingDocument : '—' }}</span>
+      </div>
+    </div>
+
+    <div class="info-field app-row">
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Номер агентского договора</div>
+        <span>{{ contragent.contractData?.agencyContract ? contragent.contractData?.agencyContract : '—' }}</span>
+      </div>
+
+      <div class="app-col app-section">
+        <div class="app-ghost-color info-label">Дата агентского договора</div>
+        <span>{{ contragent.contractData?.agencyContractCreatedDate ?
+                (contragent.contractData?.agencyContractCreatedDate | date : 'shortDate') : '—' }}</span>
+      </div>
+    </div>
+
+
+    <div class="info-field app-row">
+      <div class="app-col-4 app-section">
+        <div class="app-ghost-color info-label">Номер доверенности</div>
+        <span>{{ contragent.contractData?.letterOfAuthority ? contragent.contractData?.letterOfAuthority : '—' }}</span>
+      </div>
+
+      <div class="app-col app-section">
+        <div class="app-ghost-color info-label">Дата доверенности</div>
+        <span>{{ contragent.contractData?.letterOfAuthorityCreatedDate ?
+                (contragent.contractData?.letterOfAuthorityCreatedDate | date : 'shortDate') : '—' }}</span>
+      </div>
+    </div>
+  </div>
+
+</ng-container>

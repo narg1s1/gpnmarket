@@ -1,0 +1,142 @@
+@import "src/theme";
+@import "src/assets/styles/helpers";
+
+.table-col {
+  overflow: hidden;
+}
+
+.app-table {
+  small span {
+    cursor: pointer;
+    line-height: 16px;
+    vertical-align: middle;
+
+    &:hover {
+      color: uxg($theme, color-font-secondary);
+    }
+  }
+
+  .number { flex-basis: 65px; }
+  .published { flex-basis: 100px; }
+  .tasks { flex-basis: 40px; }
+  .delivery-date {
+    min-width: 330px;
+
+    & span:not(:last-of-type):after {
+      content: '|';
+      padding: 0 5px;
+      opacity: 0.3;
+    }
+  }
+  .pie { flex-basis: 120px; }
+  .positions { flex-basis: 94px; }
+  .tasks + .positions { flex-basis: 142px; }
+  .customer, .name {
+    min-width: 120px;
+  }
+
+  &.disabled,
+  .disabled {
+    opacity: .3;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+}
+
+// Окрашивание стрелок иконки сортировки в зависимости от направления
+::ng-deep .active-sort {
+  &.asc .app-icon[shape="app-sort-arrows"] #arrow_2,
+  &.desc .app-icon[shape="app-sort-arrows"] #arrow_1 {
+    color: uxg($theme, color-primary);
+  }
+}
+
+.chart {
+  margin-right: .5em;
+  transform: rotate(-90deg);
+  border-radius: 50%;
+  display: block;
+
+  circle {
+    width: 100%;
+    height: 100%;
+    stroke-width: 7;
+    stroke-linecap: round;
+    fill: none;
+    stroke: #E5E8EF;
+  }
+
+  circle:nth-child(2) {
+    stroke: #0074d9;
+    stroke-width: 7;
+    stroke-linecap: butt;
+    stroke-dasharray: 65;
+    transition: stroke-dasharray 2s ease;
+  }
+}
+
+.alert-actions {
+  margin: 0 !important;
+
+  .alert-action {
+    border: 1px solid #fff;
+
+    ::ng-deep .alert-app-level .alert-icon-wrapper {
+      margin: 0 !important;
+    }
+  }
+}
+
+.select-list {
+  &-requests { max-height: calc(70vh - 206px) }
+  .checkbox-space {
+    width: 18px;
+  }
+
+  &-item {
+    &-request {
+      &-number { flex-grow: 0.15; min-width: 60px; max-width: 100px; text-align: left; }
+      &-customer { flex-grow: .15; min-width: 190px; max-width: 190px; text-align: left; }
+      &-name { min-width: 200px; max-width: 200px; text-align: left; }
+      &-date { min-width: 120px; text-align: right; }
+    }
+
+    &-footer {
+      padding: 10px 0;
+
+      & * {
+        padding: 0 10px;
+        font-size: 11px;
+        box-sizing: content-box;
+
+        &:first-child { padding-left: 0; }
+        &:last-child { padding-right: 0; }
+      }
+    }
+  }
+}
+
+.input-date-from {
+  padding-right: 10px;
+
+  & .app-control-wrap {
+    margin: -1.5em 0;
+  }
+
+  & .app-control-icon {
+    margin-right: 5px;
+  }
+}
+
+.input-date-to {
+  padding-left: 10px;
+  margin-right: 25px;
+
+  & .app-control-wrap {
+    margin: -1.5em 0;
+  }
+
+  & .app-control-icon {
+    margin-right: 5px;
+  }
+}

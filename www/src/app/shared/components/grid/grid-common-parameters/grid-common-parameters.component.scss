@@ -1,0 +1,25 @@
+@import "src/theme";
+
+:host {
+  background: uxg($theme, color-default);
+  padding: 27px 20px 32px;
+
+  .price-info-block {
+    border-bottom: 1px solid #d5dde2;
+    margin-bottom: 20px;
+  }
+
+  .info-value {
+    margin-bottom: 15px;
+    white-space: normal;
+    font-weight: bold;
+  }
+
+  .price {
+    margin: 10px 0;
+  }
+
+  .delivery-block {
+    width: 100%;
+  }
+}

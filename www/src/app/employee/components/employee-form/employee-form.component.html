@@ -1,0 +1,89 @@
+<form appFormValidation [formGroup]="form" (ngSubmit)="onAddEmployee()" *ngIf="form">
+  <div class="app-row">
+    <div class="app-col">
+      <div class="app-control-wrap">
+        <input #username uxgInput lg formControlName="username"/>
+        <label class="app-control-label" (click)="username.focus()">E-mail (является логином)</label>
+        <div class="app-control-error" *ngIf="form.get('username').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-col">
+      <div class="app-control-wrap">
+        <input #phone uxgInput lg formControlName="phone" [textMask]="phoneMask"/>
+        <label class="app-control-label" (click)="phone.focus()">Телефон</label>
+        <div class="app-control-error" *ngIf="form.get('phone').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-row">
+    <div class="app-col">
+      <div class="app-control-wrap">
+        <input #firstName uxgInput lg formControlName="firstName"/>
+        <label class="app-control-label" (click)="firstName.focus()">Имя</label>
+        <div class="app-control-error" *ngIf="form.get('firstName').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-col">
+      <div class="app-control-wrap">
+        <input #lastName uxgInput lg formControlName="lastName"/>
+        <label class="app-control-label" (click)="lastName.focus()">Фамилия</label>
+        <div class="app-control-error" *ngIf="form.get('lastName').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-row">
+    <div class="app-col">
+      <div class="app-control-wrap">
+        <input #middleName uxgInput lg formControlName="middleName"/>
+        <label class="app-control-label" (click)="middleName.focus()">Отчество</label>
+      </div>
+    </div>
+
+    <div class="app-col">
+      <div class="app-control-wrap">
+        <input #position uxgInput lg formControlName="position"/>
+        <label class="app-control-label" (click)="position.focus()">Должность</label>
+        <div class="app-control-error" *ngIf="form.get('position').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-row">
+      <div class="app-control-wrap">
+        <div class="app-col">
+          <uxg-dropdown formControlName="role" [disabled]="roleSelectorDisabled">
+            <div uxgDropdownItem value="BACKOFFICE_BUYER">Младший менеджер</div>
+            <div uxgDropdownItem value="SENIOR_BACKOFFICE">Старший менеджер</div>
+          </uxg-dropdown>
+        </div>
+
+        <div class="app-col">
+        </div>
+      </div>
+  </div>
+
+  <div class="app-row modal-footer">
+    <div class="app-col">
+      Все поля, кроме отчества, являются <span class="app-bold app-error-color">обязательными</span> к заполнению!
+    </div>
+
+    <div class="app-col app-col-auto">
+      <button type="button" uxgButton secondary lg (click)="onCancel()">Отмена</button>
+      <button uxgButton primary lg>{{isEditing ? "Сохранить" : "Добавить" }}</button>
+    </div>
+  </div>
+</form>

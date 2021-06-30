@@ -1,0 +1,159 @@
+<div class="app-row app-layout">
+  <div class="app-col procedure-block">
+    <a [routerLink]="['/procedures', procedure.id || '', 'info']"
+       [queryParams]="{ source: procedure.source }">
+      <b>Процедура №{{procedure.procedureId}} «{{procedure.procedureTitle}}»</b>
+    </a>
+    <div class="status-block">
+
+
+      <ng-container *ngIf="canceled(procedure)">
+        <div>
+          <span class="app-error-color pr-20">
+            <uxg-icon shape="app-cross"></uxg-icon>
+             <b>Отменена</b>
+          </span>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!finished(procedure) && !canceled(procedure)">
+        <div>
+      <span class="app-ghost-color pr-20">
+        <uxg-icon shape="app-waiting"></uxg-icon>
+         <b>Идет процедура</b> (до {{ procedure.dateEndRegistration.date | date : "dd.MM.yyyy, HH:mm" }})
+      </span>
+        </div>
+        <a [href]="link(procedure)" target="_blank" class="app-bold pr-20">Показать на ЭТП ГПБ</a>
+      </ng-container>
+
+      <ng-container *ngIf="finished(procedure) && procedure?.offersImported && !canceled(procedure)">
+        <div>
+      <span class="app-success-color pr-20">
+        <uxg-icon shape="app-check"></uxg-icon> Завершена {{ procedure.dateEndRegistration.date | date :'shortDate' }}
+      </span>
+        </div>
+        <a [href]="resultLink(procedure)" target="_blank" class="app-bold pr-20">Показать на ЭТП ГПБ</a>
+      </ng-container>
+
+      <ng-container *ngIf="finished(procedure) && !procedure?.offersImported && !canceled(procedure)">
+    <div>
+      <span class="app-ghost-color pr-20">
+        <uxg-icon shape="app-waiting"></uxg-icon> Ожидание выгрузки результатов
+      </span>
+    </div>
+        <a [href]="resultLink(procedure)" target="_blank" class="app-bold pr-20">Показать на ЭТП ГПБ</a>
+      </ng-container>
+      <div class="procedure-actions" *ngIf="!canceled(procedure)">
+        <uxg-popover #prolongPopover [openOnHover]="true">
+          <button uxgButton secondary
+                  uxgPopoverTrigger
+                  [disabled]="prolongButtonIsDisabled() || !featureService.authorize('prolongProcedure')" (click)="prolong.emit()">
+            Продлить
+          </button>
+
+          <ng-container *ngIf="prolongButtonIsDisabled()">
+            <div *uxgPopoverContent="'app-popover-content-bottom-left'" (click)="prolongPopover.hide()">
+              <div *ngIf="procedureIsFinished(); else otherProlongError" style="text-align: left">
+                Период подведения итогов по этой процедуре завершен. <br>
+                При необходимости объявите новую процедуру.
+              </div>
+
+              <ng-template #otherProlongError>
+                <div *ngIf="procedureIsRetrade() && !this.dateEndRegistrationFinished()" style="text-align: left">
+                  По процедуре объявлено уторговывание. <br>
+                  Продление невозможно.
+                </div>
+
+                <div *ngIf="procedureIsRetrade() && this.dateEndRegistrationFinished() && !this.dateSummingUpFinished()"
+                     style="text-align: left">
+                  По процедуре проведено уторговывание результатов. <br>
+                  Продление невозможно.
+                </div>
+              </ng-template>
+            </div>
+          </ng-container>
+        </uxg-popover>
+
+        <uxg-popover #bargainPopover [openOnHover]="true" [style.margin-left.rem]="0.5">
+          <button uxgButton secondary
+                  uxgPopoverTrigger
+                  [disabled]="retradeButtonIsDisabled() || !featureService.authorize('retradeProcedure')" (click)="bargain.emit()">
+            Уторговать
+          </button>
+
+          <ng-container *ngIf="retradeButtonIsDisabled()">
+            <div *uxgPopoverContent="'app-popover-content-bottom-left'" (click)="bargainPopover.hide()">
+              <div *ngIf="procedureIsFinished(); else otherRetradeError" style="text-align: left">
+                Период подведения итогов по этой процедуре завершен. <br>
+                Уторговывание недоступно.
+              </div>
+
+              <ng-template #otherRetradeError>
+                <div *ngIf="procedure.offersImported && !canRetradeProcedure(); else notFinished"
+                     style="text-align: left">
+                  Получено менее 2 предложений от поставщиков. <br>
+                  Уторговывание недоступно.
+                </div>
+
+                <ng-template #notFinished>
+                  <div style="text-align: left">
+                    Идёт приём предложений от поставщиков. <br>
+                    Уторговывание недоступно.
+                  </div>
+                </ng-template>
+              </ng-template>
+            </div>
+          </ng-container>
+        </uxg-popover>
+      </div>
+    </div>
+  </div>
+  <div class="app-col procedure-positions">
+    <span class="app-ghost-color">Позиции процедуры</span>
+    <div class="positions" *ngFor="let position of procedure.positions.slice(0,3)">
+      {{position.requestPosition.name}}
+    </div>
+    <ng-container *ngIf="procedure.positions.length > 3">
+      <button uxgButton clear class="app-link show-all" (click)="procedurePositionsModal.open()">Показать все позиции
+      </button>
+    </ng-container>
+  </div>
+</div>
+<uxg-modal #procedurePositionsModal size="l">
+  <h2><b>Позиции процедуры {{procedure.procedureTitle}}</b></h2>
+  <p class="app-secondary-color">
+    Ниже приведен список позиций процедуры. Обратите внимание на то, что одна позиция не может участвовать в двух
+    процедурах одновременно.
+  </p>
+  <br>
+  <br>
+  <form [formGroup]="form">
+    <div class="app-row filter">
+      <div class="app-col app-row app-align-items-center">
+        <small class="app-secondary-color">Позиций в процедуре: &nbsp; <b>{{procedure.positions.length}}</b></small>
+      </div>
+      <div class="app-col app-col-auto app-row app-align-items-center">
+        <div class="app-col app-col-auto app-ghost-color">Фильтр: &nbsp;</div>
+        <div class="app-col-auto search">
+          <input type="text" uxgInput formControlName="search" placeholder="Наименование позиции или группы"/>
+        </div>
+      </div>
+    </div>
+    <div class="app-table app-no-border">
+      <div class="app-row" *ngFor="let position of procedurePositions$ | async">
+        <div class="app-col-7 app-bold select-list-item-title">{{ position.name }}</div>
+        <div class="app-col-2 select-list-item-quantity">
+          <span>{{ position.quantity }} </span>
+          <span class="app-ghost-color">{{ position.measureUnit | lowercase }}</span>
+        </div>
+        <div class="app-col-3 select-list-item-date">
+          <ng-container *ngIf="position.isDeliveryDateAsap; else deliveryDate">Как можно скорее</ng-container>
+          <ng-template #deliveryDate>{{ position.deliveryDate?.date | date : 'dd.MM.yyyy' }}</ng-template>
+        </div>
+      </div>
+    </div>
+  </form>
+  <ng-template uxgModalFooter>
+    <button type="button" uxgButton secondary lg uxgModalClose>Закрыть</button>
+  </ng-template>
+</uxg-modal>

@@ -1,0 +1,161 @@
+<div class="app-row">
+  <div class="app-col">
+    <div class="app-card" id="headers">
+      <h2>Typography</h2>
+
+      <br/>
+      <div class="headers">
+        <div class="border"><h1>Sample h1 title</h1></div>
+        <br/>
+        <div class="border"><h2>Sample h2 title</h2></div>
+        <br/>
+        <div class="border"><h3>Sample h3 title</h3></div>
+        <br/>
+        <div class="border"><h4>Sample h4 title</h4></div>
+        <br/>
+        <div class="border">
+          <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+        </div>
+        <br/>
+      </div>
+
+      <p>Primary font color</p>
+      <p class="app-secondary-color">Secondary font color</p>
+      <p class="app-ghost-color">Ghost font color</p>
+      <p><small>small text</small></p>
+      <p><a routerLink="." (click)="$event.preventDefault()">Simple link</a></p>
+      <p class="app-success-color app-row app-align-items-center">
+        <uxg-icon shape="app-check"></uxg-icon>
+        <span>Success font color</span>
+      </p>
+      <p class="app-warning-color app-row app-align-items-center">
+        <uxg-icon shape="app-info"></uxg-icon>
+        <span>Warning font color</span>
+      </p>
+      <p class="app-alert-color app-row app-align-items-center">
+        <uxg-icon shape="app-warning"></uxg-icon>
+        <span>Alert font color</span>
+      </p>
+      <br/>
+      <h2>Sources</h2>
+      <uxg-code language="html">{{example1}}</uxg-code>
+    </div>
+
+    <div class="app-card" id="layout-with-aside">
+      <h2>Layout with aside</h2>
+
+      <h3>Main container</h3>
+      <div class="app-main border">
+        Main container
+      </div>
+      <br/>
+      <h3>Example with right aside</h3>
+      <div class="app-row">
+        <div class="app-col border">Сontent</div>
+        <div class="app-col-aside border">Aside</div>
+      </div>
+      <br/>
+      <h3>Example with left aside</h3>
+      <div class="app-row">
+        <div class="app-col-aside border">Aside</div>
+        <div class="app-col border">Сontent</div>
+      </div>
+      <br/>
+      <h3>Example with both asides</h3>
+      <div class="app-row">
+        <div class="app-col-aside border">Aside</div>
+        <div class="app-col border">Сontent</div>
+        <div class="app-col-aside border">Aside</div>
+      </div>
+      <br/>
+      <h2>Sources</h2>
+      <uxg-code language="html">{{example2}}</uxg-code>
+    </div>
+
+    <div class="app-card" id="table">
+      <h2>Table</h2>
+      <div class="border">
+        <div class="app-row">
+          <div class="app-col app-bold">ID</div>
+          <div class="app-col app-bold">Name</div>
+          <div class="app-col app-bold">Age</div>
+        </div>
+        <div class="app-row">
+          <div class="app-col">1</div>
+          <div class="app-col">Mike</div>
+          <div class="app-col">21</div>
+        </div>
+        <div class="app-row">
+          <div class="app-col">2</div>
+          <div class="app-col">Jhon</div>
+          <div class="app-col">24</div>
+        </div>
+        <div class="app-row">
+          <div class="app-col">3</div>
+          <div class="app-col">Alice</div>
+          <div class="app-col">19</div>
+        </div>
+      </div>
+      <br/>
+      <h2>Sources</h2>
+      <uxg-code language="html">{{example3}}</uxg-code>
+    </div>
+
+    <div class="app-card" id="stylized-table">
+      <h2>Stylized table</h2>
+
+      <div class="app-table" [class.app-no-border]="!gridWithBorder">
+        <div class="app-row app-row-clickable">
+          <div class="app-col">1</div>
+          <div class="app-col">Mike</div>
+          <div class="app-col">21</div>
+        </div>
+        <div class="app-row">
+          <div class="app-col">2</div>
+          <div class="app-col">Jhon</div>
+          <div class="app-col">24</div>
+        </div>
+        <div class="app-row">
+          <div class="app-col">3</div>
+          <div class="app-col">Alice</div>
+          <div class="app-col">19</div>
+        </div>
+      </div>
+      <br/>
+      <div class="app-row app-align-items-center">
+        <uxg-checkbox class="app-control" [(ngModel)]="gridWithBorder" #gridWithBorderRef></uxg-checkbox>
+        <label (click)="gridWithBorderRef.check($event)">&nbsp;With Border</label>
+      </div>
+      <br/>
+      <h2>Sources</h2>
+      <uxg-code [cd]="{ code: true }" language="html" [code]="example4"></uxg-code>
+    </div>
+
+    <div class="app-card" id="breadbcrumbs">
+      <h2>Breadcrumbs</h2>
+
+      <br/>
+      <uxg-breadcrumbs [breadcrumbs]="breadcrumbsService.breadcrumbs"></uxg-breadcrumbs>
+      <br/>
+      <h2>Sources</h2>
+      <br/>
+      <h3>Template: </h3>
+      <uxg-code language="html">{{example6}}</uxg-code>
+      <br/>
+      <h3>Component: </h3>
+      <uxg-code language="javascript">{{example6_1}}</uxg-code>
+    </div>
+  </div>
+
+  <div class="app-col-aside">
+    <div class="sticky" [style.padding-top.px]="17">
+      <h3>Navigation</h3>
+      <p><a routerLink="." fragment="headers" uxgRouterLinkActive="app-bold">Headers</a></p>
+      <p><a routerLink="." fragment="layout-with-aside" uxgRouterLinkActive="app-bold">Layout with aside</a></p>
+      <p><a routerLink="." fragment="table" uxgRouterLinkActive="app-bold">Table</a></p>
+      <p><a routerLink="." fragment="stylized-table" uxgRouterLinkActive="app-bold">Stylized table</a></p>
+      <p><a routerLink="." fragment="breadbcrumbs" uxgRouterLinkActive="app-bold">Breadcrumbs</a></p>
+    </div>
+  </div>
+</div>
+

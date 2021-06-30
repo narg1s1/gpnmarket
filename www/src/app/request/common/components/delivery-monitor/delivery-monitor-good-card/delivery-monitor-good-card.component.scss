@@ -1,0 +1,163 @@
+.good-infographics-card {
+  padding: 18px 23px;
+  border: 1px solid #e6e6e6;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.inn-info, .total-label {
+  font-size: 14px;
+  display: inline-block;
+}
+.total-label {
+  float: right;
+}
+
+.good-name, .total-count {
+  margin-bottom: 15px;
+  font-weight: bold;
+  font-size: 18px;
+  line-height: 21px;
+  display: inline-block;
+  color: #002033;
+}
+.total-count {
+  float: right;
+}
+
+
+.good-statistics-info {
+  width: 100%;
+  height: 20px;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  overflow: hidden;
+
+  & .awaiting-progress {
+    height: 20px;
+    display: inline-block;
+    overflow: hidden;
+    background-color: #F0F3F5;
+
+    & span {
+      color: #929394;
+      line-height: 20px;
+      float: right;
+      padding-right: 10px;
+    }
+  }
+
+  & .production-progress {
+    height: 20px;
+    display: inline-block;
+    overflow: hidden;
+    background-color: #E9E9E9;
+
+    & span {
+      color: #929394;
+      line-height: 20px;
+      float: right;
+      padding-right: 10px;
+    }
+  }
+
+  & .shipment-progress {
+    height: 20px;
+    display: inline-block;
+    overflow: hidden;
+    background-color: #90C6E5;
+
+    & span {
+      color: #0082CC;
+      line-height: 20px;
+      float: right;
+      padding-right: 10px;
+    }
+  }
+
+  & .in-transit-progress {
+    height: 20px;
+    display: inline-block;
+    overflow: hidden;
+    background-color: #30A8ED;
+
+    & span {
+      color: #F0F3F5;
+      line-height: 20px;
+      float: right;
+      padding-right: 10px;
+    }
+  }
+
+  & .delivered-progress {
+    height: 20px;
+    display: inline-block;
+    overflow: hidden;
+    background-color: #0071B2;
+
+    & span {
+      color: #F0F3F5;
+      line-height: 20px;
+      float: right;
+      padding-right: 10px;
+    }
+  }
+
+}
+
+
+.good-statuses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  grid-gap: 1.6rem;
+}
+
+.good-status-block {
+  display: inline-block;
+}
+
+.good-status-block .good-status-label {
+
+  &.st-awaiting:before,
+  &.st-production:before,
+  &.st-shipment:before,
+  &.st-in-transit:before,
+  &.st-delivered:before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  &.st-awaiting:before {
+    background-color: #F0F3F5;
+  }
+  &.st-production:before {
+    background-color: #E9E9E9;
+  }
+  &.st-shipment:before {
+    background-color: #90C6E5;
+  }
+  &.st-in-transit:before {
+    background-color: #30A8ED;
+  }
+  &.st-delivered:before {
+    background-color: #0071B2;
+  }
+}
+
+.good-status-block .good-status-count {
+  margin-left: 18px;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 17px;
+  color: #002033;
+}
+
+p.updated-date-info {
+  color: #A9BBC6;
+  text-align: right;
+  margin: 15px 0 30px 0;
+}

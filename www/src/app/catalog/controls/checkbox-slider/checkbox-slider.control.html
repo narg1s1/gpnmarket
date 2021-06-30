@@ -1,0 +1,2 @@
+<input [disabled]="isDisabled" #input type="checkbox" [ngModel]="value" (input)="onChange($event.target.checked)"/>
+<label (click)="input.click()"></label>

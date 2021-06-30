@@ -1,0 +1,274 @@
+.manufacturing-monitor-loader {
+  margin: 20px auto;
+}
+
+.manufacturing-timeline-block {
+  max-width: 650px;
+  padding-left: 90px;
+}
+
+.manufacturing-icon {
+  width: 32px;
+  height: 32px;
+  margin-right: 16px;
+  vertical-align: top;
+
+  &.CertificateUploaded-icon {
+    background-image: url('/assets/images/manufacturing/certificate-icon.svg');
+    background-repeat: no-repeat;
+  }
+
+  &.PackagesLeftProductionOperationLink-icon {
+    background-image: url('/assets/images/manufacturing/certificate-icon.svg');
+    background-repeat: no-repeat;
+  }
+
+  &.OptionVerification-icon {
+    background-image: url('/assets/images/manufacturing/certificate-icon.svg');
+    background-repeat: no-repeat;
+  }
+}
+
+.item-status-block {
+  float: right;
+
+  & .item-toggle-icon {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-image: url('/assets/images/delivery-monitor/toggle-arrow-icon.svg');
+    background-repeat: no-repeat;
+    margin-left: 20px;
+
+    transition: transform 0.3s ease-in-out;
+  }
+}
+
+.manufacturing-timeline-header {
+  width: 100%;
+  height: 80px;
+  padding-top: 23px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.no-inspector-data {
+  text-align: center;
+  padding-top: 50px;
+}
+
+.item-info-block {
+  & .item-name {
+    font-size: 16px;
+    line-height: 30px;
+    color: #254456;
+  }
+
+  & .item-info {
+    font-size: 14px;
+    line-height: 17px;
+    color: #8B9AA3;
+  }
+}
+
+.manufacturing-icon, .item-info-block, .status-block {
+  display: inline-block;
+}
+
+.item-info-inner-content {
+  padding-top: 10px;
+  display: block;
+}
+
+
+.item-info-element {
+  padding-bottom: 25px;
+}
+
+.item-info-label {
+  font-size: 14px;
+  line-height: 17px;
+  color: #A9BBC6;
+  padding-bottom: 5px;
+  margin: 0;
+}
+
+.item-info-content {
+  font-size: 14px;
+  line-height: 17px;
+  margin: 0;
+}
+
+
+
+.from-to-block {
+  padding-top: 35px;
+  padding-bottom: 20px;
+}
+
+.from-to-icon {
+  width: 15px;
+  height: 12px;
+  background-image: url('/assets/images/delivery-monitor/forward-arrow-icon.svg');
+  background-repeat: no-repeat;
+}
+
+.item-info-block {
+  width: calc(100% - 75px);
+}
+
+.manufacturing-timeline-panel {
+  border-left: 2px solid #0096EB;
+  padding: 0 0 0 15px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  float: left;
+  margin-left: -16px;
+  margin-top: 16px;
+}
+
+.status-dot:before {
+  content: "";
+  border: 5px solid;
+  border-radius: 50%;
+  height: 10px;
+  width: 10px;
+  display: block;
+  margin-left: -50%;
+  margin-top: -50%;
+  color: #0071B2;
+}
+
+.date-bubble-block .status-dot:after {
+  content: '';
+  width: 2px;
+  height: 25px;
+  background: #0096eb;
+  display: block;
+  margin-left: -1px;
+}
+
+.manufacturing-timeline-panel:last-of-type {
+  border-left: 2px solid transparent;
+}
+
+.manufacturing-timeline-panel:last-of-type:before {
+  content: "";
+  width: 2px;
+  height: 35px;
+  background: #0096eb;
+  margin-left: -17px;
+  position: absolute;
+}
+
+
+.time-item {
+  margin-left: -90px;
+  margin-top: -14px;
+  position: absolute;
+  font-size: 15px;
+  color: #A9BBC6;
+  text-align: right;
+  width: 75px;
+}
+
+
+
+.date-bubble-block {
+  padding-left: 105px;
+
+  & .date-bubble {
+    padding: 8px 15px;
+    display: inline-block;
+    border-radius: 50px;
+    margin-bottom: 10px;
+    background: #f0f3f5;
+  }
+
+  & .status-dot {
+    margin-left: -14px;
+    margin-top: 20px;
+  }
+}
+
+.alert-status-dot:before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 10px;
+  background-color: #EC343A;
+}
+
+.manufacturing-icon.plus-icon:after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  display: block;
+  background: #90C6E5;
+  float: right;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.digital-inspector-content {
+  margin-top: 20px;
+}
+
+.good-infographics-card {
+  padding: 18px 23px;
+  border: 1px solid #e6e6e6;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.good-name {
+  margin-bottom: 15px;
+  font-weight: bold;
+  font-size: 18px;
+  line-height: 21px;
+  color: #002033;
+}
+
+.inn-info {
+  margin: 0 0 10px 0;
+}
+
+.good-statistics-info {
+  width: 100%;
+  height: 20px;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  overflow: hidden;
+
+  .awaiting-progress {
+    height: 20px;
+    display: inline-block;
+    overflow: hidden;
+    background-color: #F0F3F5;
+    width: 100%;
+    position: relative;
+
+    .ready {
+      position: absolute;
+      z-index: 2;
+      width: 100%;
+      span {
+        margin-left: 20px;
+      }
+    }
+
+    .production-progress {
+      height: 20px;
+      display: inline-block;
+      overflow: hidden;
+      background-color: #90C6E5;
+      position: absolute;
+      z-index: 1;
+    }
+  }
+}

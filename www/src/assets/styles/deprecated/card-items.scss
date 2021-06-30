@@ -1,0 +1,33 @@
+@import "src/theme";
+
+/* Элементы информационных карточек */
+.card {
+  box-shadow: none;
+  border-radius: uxg($theme, card-border-radius);
+  border: 1px solid #B2D0FF;
+  overflow: hidden;
+  margin: 0 0 24px 0;
+
+}
+
+.card-header {
+  display: block;
+  flex: 1 1 auto;
+  padding: 10px 15px;
+  background: #eceff1;
+  font-size: 14px;
+  width: 100%;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #828182;
+  font-weight: 600;
+}
+
+.card-block {
+  border-bottom: 1px solid #B2D0FF;
+  padding: 15px;
+}
+
+.card-link {
+  cursor: pointer;
+}

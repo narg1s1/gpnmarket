@@ -1,0 +1,85 @@
+@import "../../../../../../theme";
+
+:host {
+  display: block;
+}
+
+.app-card {
+  margin-bottom: 24px;
+}
+
+hr {
+  border: none;
+  border-top: 1px uxg($theme, color-border) dotted;
+  margin: 14px 0;
+}
+
+.app-table > .app-row {
+  padding: 0;
+
+  .app-col {
+    *padding: 0 14px;
+
+    &:first-child { padding-left: 0; }
+    &:last-child { padding-right: 0; }
+  }
+}
+
+.checkbox-space {
+  width: 32px;
+}
+
+.name,
+.manufacturing-name,
+.manufacturer {
+  flex-grow: .3;
+  min-width: 160px;
+}
+
+.manufacturing-name,
+.manufacturer {
+  max-width: 200px;
+}
+
+.total,
+.price {
+  min-width: 125px;
+  flex-grow: 0.1;
+}
+
+.quantity,
+.date {
+  min-width: 82px;
+  flex-grow: 0.1;
+}
+
+.status {
+  flex-basis: 40px;
+}
+
+.total-price-block {
+  padding-right: 50px;
+  line-height: 1.2;
+
+  & .total-price {
+    font-size: 17px;
+    font-weight: bold;
+  }
+}
+
+.conditions-info {
+  padding-top: 15px;
+  display: block;
+}
+
+.position-list {
+  padding-bottom: 15px;
+
+  & > .app-col:not(:last-child) {
+    padding-right: 15px;
+  }
+}
+
+.bottom-row {
+  padding: 15px 0;
+}

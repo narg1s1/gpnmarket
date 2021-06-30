@@ -1,0 +1,280 @@
+.breadcrumbs {
+  margin-bottom: 15px;
+}
+.breadcrumbs, .breadcrumbs a {
+  color: #646566;
+  font-weight: 400;
+  font-size: 20px;
+}
+.breadcrumbs a:hover {
+  text-decoration: none;
+}
+
+:focus {
+  outline: 0;
+}
+
+::ng-deep .file-upload-label {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.add-design-documentation {
+  margin-top: 20px;
+  display: block;
+  color: #484848;
+  font-weight: 500;
+
+  &:hover {
+    cursor: pointer;
+    color: #0085FF;
+  }
+}
+
+.design-documentation-card {
+  background: white;
+  padding: 20px 35px;
+  margin-top: 30px;
+  box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.13);
+}
+
+.edit-btn {
+  display: inline-block;
+  padding: 0 10px;
+
+  &:hover {
+    cursor: pointer;
+    color: #0085FF;
+  }
+}
+
+span.position-name {
+  font-size: 17px;
+  line-height: 100%;
+  flex-grow: 1;
+  min-height: 36px;
+}
+
+span.position-name-label, span.positions-list-label {
+  padding-bottom: 5px;
+  display: block;
+  color: gray;
+}
+
+.documentation-list th {
+  width: 40%;
+  color: gray;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.documentation-list th:nth-of-type(2) {
+  padding-left: 20px;
+}
+
+.documentation-list tbody tr:not(:hover) td:nth-of-type(2) input {
+  border: 1px solid transparent;
+}
+
+.documentation-list .form-group input {
+  font-size: 13px;
+}
+
+.documentation-list td .form-group.compact {
+  margin-bottom: 0;
+  display: block;
+}
+
+.documentation-list td .form-group.compact {
+  margin-bottom: 0;
+}
+
+.documentation-list tbody tr td {
+  line-height: 30px;
+  padding: 5px 10px;
+}
+
+.documentation-list tbody tr:hover {
+  background: #e1f1f6;
+}
+
+.documentation-list tbody tr:hover .form-group.compact {
+  display: block !important;
+}
+
+.documentation-list tbody tr:hover span {
+  display: none !important;
+}
+
+.tp-documentation-list {
+  display: block;
+}
+
+::ng-deep .tp-documents-list button.btn.btn-link {
+  height: 100%;
+}
+
+.not-clickable {
+  pointer-events: none;
+}
+
+.date {
+  width: 250px;
+}
+
+.accepted {
+  color: green;
+  margin: 0 4px 3px 0;
+}
+
+.declined {
+  color: red;
+  margin: 0 4px 3px 0;
+}
+
+.unknown-status {
+  color: #e7a20b;
+  margin: 0 4px 3px 0;
+}
+
+table {
+  padding: 0 25px;
+  margin: 0;
+}
+
+p {
+  color: #565656;
+  font-size: .458333rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  margin: 0;
+}
+
+.clr-control-label {
+  padding-top: 15px;
+}
+
+.nopadding {
+  padding: 0 0 0 25px;
+  display: table;
+}
+
+.btn.btn-link {
+  margin: 0;
+}
+
+label {
+  font-weight: 100;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.table.table-noborder td {
+  border-top: 1px solid #d7d7d7;
+}
+
+.position-list {
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.position-choice {
+  margin-bottom: 15px;
+}
+
+.document-loading {
+  font-size: 14px;
+  margin-bottom: 9px;
+  margin-top: 10px;
+  line-height: 20px;
+  font-weight: bold;
+}
+
+.design-actions .btn-label {
+  cursor: default;
+}
+
+::ng-deep span.spinner {
+  margin: 0;
+  display: inline-block;
+}
+
+.btn-dropdown div {
+  border-right: 1px solid;
+  display: inline-block;
+  height: 1em;
+  padding-right: 9px;
+  margin-right: 9px;
+}
+
+.design-actions {
+  position: relative;
+
+  th {
+    font-size: 17px;
+    color: #97a4ad;
+    background: none;
+    border: none;
+  }
+}
+
+.designDocumentationHead {
+  margin: 0;
+  background: none;
+  border: none;
+  padding: 1rem 1rem 0.2rem;
+}
+
+.designDocumentationBody {
+  margin: 0;
+  border-radius: 10px;
+  border-color: #e3eeff;
+
+  .title {
+    font-size: 1.2em;
+  }
+
+  .app-row {
+    padding: 1rem;
+    margin: 0;
+    border-top: 1px #e3eeff solid;
+
+    &:first-child {
+      border: none;
+    }
+  }
+}
+
+.status {
+  color: #aeaeae;
+  border-color: #aeaeae;
+  font-size: 1.2em;
+}
+
+.status-success {
+  color: #2e8500;
+  border-color: #2e8500;
+}
+
+.status-warning {
+  color: #fac400;
+  border-color: #fac400;
+}
+
+.modal-body {
+  min-height: auto;
+}
+
+.document-list td:last-child {
+  padding-right: 0;
+}
+
+.expired {
+  color: #a32100;
+}
+
+.head-nowrap {
+  flex-wrap: nowrap;
+}

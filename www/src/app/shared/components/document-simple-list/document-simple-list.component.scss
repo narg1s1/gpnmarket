@@ -1,0 +1,103 @@
+  .gridable {
+  display: flex;
+  flex-wrap: wrap;
+
+  .document {
+    width: 25%;
+    min-width: 300px;
+    padding: 10px 10px 10px 0;
+    box-sizing: border-box;
+  }
+}
+
+.document {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  position: relative;
+
+  &.awaiting {
+    opacity: .5;
+  }
+
+  &:not(.awaiting) > div {
+    overflow: hidden;
+  }
+
+  &:not(.awaiting) > div,
+  &:not(.awaiting) > document-icon {
+    cursor: pointer;
+  }
+
+  & > div {
+    margin: 8px;
+    line-height: 1.4em;
+    flex-grow: 1;
+
+    .title {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      margin-right: 20px;
+
+      uxg-icon {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+      }
+    }
+
+    .description {
+      color: #999;
+      font-size: 11px;
+
+      span:first-child {
+        margin-right: 5px;
+      }
+    }
+
+  }
+}
+
+.more {
+  color: #666;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.btn-delete {
+  display: none;
+  margin: 0;
+  flex-shrink: 0;
+  animation: show-btn 300ms;
+}
+
+li:hover .btn-delete{
+  display: block;
+}
+
+ul:not(.small) {
+  .title, .more {
+    font-size: 14px;
+  }
+}
+
+.small .description {
+  font-size: 11px;
+}
+
+@keyframes show-btn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  80% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

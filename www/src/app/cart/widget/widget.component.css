@@ -1,0 +1,10 @@
+.cart-widget {
+  position: absolute;
+  right: 0;
+  top: 10px;
+}
+
+.badge {
+  background: #2585F5;
+  margin-right: -5px;
+}

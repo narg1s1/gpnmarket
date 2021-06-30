@@ -1,0 +1,261 @@
+<div class="app-table tp-card" [class.disabled]="(stateStatus$ | async) === 'updating'">
+  <div class="app-row">
+    <div class="app-col">
+      <div class="tp-header">
+        <div class="app-col-auto checkbox-space" *ngIf="currentList === 'SENT_TO_REVIEW' && !isFolded">
+          <uxg-checkbox
+            *ngIf="hasSelectablePositions(technicalProposal.positions)"
+            [ngModel]="areAllPositionsChecked(technicalProposal.positions)"
+            (ngModelChange)="onSelectAllPositions($event, technicalProposalIndex)">
+          </uxg-checkbox>
+        </div>
+
+        <div class="app-col">
+          <ng-container *ngIf="technicalProposal.supplierContragent; else noContragent">
+            <h3>
+              <app-contragent-info-link
+                [contragent]="technicalProposal.supplierContragent">
+              </app-contragent-info-link>
+            </h3>
+          </ng-container>
+
+          <ng-template #noContragent><span>Поставщик</span></ng-template>
+        </div>
+
+        <div class="app-col app-col-aside status">
+          <ng-container [ngSwitch]="technicalProposal.status">
+            <div class="app-ghost-color" *ngSwitchCase="'NEW'">
+              <uxg-icon shape="app-draft"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-ghost-color" *ngSwitchCase="'SENT_TO_REVIEW'">
+              <uxg-icon shape="app-waiting"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-success-color" *ngSwitchCase="'ACCEPTED'">
+              <uxg-icon shape="app-check"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-success-color" *ngSwitchCase="'PARTIALLY_ACCEPTED'">
+              <uxg-icon shape="app-check"></uxg-icon>
+              <b>{{ getLabelWithCounters(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-warning-color" *ngSwitchCase="'SENT_TO_EDIT'">
+              <uxg-icon shape="app-warning"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-alert-color" *ngSwitchCase="'DECLINED'">
+              <uxg-icon shape="app-cross"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-alert-color" *ngSwitchCase="'CANCELED'">
+              <uxg-icon shape="app-cross"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+          </ng-container>
+
+          <button uxgButton link icon (click)="isFolded = !isFolded">
+            <uxg-icon shape="app-chevron" [attr.dir]="isFolded ? 'down' : 'up'"></uxg-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="extendable-block" *ngIf="!isFolded">
+
+        <!-- Секция списка позиций ТП -->
+        <hr>
+        <div class="app-row position-list section">
+          <div class="app-col-auto checkbox-space" *ngIf="currentList === 'SENT_TO_REVIEW'"></div>
+          <div class="app-col"><small class="app-uppercase app-bold app-ghost-color">Наименование позиции</small></div>
+          <div class="app-col"><small class="app-uppercase app-bold app-ghost-color">Заводское наименование</small></div>
+          <div class="app-col"><small class="app-uppercase app-bold app-ghost-color">Решение принято</small></div>
+          <div class="app-col icon-status"></div>
+        </div>
+
+        <div class="app-row position-list"
+             [class.app-ghost-color]="isProposalPositionReviewed(technicalProposalPosition) && hasSelectablePositions(technicalProposal.positions)"
+             *ngFor="let technicalProposalPosition of technicalProposal.positions">
+
+          <div class="app-col-auto checkbox-space" *ngIf="currentList === 'SENT_TO_REVIEW'">
+            <uxg-checkbox
+              class="app-control"
+              [disabled]="isProposalPositionReviewed(technicalProposalPosition)"
+              [ngModel]="!isProposalPositionReviewed(technicalProposalPosition) &&
+                          isTechnicalProposalPositionChecked(technicalProposalIndex, technicalProposalPosition)"
+              (ngModelChange)="onSelectPosition(technicalProposalIndex, technicalProposalPosition)"
+            ></uxg-checkbox>
+          </div>
+
+          <div class="app-col">
+            {{ technicalProposalPosition.position.name }}
+          </div>
+
+          <div class="app-col">
+            <ng-container *ngIf="technicalProposalPosition.manufacturingName; else noItem">
+              <span>{{ technicalProposalPosition.manufacturingName }}</span>
+            </ng-container>
+          </div>
+
+          <div class="app-col">
+            <ng-container class="user" *ngIf="technicalProposalPosition.history; else noItem">
+              {{ technicalProposalPosition.history?.user.shortName }}
+              <span class="app-ghost-color">
+                {{ technicalProposalPosition.history?.createdDate | date:'shortDate' }}
+              </span>
+            </ng-container>
+          </div>
+
+          <div class="app-col icon-status">
+            <ng-container [ngSwitch]="technicalProposalPosition.status">
+              <uxg-icon *ngSwitchCase="'REVIEW'" class="app-ghost-color" shape="app-unknown"></uxg-icon>
+              <uxg-icon *ngSwitchCase="'ACCEPTED'" class="app-success-color" shape="app-check"></uxg-icon>
+              <uxg-icon *ngSwitchCase="'DECLINED'" class="app-alert-color" shape="app-cross"></uxg-icon>
+              <uxg-icon *ngSwitchCase="'SENT_TO_EDIT'" class="app-warning-color" shape="app-warning"></uxg-icon>
+            </ng-container>
+          </div>
+
+          <ng-template #noItem>
+            <span>—</span>
+          </ng-template>
+        </div>
+
+
+        <!-- Секция докуметов ТП -->
+        <div class="documents" *ngIf="technicalProposal.documents.length !== 0">
+          <hr>
+          <div class="section">
+            <small class="app-uppercase app-bold app-ghost-color">Документы предложения</small>
+
+            <app-document-simple-list
+              [gridable]="true"
+              [enableUpload]="false"
+              [documents]="technicalProposal.documents">
+            </app-document-simple-list>
+          </div>
+        </div>
+
+
+        <!-- footer -->
+        <ng-container *ngIf="currentList === 'SENT_TO_REVIEW'; else technicalProposalComments">
+          <hr>
+
+          <div class="app-row app-align-items-center">
+            <div class="app-col app-secondary-color">
+              Вы можете отклонить все предложения по этим позициям и не получать другие <br>
+              предложения по ним от этого поставщика
+            </div>
+
+            <div class="app-row app-col app-col-auto app-align-items-center">
+              <span *ngIf="isLoading" class="spinner spinner-inline">Загрузка...</span>
+
+              <button uxgButton secondary (click)="actionType = 'reject';
+                      form.get('comment').setValue(lastRejectComment);
+                      addMessageModal.open()"
+                      [disabled]="!hasSelectedPositions(technicalProposalIndex) || isLoading">
+                Отклонить
+              </button>
+
+              <button uxgButton secondary (click)="actionType = 'sendToEdit';
+                      form.get('comment').setValue(lastSentToEditComment);
+                      addMessageModal.open()"
+                      [disabled]="!hasSelectedPositions(technicalProposalIndex) || isLoading">
+                На доработку
+              </button>
+
+              <button uxgButton primary (click)="approve()"
+                      [disabled]="!hasSelectedPositions(technicalProposalIndex) || isLoading">
+                Согласовать
+              </button>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #technicalProposalComments>
+          <ng-container *ngIf="lastSentToEditComment">
+            <hr>
+            <div class="section">
+              <div class="app-row">
+                <div class="app-col">
+                  <small class="app-uppercase app-bold app-ghost-color">Последний комментарий по доработкам</small>
+                </div>
+
+                <div class="app-col-auto">
+                  <div class="comment-datetime">
+                    <div class="date">{{ lastSentToEditCommentDate | date : "dd.MM.yyyy" }}</div>
+                    <div class="time app-ghost-color">{{ lastSentToEditCommentDate | date : "HH:mm" }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tp-comment">
+                {{ lastSentToEditComment }}
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="lastRejectComment">
+            <hr>
+            <div class="section">
+              <div class="app-row">
+                <div class="app-col">
+                  <small class="app-uppercase app-bold app-ghost-color">Последний комментарий по отклонению</small>
+                </div>
+
+                <div class="app-col-auto">
+                  <div class="comment-datetime">
+                    <div class="date">{{ lastRejectCommentDate | date : "dd.MM.yyyy" }}</div>
+                    <div class="time app-ghost-color">{{ lastRejectCommentDate | date : "H:mm" }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tp-comment">
+                {{ lastRejectComment }}
+              </div>
+            </div>
+          </ng-container>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно для ввода сопроводительного комментария -->
+<uxg-modal #addMessageModal size="s">
+  <div *ngIf="addMessageModal.state">
+    <h2>Комментарий по {{ actionType === 'reject' ? 'отклонению' : 'доработкам'}}</h2>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <p class="app-secondary-color">
+        {{ actionType === 'reject' ?
+        'Если возможно, сообщите пожалуйста причину отклонения сотруднику бэк-офиса.' :
+        'Если возможно, сообщите пожалуйста сотруднику бэк-офиса что именно вы хотели бы изменить.' }}
+        Комментарий будет добавлен в общий чат по заявке. Оставлять комментарий не обязательно.
+      </p>
+
+      <br/>
+
+      <label for="comment">Комментарий (не более 300 символов)</label>
+
+      <textarea id="comment"
+                class="comments"
+                uxgInput
+                rows="5"
+                maxlength="300"
+                formControlName="comment"
+                placeholder="Текст комментария">
+      </textarea>
+
+      <div class="app-modal-footer app-row app-justify-content-end">
+        <button uxgButton secondary lg type="button" (click)="addMessageModal.close()">Отмена</button>
+        <button uxgButton primary lg [disabled]="form.invalid || isLoading">Отправить</button>
+      </div>
+    </form>
+  </div>
+</uxg-modal>

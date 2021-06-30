@@ -1,0 +1,583 @@
+<ng-container uxgFilter #uxgFilter="uxgFilter">
+
+<div class="app-row app-justify-content-end positions-excel-btn">
+  <div class="app-col-auto">
+    <button uxgButton clear link class="app-link" [disabled]="isExcelInQueue || !(positions$ | async)?.length" (click)="setRegistryExcelQueue(true)">
+      Создать выгрузку в Excel
+      <uxg-icon shape="app-download" *ngIf="!isExcelInQueue"></uxg-icon>
+      <uxg-icon shape="app-loader" size="24" *ngIf="isExcelInQueue"></uxg-icon>
+    </button>
+  </div>
+</div>
+
+<app-positions-buttons
+  #positionsButtonsComponent
+  [filterForm]="filterForm"
+  [mainCheckbox]="mainCheckbox"
+  [useAllPositions]="useAllPositions"
+  [currentPageSize]="currentPageSize"
+  [uxgFilter]="uxgFilter"
+  (mainCheckboxChanged)="mainCheckbox = $event"
+  (useAllPositionsChanged)="useAllPositions = $event"
+  (showAddGroupModal)="addGroupModal.open()"
+  (showMoveGroupModal)="moveGroupModal.open()"
+  (showChangeStatusModal)="changeStatusModal.open()"
+  (showUploadFileModal)="addDocumentsModal.open()"
+  (showAddResponsiblePositionModal)="addResponsiblePositionModal.open()"
+  (showCancelPositionModal)="cancelPositionModal.open()"
+  (showDisbandGroupModal)="disbandGroupModal.open()"
+  (showAddPositionModal)="addPositionModal.open()"
+  (showProcedureCreationModal)="getAvailablePositionsForProcedure(); procedureCreationTypeModal.open();"
+  (showReturnToWorkModal)="returnToWorkModal.open()"></app-positions-buttons>
+
+<ng-container *ngIf="(checkedPositions$ | async) as checkedPositions">
+  <div class="app-row" *ngIf="showAllPositionsSelection(checkedPositions) else selectedPositionsCount">
+    <div class="app-col app-row selection-block">
+      <div class="app-col-auto selected-info app-ellipsis" [style.padding-left.px]="useAllPositions ? 20 : (checkedPositions.length ? 60 : 5)">
+        <ng-container *ngIf="!useAllPositions; else selectedAllRef">
+          <span [style.display]="!checkedPositions.length ? 'none':'block'">Выбраны все позиции ({{ getNotInGroupPositionsLength() + getCheckedGroupPositionsLength() }}) на странице.</span>
+        </ng-container>
+        <ng-template #selectedAllRef>
+          <ng-container *ngIf="(totalCountWithoutNotRelevantAndCanceled$ | async) as totalCountWithoutNotRelevantAndCanceled">
+            Выбраны все позиции ({{ totalCountWithoutNotRelevantAndCanceled }})
+          </ng-container>
+        </ng-template>
+      </div>
+      <div class="app-col app-ellipsis" *ngIf="mainCheckbox">
+        <a class="app-link app-bold" (click)="toggleAllPositions()">
+          <ng-container *ngIf="!useAllPositions; else cancelRef">
+            <ng-container *ngIf="(totalCountWithoutNotRelevantAndCanceled$ | async) as totalCountWithoutNotRelevantAndCanceled">
+              Выбрать все позиции ({{ totalCountWithoutNotRelevantAndCanceled }})
+            </ng-container>
+          </ng-container>
+          <ng-template #cancelRef>
+            Отменить выбор
+          </ng-template>
+        </a>
+      </div>
+    </div>
+  </div>
+  <ng-template #selectedPositionsCount>
+    <div class="app-row" *ngIf="checkedPositions.length">
+      <div class="app-col selection-block">
+        <div class="selected-info">
+          Выбрано всего позиций ({{ getNotInGroupPositionsLength() + getCheckedGroupPositionsLength() }})
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>
+
+<uxg-data-table
+  [columnHeaders]="columnHeaders"
+  [itemsData]="positions$ | async"
+  [allowSelect]="!useAllPositions"
+  [allowCustomizeColumns]="true"
+  [saveSelectedInLocalStorage]="true"
+  [isPaginationEnabled]="true"
+  [pages$]="pages$"
+  [totalItemsCount]="totalCount$ | async"
+  [pageSize]="currentPageSize"
+  [pageSizeOptions]="PAGE_SIZE_OPTIONS"
+  [showSizeChanger]="true"
+  [isLoading]="(listStatus$ | async) === 'fetching'"
+  [offsetTopForStickyHeader]="130"
+  (onPositionSelected)="onPositionSelected($event)"
+  (onGroupPositionSelected)="onGroupPositionSelected($event)"
+  (onSort)="onSort($event)"
+  (onPageIndexChanged)="onPageIndexChanged($event)"
+  (onPageSizeChanged)="onPageSizeChanged($event)">
+
+  <!-- Основные столбцы -->
+  <ng-template let-data="data">
+    <a class="positions-name-link" [title]="data.name" [routerLink]="['/requests', 'backoffice', data.requestId, data.id]">
+      {{ data.name }}
+    </a>
+  </ng-template>
+  <ng-template let-data="data">
+    {{ data.requestNumber }}
+  </ng-template>
+  <ng-template let-data="data">
+    <span [title]="data.requestName">
+      {{ data.requestName }}
+    </span>
+  </ng-template>
+  <ng-template let-data="data">
+    <span [title]="data.customerShortName">
+      {{ data.customerShortName }}
+    </span>
+  </ng-template>
+  <ng-template let-data="data">
+    {{ data.quantity }} {{ data.measureUnit }}
+  </ng-template>
+  <ng-template let-data="data">
+    {{ data.deliveryDate?.date | date:"dd.MM.yyyy" }}
+  </ng-template>
+  <ng-template let-data="data">
+    <div>
+      <app-position-status *ngIf="!data.inQueue" [label]="PositionStatusesLabels[data.status]" [status]="data.status"></app-position-status>
+      <app-position-status *ngIf="data.inQueue" label="В обработке" [status]="PositionStatus.NOT_RELEVANT"></app-position-status>
+    </div>
+  </ng-template>
+  <ng-template let-data="data">
+    <span [title]="data.responsibleUser?.shortName">
+      {{ data.responsibleUser?.shortName }}
+    </span>
+  </ng-template>
+  <ng-template let-data="data">
+    <span [title]="data.deliveryBasis">
+      {{ data.deliveryBasis }}
+    </span>
+  </ng-template>
+  <ng-template let-data="data">
+    <span [title]="data.productionDocument">
+      {{ data.productionDocument }}
+    </span>
+  </ng-template>
+  <ng-template let-data="data">
+    <div class="app-col item-sum">
+      <span class="app-bold">{{(data?.startPrice || 0) | number:'1.0-2'}} </span>
+      <span class="app-ghost-color app-bold">{{getCurrencySymbol('RUB', "narrow")}}</span>
+    </div>
+  </ng-template>
+  <ng-template let-data="data">
+    {{ data.procedureId }}
+  </ng-template>
+  <ng-template let-data="data">
+    {{ data.procedureRegistryNumber }}
+  </ng-template>
+  <ng-template let-data="data">
+    <span>
+      {{ (data.procedureEndRegistrationDate?.date | date:"dd.MM.yyyy") }}
+    </span>
+  </ng-template>
+  <ng-template let-data="data">
+    <span [title]="data.winner">
+      {{ data.winner }}
+    </span>
+  </ng-template>
+
+  <!-- Индикаторы -->
+  <ng-template let-data="data">
+    <div>
+      <uxg-icon *ngIf="data.isInspectionControlRequired" shape="app-inspector" class="app-ghost-color" [title]="'Инспекционный контроль'"></uxg-icon>
+    </div>
+  </ng-template>
+  <ng-template let-data="data">
+    <uxg-icon [class]="data.mtrPositionId ? 'app-link-color' : 'app-ghost-color'" shape="app-element"></uxg-icon>
+  </ng-template>
+
+</uxg-data-table>
+
+<uxg-filter
+  *ngIf="featureService.authorize('filterPositions') && filterForm"
+  [formGroup]="filterForm"
+  [count]="totalCount$ | async"
+  [initiallyHidden]="true"
+  (filter)="fetchFilters$.next({filters: $event})">
+
+  <uxg-filter-section label="№ заявки, наим. заявки или позиции" *ngIf="filterForm.get('requestsNumbers')">
+    <input uxgInput type="text" formControlName="positionOrRequestNameOrNumber" placeholder="Наим. заявки или позиции" />
+    <br>
+    <uxg-filter-multi-select-list
+      formControlName="requestsNumbers"
+      searchPlaceholder="№ заявки"
+      [items$]="requestsNumbers$">
+    </uxg-filter-multi-select-list>
+  </uxg-filter-section>
+  <div class="hr"></div>
+
+  <uxg-filter-section label="Название группы" *ngIf="filterForm.get('positionGroupName')">
+    <uxg-dropdown-input
+      [disabled]="!availableGroups$"
+      formControlName="positionGroupName"
+      placeholder="Название группы"
+      class="group-name-control"
+      appSuggestions
+      #sug="appSuggestions"
+      [$]="availableGroups$"
+      [searchFn]="searchGroups"
+      [minLength]="0"
+      [allowClear]="true"
+      [preventUpdateOnInput]="true"
+    >
+      <div uxgDropdownItem [value]="group.name" *ngFor="let group of sug.suggestions$ | async">{{ group.name }}</div>
+    </uxg-dropdown-input>
+  </uxg-filter-section>
+
+  <div class="app-row app-align-items-center positions-filter-section" *ngIf="filterForm.get('onlyWithoutGroup')">
+    <label class="app-col" (click)="onlyWithoutGroupRef.switch($event)">Позиции вне групп</label>
+    <uxg-switcher class="app-col-auto" #onlyWithoutGroupRef formControlName="onlyWithoutGroup"></uxg-switcher>
+  </div>
+  <div class="hr"></div>
+
+  <uxg-filter-section label="Ответственный" *ngIf="filterForm.get('responsibleUserIds') && !userService.isBackofficeBuyer()">
+    <uxg-filter-checkbox-list
+      formControlName="responsibleUserIds"
+      searchPlaceholder="Ответственный"
+      [foldedSearch]="true"
+      [items$]="responsibleUsers$"
+      [limit]="5"
+      (search)="responsibleUsersSearch$.next($event)">
+    </uxg-filter-checkbox-list>
+  </uxg-filter-section>
+  <div class="hr"></div>
+
+  <div class="app-row app-align-items-center positions-filter-section" *ngIf="filterForm.get('onlyWithoutResponsibleUser')">
+    <label class="app-col" (click)="onlyWithoutResponsibleUserRef.switch($event)">Есть неназначенные позиции</label>
+    <uxg-switcher class="app-col-auto" #onlyWithoutResponsibleUserRef formControlName="onlyWithoutResponsibleUser"></uxg-switcher>
+  </div>
+
+  <div class="app-row app-align-items-center positions-filter-section" *ngIf="filterForm.get('onlyWithStartPrice')">
+    <label class="app-col" (click)="onlyWithStartPriceRef.switch($event)">Позиции с НМЦ</label>
+    <uxg-switcher class="app-col-auto" #onlyWithStartPriceRef formControlName="onlyWithStartPrice"></uxg-switcher>
+  </div>
+  <div class="hr"></div>
+
+  <uxg-filter-section label="Заказчик" *ngIf="filterForm.get('contragentUserIds')">
+    <uxg-filter-multi-select-list
+      formControlName="contragentUserIds"
+      searchPlaceholder="Заказчик"
+      [items$]="contragentUsers$">
+    </uxg-filter-multi-select-list>
+  </uxg-filter-section>
+  <div class="hr"></div>
+
+  <uxg-filter-section label="Статус" *ngIf="filterForm.get('positionStatuses')">
+    <uxg-filter-checkbox-list
+      formControlName="positionStatuses"
+      [items$]="positionStatuses$"
+      [limit]="(positionStatuses$ | async)?.length > 7 ? 7 : 0">
+      <ng-template let-formGroup>
+        <ng-container *ngIf="formGroup.get('item').value as item">
+          <uxg-checkbox #statusCheckbox [formControl]="formGroup.get('checked')" class="app-control"></uxg-checkbox>
+          <label class="app-col" (click)="statusCheckbox.check($event)">&nbsp; {{ PositionStatusesLabels[item.status] }}</label>
+          <div class="app-col app-col-auto">
+            <div class="app-position-status">
+              <span class="app-ghost-color">{{item.count}}</span>
+              <div class="app-position-status-icon {{item.status}}"></div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-template>
+    </uxg-filter-checkbox-list>
+  </uxg-filter-section>
+  <div class="hr"></div>
+
+  <uxg-filter-section label="Реестровый №" *ngIf="filterForm.get('procedureRegistryNumbers')">
+    <uxg-filter-multi-select-list
+      formControlName="procedureRegistryNumbers"
+      searchPlaceholder="Реестровый №"
+      [items$]="procedureRegistryNumbers$">
+    </uxg-filter-multi-select-list>
+  </uxg-filter-section>
+  <div class="hr"></div>
+
+  <uxg-filter-section label="ID процедуры" *ngIf="filterForm.get('procedureId')">
+    <input uxgInput type="text" formControlName="procedureId" placeholder="ID процедуры" />
+  </uxg-filter-section>
+  <div class="hr"></div>
+
+  <uxg-filter-section label="Даты завершения приема заявок">
+    <div class="app-row">
+      <div class="app-col" [style.padding-right.px]="15">
+        <div class="app-control-wrap" [style.padding]="0">
+          <input #procedureEndRegistrationDateFrom uxgInput uxgDatepicker placeholder="Дата с" class="delivery-date" formControlName="procedureEndRegistrationDateFrom">
+          <label class="app-control-icon" (click)="procedureEndRegistrationDateFrom.focus()">
+            <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+          </label>
+        </div>
+      </div>
+
+      <div class="app-col">
+        <div class="app-control-wrap" [style.padding]="0">
+          <input #procedureEndRegistrationDateTo uxgInput uxgDatepicker placeholder="Дата по" class="delivery-date" formControlName="procedureEndRegistrationDateTo">
+          <label class="app-control-icon" (click)="procedureEndRegistrationDateTo.focus()">
+            <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+          </label>
+        </div>
+      </div>
+    </div>
+  </uxg-filter-section>
+  <div class="hr"></div>
+
+  <uxg-filter-section label="Срок поставки">
+    <div class="app-row">
+      <div class="app-col" [style.padding-right.px]="15">
+        <div class="app-control-wrap" [style.padding]="0">
+          <input #procedureDeliveryDateFrom uxgInput uxgDatepicker placeholder="Дата с" class="delivery-date" formControlName="procedureDeliveryDateFrom">
+          <label class="app-control-icon" (click)="procedureDeliveryDateFrom.focus()">
+            <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+          </label>
+        </div>
+      </div>
+
+      <div class="app-col">
+        <div class="app-control-wrap" [style.padding]="0">
+          <input #procedureDeliveryDateTo uxgInput uxgDatepicker placeholder="Дата по" class="delivery-date" formControlName="procedureDeliveryDateTo">
+          <label class="app-control-icon" (click)="procedureDeliveryDateTo.focus()">
+            <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+          </label>
+        </div>
+      </div>
+    </div>
+  </uxg-filter-section>
+
+</uxg-filter>
+
+</ng-container>
+
+<!-- Модалка создания группы -->
+<uxg-modal size="s" #addGroupModal>
+  <h2>Создать группу <span class="app-font-normal app-ghost-color">({{ useAllPositions ? (totalCount$ | async) : (checkedPositions$ | async)?.length }})</span></h2>
+  <ng-container *ngIf="addGroupModal.state">
+    <app-request-group-form
+      [positions]="(checkedPositions$ | async)"
+      [useAllPositions]="useAllPositions"
+      [activeFilters]="filterForm?.value"
+      (success)="onCreateGroup()"
+      (close)="addGroupModal.close()"
+    ></app-request-group-form>
+  </ng-container>
+</uxg-modal>
+
+<!-- Перемещение в группу -->
+<uxg-modal #moveGroupModal size="s">
+  <h2>Переместить позиции <span class="app-ghost-color">({{ useAllPositions ? (totalCount$ | async) : (checkedPositions$ | async)?.length }})</span></h2>
+  <app-request-move-group-modal
+    *ngIf="moveGroupModal.state"
+    [groups$]="availableGroups$"
+    [positions]="(checkedPositions$ | async)"
+    [useAllPositions]="useAllPositions"
+    [activeFilters]="filterForm?.value"
+    (success)="onModalSuccess(); fetchAvailableGroups()"
+    (close)="moveGroupModal.close()"
+  ></app-request-move-group-modal>
+</uxg-modal>
+
+<!-- Модальное окно для смены статуса группы позиций -->
+<uxg-modal #changeStatusModal size="s">
+  <ng-container *ngIf="(checkedPositions$ | async) as checkedPositions">
+    <h2>Сменить статус позиций <span class="app-font-normal app-ghost-color">({{ useAllPositions ? (totalCount$ | async) : checkedPositions.length }})</span></h2>
+    <ng-container *ngIf="changeStatusModal.state">
+      <app-positions-status-change
+        #positionsStatusChange
+        [positions]="checkedPositions"
+        [activeFilters]="filterForm?.value"
+        [status]="checkedPositions[0]?.status"
+        [useAllPositions]="useAllPositions"
+        (changeStatus)="onModalSuccess();"
+        (changeStatus)="changeStatusModal.close()">
+      </app-positions-status-change>
+      <ng-template uxgModalFooter>
+        <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+        <button type="button" uxgButton primary lg
+                [disabled]="!positionsStatusChange.valid() || positionsStatusChange.loading"
+                (click)="positionsStatusChange.onChangeBtn()">
+          Сменить
+        </button>
+      </ng-template>
+    </ng-container>
+  </ng-container>
+</uxg-modal>
+
+<!-- Модальное окно прикрепления документа к позициям -->
+<uxg-modal #addDocumentsModal size="l" *ngIf="(checkedPositions$ | async) as checkedPositions">
+  <h2>Загрузить документы для выбранных позиций <span class="app-ghost-color">({{ useAllPositions ? (totalCount$ | async) : checkedPositions.length }})</span>
+  </h2>
+
+  <div class="app-section app-secondary-color">
+    Загруженные документы будут прикреплены ко всем выбранным в завке позициям.
+    Отдельно к позиции документы можно загружать на вкладке «Документы» на странице позиции.
+  </div>
+  <br>
+
+  <app-document-upload-list
+    *ngIf="addDocumentsModal.state"
+    [dragAndDropAvailable]="true"
+    (fileSelected)="files = $event.files; invalidUploadDocument = false">
+  </app-document-upload-list>
+
+  <ng-template uxgModalFooter>
+    <div class="doc-error-message" *ngIf="invalidUploadDocument">Пожалуйста, выберите документ</div>
+
+    <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+    <button uxgButton primary lg [disabled]="isFilesLoading || invalidUploadDocument" (click)="onAttachDocumentsToPositions(checkedPositions)">
+      <uxg-icon shape="app-loader" size="16" *ngIf="isFilesLoading"></uxg-icon>
+      Загрузить
+    </button>
+  </ng-template>
+</uxg-modal>
+
+
+<!-- Модальное окно для назначения ответственного позциям -->
+<uxg-modal #addResponsiblePositionModal size="s">
+  <ng-container *ngIf="(checkedPositions$ | async) as checkedPositions">
+    <ng-container *ngIf="isCheckedPositionsInTheSameProcedure(checkedPositions) && !checkedPositions[0]?.procedureIsCanceled; else basicAddResponsible">
+      <h2>Переназначение позиций возможно из процедуры</h2>
+
+      <ng-template uxgModalFooter>
+        <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+        <button type="button"
+                uxgButton primary lg
+                [routerLink]="['/procedures', checkedPositions[0].procedureUuid, 'info']"
+                [queryParams]="{source: checkedPositions[0].procedureSource}">
+          К процедуре
+        </button>
+      </ng-template>
+    </ng-container>
+
+    <ng-template #basicAddResponsible>
+      <h2>Назначить позиции <span class="app-font-normal app-ghost-color">({{ useAllPositions ? (totalCount$ | async) : checkedPositions.length }})</span></h2>
+      <div *ngIf="addResponsiblePositionModal.state">
+        <app-select-responsible-form
+          [positions]="checkedPositions"
+          (setResponsibleUser)="changeResponsibleUser({ positions: checkedPositions, user: $event })"
+          (close)="addResponsiblePositionModal.close()"
+        ></app-select-responsible-form>
+      </div>
+    </ng-template>
+  </ng-container>
+</uxg-modal>
+
+<!-- Модальное окно для отмены позиции -->
+<uxg-modal #cancelPositionModal size="s">
+  <ng-container *ngIf="(checkedPositions$ | async) as checkedPositions">
+    <h2>Отменить позиции <span class="app-font-normal app-ghost-color">({{ useAllPositions ? (totalCount$ | async) : checkedPositions.length }})</span></h2>
+    <div class="app-section app-secondary-color">Будьте внимательны, отменить операцию будет невозможно</div>
+    <app-position-cancel [positions]="checkedPositions"
+                          [useAllPositions]="useAllPositions"
+                          [activeFilters]="filterForm?.value"
+                          (complete)="onModalSuccess();"
+                          (close)="cancelPositionModal.close()"></app-position-cancel>
+  </ng-container>
+</uxg-modal>
+
+<!-- Модальное окно расформировывания группы -->
+<uxg-modal #disbandGroupModal size="s">
+  <ng-container *ngIf="(checkedGroups$ | async) as checkedGroups">
+    <h2>Расформировать группу «{{ checkedGroups[0]?.name }}»?</h2>
+    <div class="app-section app-secondary-color">Будьте внимательны, отменить операцию будет невозможно</div>
+
+    <ng-template uxgModalFooter>
+      <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+      <button type="button"
+              uxgButton primary lg
+              (click)="disbandPositionsGroup(checkedGroups[0].id); disbandGroupModal.close()">
+        Расформировать
+      </button>
+    </ng-template>
+  </ng-container>
+</uxg-modal>
+
+<!-- Модалка добавления позиции -->
+<app-request-add-position-modal
+  [request]="selectedRequest"
+  #addPositionModal
+  [onDrafted]="sendOnApprove"
+  [isShowDocumentsBlock]="true"
+  (onRequestSelected)="selectedRequest = $event"
+  (success)="onPositionAdded()"
+  (uploadFromTemplate)="uploadPositionFromTemplate($event)"
+  (cancel)="addPositionModal.close()"
+></app-request-add-position-modal>
+
+<!-- Модальное окно выбора типа процедуры (1 шаг) -->
+<uxg-modal #procedureCreationTypeModal size="s">
+  <h2>Выберите тип процедуры</h2>
+  <ng-container *ngIf="procedureCreationTypeModal.state">
+    <uxg-dropdown lg
+      class="procedure-type-select"
+      [(ngModel)]="selectedProcedureType"
+      [placeholder]="procedureTypes[selectedProcedureType] || procedureTypes.byPosition">
+      <div
+        *ngFor="let type of procedureTypes | keyvalue; let i = index"
+        uxgDropdownItem
+        [class.app-ghost-color]="i !== 0"
+        [value]="type.key"
+        [disabled]="i !== 0">
+        {{ type.value }}
+      </div>
+    </uxg-dropdown>
+    <ng-template uxgModalFooter>
+      <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+      <button type="button"
+        uxgButton primary lg
+        (click)="procedureModalPayload = {action: 'create'}; procedureCreationTypeModal.close()">
+        Выбрать
+      </button>
+    </ng-template>
+  </ng-container>
+</uxg-modal>
+
+<!-- Модальное окно Создания процедуры (2 и последующие шаги) -->
+<uxg-modal size="l" [staticBackdrop]="true" [(state)]="procedureModalPayload">
+  <h2>Создание новой процедуры</h2>
+  <app-request-procedure-form
+    *ngIf="procedureModalPayload"
+    [isVirtualScrollUsed]="true"
+    [positions]="(availablePositionsForCreateProcedure$ | async)"
+    [action]="procedureModalPayload.action"
+    [procedureSource]="procedureSource"
+    [isWithoutStartPrice]="isWithoutStartPrice$ | async"
+    [useAllPositions]="useAllPositions"
+    [activeFilters]="filterForm.value"
+    (complete)="procedureModalPayload = null; onModalSuccess();"
+    (cancel)="procedureModalPayload = null"
+  ></app-request-procedure-form>
+</uxg-modal>
+
+<!-- Модальное окно уведомления о выгрузке всех процедур -->
+<uxg-modal size="s" #setRegistryExcelModal>
+  <h2>Выгрузить позиции ({{ useAllPositions ? (totalCountWithoutNotRelevantAndCanceled$ | async) : (checkedPositions$ | async)?.length || (totalCountWithoutNotRelevantAndCanceled$ | async) }})</h2>
+  <p class="app-secondary-color">Как только выгрузка будет сформирована, вам на почту придет уведомление и ссылка на скачивание excel.</p>
+  <ng-template uxgModalFooter>
+    <button type="button"
+        uxgButton secondary lg uxgModalClose
+        (click)="setRegistryExcelModal.close()">Отмена</button>
+    <button type="button"
+        uxgButton primary lg
+        (click)="setRegistryExcelModal.close(); setRegistryExcelQueue()">
+      Да
+    </button>
+  </ng-template>
+</uxg-modal>
+
+<!-- Модальное окно возврата в работу процедуры -->
+<uxg-modal #returnToWorkModal size="s">
+  <ng-container *ngIf="(checkedPositions$ | async) as checkedPositions">
+    <h2>Вернуть в работу <span class="app-font-normal app-ghost-color">({{ useAllPositions ? (totalCountWithoutNotRelevantAndCanceled$ | async) : checkedPositions.length }})</span></h2>
+    <p class="app-secondary-color">Укажите статус позиции:</p>
+    <div class="app-control-wrap">
+      <uxg-dropdown
+        class="app-dropdown"
+        placeholder="Статус позиции"
+        [(ngModel)]="returnToWorkStatus"
+        [required]="true">
+        <div uxgDropdownItem value="NEW">Новая</div>
+        <div uxgDropdownItem value="DRAFT">Черновик</div>
+      </uxg-dropdown>
+    </div>
+    <div class="app-control-wrap">
+      <textarea
+        uxgInput
+        #textarea
+        [style.height.px]="70"
+        [required]="true"
+        [(ngModel)]="returnToWorkStatusComment">
+      </textarea>
+      <label class="app-control-label" (click)="textarea.focus()">Комментарий</label>
+    </div>
+    <ng-template uxgModalFooter>
+      <button type="button"
+          uxgButton secondary lg uxgModalClose
+          (click)="returnToWorkModal.close()">Отмена</button>
+      <button type="button"
+          uxgButton primary lg
+          [disabled]="!returnToWorkStatus || !returnToWorkStatusComment"
+          (click)="returnToWork(checkedPositions); returnToWorkModal.close();">
+        Ок
+      </button>
+    </ng-template>
+  </ng-container>
+</uxg-modal>

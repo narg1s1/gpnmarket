@@ -1,0 +1,202 @@
+@import "src/theme";
+
+.app-dropdown {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.title-edit {
+  vertical-align: middle;
+}
+
+.title-loader {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.item {
+  &-title {
+    line-height: normal;
+
+    & a.position-link {
+      max-width: 700px;
+      display: block;
+    }
+  }
+
+  &-quantity {
+    flex-grow: .15; // 15% width
+    max-width: 100px;
+    flex-basis: 45px;
+  }
+
+  &-status, &-sum {
+    min-width: 240px;
+    max-width: 240px;
+  }
+
+  &-responsible {
+    min-width: 120px;
+    max-width: 120px;
+  }
+
+  &-date {
+    max-width: 120px;
+  }
+
+  &-attribute-icon {
+    min-width: 16px;
+    max-width: 16px;
+  }
+}
+
+.procedure-type-select {
+  margin-left: 0;
+}
+
+.filter-button, .new-position-button {
+  margin-left: 14px;
+}
+
+.app-table.disabled {
+  opacity: .5;
+}
+
+.group-position-item {
+  border: 1px solid transparent;
+  width: 100%;
+  display: inherit;
+
+  &.upload-area-hover {
+    border: 1px dashed rgba(uxg($theme, color-control-primary), .6);
+    border-radius: 3px;
+    background: uxg($theme, color-list-hover);
+    box-sizing: content-box;
+    padding: 0 7px;
+    margin-left: -7px;
+  }
+}
+
+a.app-row.upload-area-hover {
+  border: 1px dashed rgba(uxg($theme, color-control-primary), .6);
+  background: uxg($theme, color-list-hover);
+
+  &:not(:first-child) {
+    margin-top: -1px;
+  }
+}
+
+.app-table > .app-row {
+  &-group {
+    background: #F4F6FB;
+    border-left: 4px uxg($theme, color-border) solid;
+    //cursor: pointer; @TODO: uncomment when implement group page
+    padding-left: 2px;
+
+    &:hover {
+      background: #E9F1F7;
+    }
+
+    .item-title a:hover {
+      color: uxg($theme, color-font-secondary);
+    }
+
+    .positions {
+      padding-top: 14px;
+
+      .app-col {
+        padding: 6px 14px;
+
+        &:first-child {
+          padding-left: 0;
+          padding-right: 6px;
+        }
+
+        &:last-child {
+          padding-right: 0;
+        }
+      }
+    }
+  }
+
+  & > .app-col:first-child {
+    padding-right: 6px;
+  }
+
+  .app-col {
+    box-sizing: content-box;
+  }
+}
+
+// @TODO Выпилить после реализации попозиционного согласования
+.notification-bar {
+  width: 100%;
+  background: #F0F6FC;
+  position: absolute;
+  left: 0;
+  top: 64px;
+  z-index: 2;
+
+  .app-row { justify-content: space-evenly }
+  .app-col { padding: 16px }
+}
+
+.selection-block {
+  background: uxg($theme, color-list-hover);
+  padding: 8px 0;
+
+  & .selected-info {
+    padding-right: 15px;
+    padding-left: 60px;
+    max-width: 700px;
+  }
+}
+
+a.disabled {
+  &, &:hover {
+    color: #b3b3b3;
+  }
+}
+
+.position-list-loader {
+  margin-top: 100px;
+}
+
+.request-area {
+  border: 1px solid #C8CAFF;
+  border-radius: 4px;
+
+  & .clock-icon {
+    margin-top: 50px;
+    margin-bottom: 50px;
+  }
+
+  & .add-position-button {
+    display: table;
+    margin: 32px auto;
+  }
+
+  & hr {
+    margin: 0 0 20px;
+    border: 1px dotted #c8cafd;
+    border-top: 0;
+  }
+}
+
+.doc-error-message {
+  text-align: right;
+  font-weight: bold;
+  margin-right: 10px;
+  color: uxg($theme, color-control-invalid);
+  line-height: 40px;
+}
+
+.item-attribute-icon {
+  min-width: 40px;
+  text-align: end;
+}
+
+.info-text {
+  min-width: 300px;
+  padding-right: 20px;
+}

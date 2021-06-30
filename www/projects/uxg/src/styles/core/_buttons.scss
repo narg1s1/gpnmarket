@@ -1,0 +1,116 @@
+@import "../uxg";
+
+@mixin buttons($theme) {
+.app-btn {
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: uxg($theme, control-border-radius);
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-block;
+  font-size: uxg($theme, font-size-m);
+  font-weight: 500;
+  line-height: normal;
+  min-height: 26px;
+  overflow: hidden;
+  padding: 0;
+  text-align: center;
+  text-overflow: ellipsis;
+  transition-duration: 250ms;
+  transition-property: background-color, color, border;
+  transition-timing-function: ease;
+  white-space: nowrap;
+  color: uxg($theme, color-font-primary);
+
+  &:not(&-clear) {
+    height: uxg($theme, control-height);
+    min-width: uxg($theme, button-min-width);
+    padding: uxg($theme, button-padding);
+
+    // Если после кнопки есть элемент делаем отступ
+    & + * {
+      margin-left: .5rem;
+    }
+
+    // Если есть иконка делаем отступ
+    > * + * {
+      margin-left: .5em;
+      vertical-align: middle;
+    }
+  }
+
+  &:not(&-clear):not(&-strength) {
+    max-width: uxg($theme, button-max-width);
+  }
+
+  &-primary {
+    background-color: uxg($theme, color-control-primary);
+    color: uxg($theme, color-default);
+
+    &:not(:disabled):hover {
+      background-color: uxg($theme, color-control-primary-hover);
+    }
+
+    &:disabled {
+      background-color: uxg($theme, color-control-secondary);
+    }
+  }
+
+  &-secondary {
+    background-color: uxg($theme, color-control-secondary);
+
+    &:not(:disabled):hover {
+      background-color: uxg($theme, color-control-secondary-hover);
+    }
+  }
+
+  &-outline {
+    border-color: uxg($theme, color-soft);
+    color: uxg($theme, color-font-secondary);
+
+    &:not(:disabled):hover {
+      border-color: uxg($theme, color-control-secondary-hover-border);
+    }
+
+    &:disabled {
+      border-color: uxg($theme, color-soft);
+    }
+  }
+
+  &-link {
+    color: uxg($theme, color-font-secondary);
+
+    &:not(:disabled):hover {
+      color: uxg($theme, color-font-primary);
+    }
+  }
+
+  &-large:not(&-clear) {
+    height: uxg($theme, control-height-l);
+    padding: uxg($theme, button-padding-l);
+
+    &.app-btn-icon {
+      min-width: uxg($theme, control-height-l);
+    }
+  }
+
+  &-icon:not(&-clear) {
+    min-width: uxg($theme, control-height);
+    padding: 0;
+  }
+
+  &-icon-text > uxg-icon  {
+    margin-left: -6px;
+    align-self: center;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: uxg($theme, color-font-ghost);
+  }
+}
+
+* + .app-btn {
+  margin-left: .5rem;
+}
+}

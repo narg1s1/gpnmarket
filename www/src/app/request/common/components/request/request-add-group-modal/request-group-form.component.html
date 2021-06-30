@@ -1,0 +1,18 @@
+<form appFormValidation [formGroup]="form" (ngSubmit)="submit()" *ngIf="!isLoading; else loading">
+  <p class="app-secondary-color">Вы можете создавать группы из любых позиций с любым статусом.</p>
+
+  <div class="app-control-wrap">
+    <input #nameRef uxgInput type="text" lg formControlName="name"/>
+    <label class="app-control-label" (click)="nameRef.focus()">Название группы</label>
+  </div>
+
+  <div class="app-row app-justify-content-end">
+    <button uxgButton secondary lg type="button" (click)="close.emit()">Отмена</button>
+    <button uxgButton primary lg>Создать</button>
+  </div>
+</form>
+<ng-template #loading>
+  <div class="text-center">
+    <span class="spinner spinner-md"></span>
+  </div>
+</ng-template>

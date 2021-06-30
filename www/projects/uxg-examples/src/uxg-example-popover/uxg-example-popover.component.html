@@ -1,0 +1,33 @@
+<div class="app-card">
+  <h2>Input</h2>
+  <div class="app-row">
+    <div class="app-col">
+      <h3>Example</h3>
+      <br/>
+      <uxg-popover>
+        <button uxgPopoverTrigger uxgButton outline lg>Click me</button>
+        <div *uxgPopoverContent="direction">Sample text</div>
+      </uxg-popover>
+    </div>
+    <div class="app-col">
+      <h3>Align</h3>
+      <br/>
+      <uxg-dropdown [(ngModel)]="direction">
+        <div uxgDropdownItem [value]="PopoverContentDirection.bottomLeft">Bottom right</div>
+        <div uxgDropdownItem [value]="PopoverContentDirection.bottomRight">Bottom left</div>
+        <div uxgDropdownItem [value]="PopoverContentDirection.topLeft">Top left</div>
+        <div uxgDropdownItem [value]="PopoverContentDirection.topRight">Top right</div>
+      </uxg-dropdown>
+    </div>
+  </div>
+
+  <br/>
+  <br/>
+  <h2>Sources</h2>
+  <h3>Template</h3>
+  <uxg-code language="html">{{ example }}</uxg-code>
+  <br/>
+
+  <h3>Component</h3>
+  <uxg-code language="js">{{ example_1 }}</uxg-code>
+</div>

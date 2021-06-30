@@ -1,0 +1,198 @@
+<div class="app-table tp-card">
+  <div class="app-row">
+    <div class="app-col">
+      <div class="tp-header">
+        <div class="app-col">
+          <ng-container *ngIf="technicalProposal.supplierContragent; else noContragent">
+            <h3>
+              <app-contragent-info-link
+                [contragent]="technicalProposal.supplierContragent">
+              </app-contragent-info-link>
+            </h3>
+          </ng-container>
+
+          <ng-template #noContragent><span>Поставщик</span></ng-template>
+        </div>
+
+        <div class="app-col app-col-aside status">
+          <ng-container [ngSwitch]="technicalProposal.status">
+            <div class="app-ghost-color" *ngSwitchCase="'NEW'">
+              <uxg-icon shape="app-draft"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-ghost-color" *ngSwitchCase="'SENT_TO_REVIEW'">
+              <uxg-icon shape="app-waiting"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-success-color" *ngSwitchCase="'ACCEPTED'">
+              <uxg-icon shape="app-check"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-success-color" *ngSwitchCase="'PARTIALLY_ACCEPTED'">
+              <uxg-icon shape="app-check"></uxg-icon>
+              <b>{{ getLabelWithCounters(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-warning-color" *ngSwitchCase="'SENT_TO_EDIT'">
+              <uxg-icon shape="app-warning"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-alert-color" *ngSwitchCase="'DECLINED'">
+              <uxg-icon shape="app-cross"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+
+            <div class="app-alert-color" *ngSwitchCase="'CANCELED'">
+              <uxg-icon shape="app-cross"></uxg-icon>
+              <b>{{ tpStatusLabel(technicalProposal) }}</b>
+            </div>
+          </ng-container>
+
+          <button uxgButton link icon
+                  *ngIf="featureService.authorize('editTechnicalProposal')"
+                  (click)="edit.emit(true)"
+                  [disabled]="!editable">
+            <uxg-icon shape="app-pen"></uxg-icon>
+          </button>
+          <button uxgButton link icon (click)="isFolded = !isFolded">
+            <uxg-icon shape="app-chevron" [attr.dir]="isFolded ? 'down':'up'"></uxg-icon>
+          </button>
+        </div>
+      </div>
+      <div class="extendable-block" *ngIf="!isFolded">
+
+        <!-- Секция докуметов ТП -->
+        <div class="documents" *ngIf="technicalProposal.documents.length !== 0">
+          <hr>
+          <div class="section">
+            <small class="app-uppercase app-bold app-ghost-color">Документы предложения</small>
+
+            <app-document-simple-list
+              [gridable]="true"
+              [enableUpload]="false"
+              [documents]="technicalProposal.documents">
+            </app-document-simple-list>
+          </div>
+        </div>
+
+        <!-- Секция списка позиций ТП -->
+        <hr>
+        <div class="app-row position-list section">
+          <div class="app-col"><small class="app-uppercase app-bold app-ghost-color">Наименование позиции</small></div>
+          <div class="app-col"><small class="app-uppercase app-bold app-ghost-color">Заводское наименование</small></div>
+          <div class="app-col"><small class="app-uppercase app-bold app-ghost-color">Решение принято</small></div>
+          <div class="app-col icon-status"></div>
+        </div>
+
+        <div class="app-row position-list"
+             *ngFor="let technicalProposalPosition of technicalProposal.positions">
+          <div class="app-col">{{ technicalProposalPosition.position.name }}</div>
+
+          <div class="app-col">
+            <ng-container *ngIf="technicalProposalPosition.manufacturingName; else noItem">
+              <span class="app-secondary-color">{{ technicalProposalPosition.manufacturingName }}</span>
+            </ng-container>
+          </div>
+
+          <div class="app-col">
+            <ng-container class="user" *ngIf="technicalProposalPosition.history; else noItem">
+              {{ technicalProposalPosition.history?.user.shortName }}
+              <span class="app-ghost-color">
+                {{ technicalProposalPosition.history?.createdDate | date:'shortDate' }}
+              </span>
+            </ng-container>
+          </div>
+
+          <div class="app-col icon-status">
+            <ng-container [ngSwitch]="technicalProposalPosition.status">
+              <uxg-icon *ngSwitchCase="'REVIEW'" class="app-ghost-color" shape="app-unknown"></uxg-icon>
+              <uxg-icon *ngSwitchCase="'ACCEPTED'" class="app-success-color" shape="app-check"></uxg-icon>
+              <uxg-icon *ngSwitchCase="'DECLINED'" class="app-alert-color" shape="app-cross"></uxg-icon>
+              <uxg-icon *ngSwitchCase="'SENT_TO_EDIT'" class="app-warning-color" shape="app-warning"></uxg-icon>
+            </ng-container>
+          </div>
+
+          <ng-template #noItem>
+            <span>—</span>
+          </ng-template>
+        </div>
+
+        <ng-container *ngIf="featureService.authorize('cancelPublishTechnicalProposal') &&
+                             (availableCancelPublishTechnicalProposal(technicalProposal) || tpStatusLabel(technicalProposal) === 'Черновик')">
+          <!-- footer -->
+          <hr>
+
+          <div class="app-row app-align-items-center">
+            <div class="app-col app-secondary-color">
+              Вы можете отозвать отправленное на согласование заказчику техническое предложение
+              в течение ограниченного количества времени (таймер на кнопке)
+            </div>
+
+            <ng-container *ngIf="availableCancelPublishTechnicalProposal(technicalProposal); else sendToReviewBtn">
+              <div class="app-col app-col-auto status">
+                <button uxgButton primary type="button" class="fixedWidth" (click)="onCancelPublishTechnicalProposal(technicalProposal)">
+                  Отозвать <span class="cancel-timer"> {{ technicalProposal.statusChangedDate | countdownTimer: durationCancelPublish }} </span>
+                </button>
+              </div>
+            </ng-container>
+
+            <ng-template #sendToReviewBtn>
+              <div class="app-row app-col app-col-auto app-align-items-center">
+                <span *ngIf="isLoading" class="spinner spinner-inline">Загрузка...</span>
+                <button uxgButton primary (click)="sendToAgreement(technicalProposal)">Отправить на согласование</button>
+              </div>
+            </ng-template>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="lastSentToEditComment">
+          <hr>
+          <div class="section">
+            <div class="app-row">
+              <div class="app-col">
+                <small class="app-uppercase app-bold app-ghost-color">Последний комментарий по доработкам</small>
+              </div>
+
+              <div class="app-col-auto">
+                <div class="comment-datetime">
+                  <div class="date">{{ lastSentToEditCommentDate | date : "dd.MM.yyyy" }}</div>
+                  <div class="time app-ghost-color">{{ lastSentToEditCommentDate | date : "HH:mm" }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tp-comment">
+              {{ lastSentToEditComment }}
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="lastRejectComment">
+          <hr>
+          <div class="section">
+            <div class="app-row">
+              <div class="app-col">
+                <small class="app-uppercase app-bold app-ghost-color">Последний комментарий по отклонению</small>
+              </div>
+
+              <div class="app-col-auto">
+                <div class="comment-datetime">
+                  <div class="date">{{ lastRejectCommentDate | date : "dd.MM.yyyy" }}</div>
+                  <div class="time app-ghost-color">{{ lastRejectCommentDate | date : "H:mm" }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tp-comment">
+              {{ lastRejectComment }}
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

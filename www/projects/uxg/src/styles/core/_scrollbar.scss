@@ -1,0 +1,21 @@
+@import "../uxg";
+
+@mixin scrollbar($theme) {
+  &::-webkit-scrollbar {
+    width: 16px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: uxg($theme, color-soft);
+    border: 5px solid uxg($theme, color-default);
+    border-radius: 16px;
+    transition: border 500ms;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    border-width: 4px;
+  }
+
+  &::-webkit-scrollbar-button,
+  &::-webkit-scrollbar-corner { display: none }
+}

@@ -1,0 +1,37 @@
+<form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!isLoading; else loading">
+  <div class="app-secondary-color app-section">
+    Вы можете переместить позиции в ранее созданные группы, переместить с созданием новой группы, или вынести позиции
+    вне групп.
+  </div>
+  <uxg-dropdown
+    *ngIf="!groups$"
+    lg
+    formControlName="group"
+    placeholder="Выберите куда переместить">
+    <div uxgDropdownItem *ngFor="let group of groups" [value]="group">{{group.name || "Без имени"}}</div>
+  </uxg-dropdown>
+  <uxg-dropdown-input
+    *ngIf="groups$"
+    lg
+    formControlName="group"
+    placeholder="Выберите куда переместить"
+    appSuggestions
+    #sug="appSuggestions"
+    [$]="groups$"
+    [searchFn]="searchGroups"
+    [displayByFn]="getGroupName"
+    [minLength]="0"
+    [required]="true"
+  >
+    <div uxgDropdownItem [value]="group" *ngFor="let group of sug.suggestions$ | async">{{ group.name }}</div>
+  </uxg-dropdown-input>
+  <div class="app-modal-footer">
+    <button uxgButton secondary lg (click)="this.close.emit()" type="button">Отмена</button>
+    <button uxgButton primary lg [disabled]="form.invalid">Переместить</button>
+  </div>
+</form>
+<ng-template #loading>
+  <div class="text-center">
+    <span class="spinner spinner-md"></span>
+  </div>
+</ng-template>

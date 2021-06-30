@@ -1,0 +1,39 @@
+<form appFormValidation (ngSubmit)="submit()">
+  <div class="app-secondary-color">
+    Добавьте всю необходимую информацию о позициях, по которым вы хотите создать ценовой запрос
+  </div>
+
+  <div class="app-section">
+    <div *ngFor="let formGroup of formArray?.controls; index as i">
+      <p class="app-bold">{{ value[i]?.name }}</p>
+      <div class="app-row section" [formGroup]="asFormGroup(formGroup)">
+        <div class="app-col app-row">
+          <div class="app-col">
+            <uxg-dropdown-input
+              appSuggestions
+              formControlName="okpd2"
+              placeholder="OКПД2"
+              [$]="okpd2List$"
+              [searchFn]="searchOkpd2"
+              #okpd2="appSuggestions"
+              [strictMode]="true"
+              [appControlWrap]="false"
+            >
+              <ng-container *ngFor="let suggestion of okpd2.suggestions$ | async">
+                <div uxgDropdownItem [value]="suggestion.code" [attr.title]="suggestion.code">{{suggestion.name }}</div>
+              </ng-container>
+            </uxg-dropdown-input>
+          </div>
+          <div class="app-col">
+            <input uxgInput placeholder="Максимальная цена" formControlName="maxPrice"/>
+          </div>
+        </div>
+        <div class="app-col"><input uxgInput placeholder="Комментарий" formControlName="comment"/></div>
+      </div>
+    </div>
+  </div>
+  <div class="app-row app-justify-content-end">
+    <button uxgButton lg secondary type="button" (click)="cancel.emit()">Отмена</button>
+    <button uxgButton lg primary>Сохранить</button>
+  </div>
+</form>

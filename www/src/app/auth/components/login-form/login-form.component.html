@@ -1,0 +1,34 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="app-secondary-color app-section">
+    Используйте ваш логин и пароль, чтобы войти в систему (логином является адрес электронной почты).
+  </div>
+
+  <div class="app-section">
+    <div class="app-control-wrap">
+      <input #emailRef uxgInput type="text" lg formControlName="email"/>
+      <label class="app-control-label" (click)="emailRef.focus()">Логин</label>
+      <div class="app-control-error" *ngIf="form.get('email').errors as e">
+        <span *ngIf="e.required">Необходимо заполнить эл. почту</span>
+        <span *ngIf="!e.required && e.invalid_email">Пожалуйста, проверьте корректность введенной эл. почты</span>
+      </div>
+    </div>
+
+    <div class="app-control-wrap">
+      <input #passwordRef uxgInput type="password" lg formControlName="password"/>
+      <label class="app-control-label" (click)="passwordRef.focus()">Пароль</label>
+      <div class="app-control-error" *ngIf="form.get('password').errors as e">
+        <span *ngIf="e.required">Необходимо заполнить пароль</span>
+        <span *ngIf="e.invalid_credentials">Неверная эл. почта или пароль</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-section app-row">
+    <button class="app-col" uxgButton primary lg strength [disabled]="form.invalid">Войти</button>
+  </div>
+
+  <div class="app-row app-justify-content-between">
+    <a routerLink='/auth/forgot-password' class="app-col-auto" >Забыли пароль?</a>
+    <a routerLink='/registration' class="app-col-auto" *ngIf="featureService.available('registration')" >Регистрация</a>
+  </div>
+</form>

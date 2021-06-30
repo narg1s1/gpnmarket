@@ -1,0 +1,52 @@
+
+<div class="app-table app-no-border">
+  <div class="app-row">
+    <small class="app-col app-ghost-color photo">Фото</small>
+    <small class="app-col app-ghost-color name">Наименование МТР</small>
+    <small class="app-col app-ghost-color measure">ед. изм.</small>
+    <small class="app-col app-ghost-color quantity">Количество</small>
+    <small class="app-col app-ghost-color action"></small>
+  </div>
+</div>
+
+<div class="app-table">
+  <div class="app-row app-align-items-center" *ngFor="let item of items">
+    <div class="app-col photo">
+      <img *ngIf="item.catalogPosition.image; else noImage" src="{{ item.catalogPosition.image }}" alt="{{item.catalogPosition.name}}"/>
+      <ng-template #noImage>
+        <img src="../../../../assets/images/no-image.png" alt="Изображение отсуствует">
+      </ng-template>
+    </div>
+
+    <div class="app-col name">
+      <p class="position-name">{{item.catalogPosition.name}}</p>
+      <p class="position-description">{{item.catalogPosition.description}}</p>
+    </div>
+
+    <div class="app-col measure app-ghost-color">
+      {{ item.catalogPosition.measureUnit }}
+    </div>
+
+    <div class="app-col quantity">
+      <uxg-popover [openOnHover]="true">
+        <input uxgPopoverTrigger
+               name="quantity" type="number"
+               [value]="item.quantity"
+               (change)="updateItemQuantity(item, $event.target.value)"
+               [class.invalid]="item.quantity <= 0"/>
+
+        <ng-container *ngIf="item.quantity <= 0">
+          <div *uxgPopoverContent="PopoverContentDirection.topRight">
+            Значение должно быть больше или равно 1
+          </div>
+        </ng-container>
+      </uxg-popover>
+    </div>
+
+    <div class="app-col action">
+      <button uxgButton icon link lg class="btn-delete" (click)="onDeleteItem(item)">
+        <uxg-icon shape="app-trash" class="is-solid" size="21"></uxg-icon>
+      </button>
+    </div>
+  </div>
+</div>

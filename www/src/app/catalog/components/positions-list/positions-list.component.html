@@ -1,0 +1,60 @@
+<ng-container [formGroup]="form">
+  <ng-container *ngIf="positions?.length !== 0; else noPositions">
+    <div class="app-table app-no-border">
+      <div class="app-row app-uppercase app-ghost-color">
+        <small class="app-col photo">Фото</small>
+        <small class="app-col name">Наименование МТР</small>
+        <small class="app-col measure">ед. изм.</small>
+        <small class="app-col in-stock">Скл. ост.</small>
+        <ng-container *ngIf="featureService.authorize('cart')">
+          <small class="app-col quantity">Количество</small>
+          <small class="app-col action"></small>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="app-table" formArrayName="positions">
+      <div class="app-row app-align-items-center" *ngFor="let position of positions; index as i" [formGroupName]="i">
+        <div class="app-col photo">
+          <img *ngIf="position.image; else noImage" [src]="position.image" alt="{{position.name}}"/>
+          <ng-template #noImage>
+            <img src="assets/images/no-image.png" alt="Изображение отсуствует">
+          </ng-template>
+        </div>
+
+        <div class="app-col name">
+          <p class="position-name">{{position.name}}</p>
+          <p class="position-description">{{position.description}}</p>
+        </div>
+
+        <div class="app-col measure app-ghost-color">
+          {{ position.measureUnit }}
+        </div>
+
+        <div class="app-col in-stock app-ghost-color">
+          {{ position.inStock }}
+        </div>
+
+        <ng-container *ngIf="featureService.authorize('cart')">
+          <div class="app-col quantity">
+            <input uxgInput lg formControlName="quantity" type="number"/>
+          </div>
+
+          <div class="app-col action">
+            <button uxgButton primary lg
+                    [disabled]="formPositions.at(i).invalid || loadingState && thisButtonIndex === i"
+                    (click)="addToCart(formPositions.at(i), i)">
+              <uxg-icon *ngIf="formPositions.at(i).get('position').valid; else inCart" shape="app-basket"></uxg-icon>
+              <ng-template #inCart>В корзине</ng-template>
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </ng-container>
+</ng-container>
+<ng-template #noPositions>
+  <div class="clr-row position-list no-positions">
+    Позиций не найдено
+  </div>
+</ng-template>

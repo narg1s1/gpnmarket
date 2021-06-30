@@ -1,0 +1,16 @@
+<h6 class="app-secondary-color">По статусам</h6>
+<div class="app-row">
+  <div class="app-col">
+    <div class="app-row" *ngFor="let statusCounter of statusCounters">
+      <div class="percent" [class.app-ghost-color]="statusCounter.positions.length === 0">
+        {{ statusCounter.positions.length / positions.length * 100 | number:'1.0-0' }}%
+      </div>
+      <div [style.color]="statusCounter.color">{{ statusCounter.shortName }}</div>
+    </div>
+  </div>
+  <div class="app-col app-grow-0">
+    <div class="pie-chart">
+      <canvas #chart></canvas>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+<ng-container *ngIf="(status$ | async) !== 'fetching'; else placeholder">
+    <div class="app-row">
+    <div class="app-col">
+      <div class="app-row app-align-items-center">
+        <uxg-tabs class="app-col">
+          <uxg-tab-title #reviewTab [disabled]="!reviewTabCount" [active]="reviewTabCount > 0">
+            Необходимо рассмотреть  <span class="counter" *ngIf="reviewTabCount as cnt">({{cnt}})</span>
+          </uxg-tab-title>
+          <uxg-tab-title #progressTab [active]="reviewTabCount === 0">
+            Запросы в процессе <span class="counter" *ngIf="priceOrdersLength$ | async as cnt">({{cnt}})</span>
+          </uxg-tab-title>
+          <uxg-tab-title #reviewedTab [disabled]="!reviewedTabCount">
+            Рассмотренные <span class="counter" *ngIf="reviewedTabCount as cnt">({{cnt}})</span>
+          </uxg-tab-title>
+        </uxg-tabs>
+        <button uxgButton primary *ngIf="canCreatePriceOrder()" (click)="router.navigateByUrl('/kim/customer/price-orders/create')">
+          <uxg-icon shape="app-plus"></uxg-icon><span>Новый ЦЗ</span>
+        </button>
+        <!--button class="filter-button" uxgButton secondary (click)="showFilter = !showFilter">Фильтр</button-->
+      </div>
+    </div>
+    <div class="app-col-aside" [class.visible]="showFilter"></div>
+  </div>
+  <div class="app-row content">
+    <div class="app-col">
+      <ng-container *ngIf="progressTab.active">
+        <div class="app-card" *ngFor="let order of priceOrders$ | async; trackBy: getOrderId; index as i">
+          <!-- title -->
+          <div class="app-row app-align-items-center">
+            <h3 class="app-col"><a [routerLink]="order.id">{{order.name}}</a></h3>
+            <a class="app-bold" target="_blank" href="{{appConfig.priceOrder.url}}{{order.etpKimId}}">Показать на ЭТП ГПБ</a>
+            <button uxgButton icon link (click)="folded[i] = !folded[i]">
+              <uxg-icon shape="app-chevron" [attr.dir]="folded[i] ? 'down' : 'up'"></uxg-icon>
+            </button>
+          </div>
+          <hr/>
+          <div class="app-row">
+            <div class="app-col">
+              <div class="app-secondary-color">Прием заявок до</div>
+              <p>
+                <span>{{ order.dateResponse | date : "dd.MM.yyyy" }} </span>
+                <span class="app-ghost-color">{{ order.dateResponse | date : "HH:mm" }}</span>
+              </p>
+            </div>
+            <div class="app-col">
+              <div class="app-secondary-color">Ожидаемая дата доставки</div>
+              <p>{{ order.dateDelivery | date: "dd.MM.yyyy"}}</p>
+            </div>
+            <!--div class="app-col app-row app-justify-content-end">
+              <button uxgButton secondary>Продлить запрос</button>
+            </div-->
+          </div>
+          <ng-container *ngIf="folded[i]">
+            <hr/>
+            <div class="app-uppercase app-ghost-color app-bold"><small>Наименование позиций ценового запроса</small></div>
+            <p *ngFor="let position of order.positions">
+              {{ position.name }}
+            </p>
+          </ng-container>
+        </div>
+      </ng-container>
+    </div>
+    <div class="app-col-aside" [class.visible]="showFilter">
+      <!--h3>Фильтр</h3-->
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #placeholder>
+  <div class="app-row">
+    <div class="app-col">
+      <div class="app-row">
+        <div class="app-col app-row">
+          <div class="placeholder-row" *ngFor="let i of [].constructor(3)" [style.height.px]="32" [style.width.px]="150"></div>
+        </div>
+        <div class="placeholder-row" [style.height.px]="32" [style.width.px]="192"></div>
+      </div>
+
+      <div class="placeholder" *ngFor="let i of [].constructor(10)" [style.height.px]="160"></div>
+    </div>
+    <div class="app-col-aside"></div>
+  </div>
+</ng-template>

@@ -1,0 +1,27 @@
+@import "../../../../../../theme";
+
+.app-table {
+  max-height: calc(70vh - 113px);
+  overflow-y: scroll;
+  padding: 5px 15px;
+  margin: 0px -22px 0 -15px;
+  @include scrollbar($theme);
+
+  & > .app-row {
+    padding: 8px 0;
+
+    & > .app-col {
+      padding: 0 10px;
+      &:first-child { padding-left: 0; }
+      &:last-child { padding-right: 0; }
+    }
+  }
+}
+
+.position-name {
+  min-width: 405px;
+}
+
+.counter {
+  padding-left: 50px;
+}

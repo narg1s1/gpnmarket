@@ -1,0 +1,28 @@
+/* Алерты */
+
+.alert {
+  font-size: $font_size_basic;
+  border-radius: 0;
+
+  &-items {
+    border-radius: 0;
+    padding: 5px 10px 5px 10px;
+    line-height: 25px;
+    font-size: 13px;
+  }
+
+  &.alert-success {
+    background: #ebf8e9;
+    color: $color_black;
+    border: 1px solid #a0cb99;
+  }
+  &.alert-danger {
+    background: #fff1f1;
+    color: $color_black;
+    border: 1px solid #ed908b;
+  }
+}
+
+/* Стили элемента alert */
+.alert-items {
+}

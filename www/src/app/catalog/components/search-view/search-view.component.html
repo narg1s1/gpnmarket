@@ -1,0 +1,35 @@
+<div class="app-row">
+  <h1 class="app-col">Все категории</h1>
+  <button uxgButton secondary *ngIf="featureService.authorize('catalogUpdate')" (click)="uploadTemplateModal.open()">Загрузить из шаблона</button>
+</div>
+<div class="app-row positions-list">
+  <div class="app-col">
+    <app-catalog-positions-list *ngIf="(positions$ | async) as positions" [positions]="positions">
+    </app-catalog-positions-list>
+  </div>
+  <!--
+    todo временно скрываем фильтры
+  <div class="clr-col-3 app-grow-0">
+    <app-catalog-filter (filter)="filter($event)"></app-catalog-filter>
+  </div>
+  -->
+</div>
+
+<uxg-modal #uploadTemplateModal size="l">
+    <h2><b>Загрузить позиции каталога из шаблона</b></h2>
+  <ng-container *ngIf="uploadTemplateModal.state">
+    <div class="app-secondary-color app-section">
+      Вы можете загрузить позиции каталога списком, если заполните шаблон xls таблицы, и загрузите файл в систему.
+    </div>
+    <div class="dragAndDropArea">
+      <app-template-upload (fileSelected)="templateFiles = $event"></app-template-upload>
+    </div>
+  </ng-container>
+  <ng-template uxgModalFooter>
+    <div class="app-row app-align-items-center app-justify-content-end">
+      <div *ngIf="templateLoading"><span class="spinner spinner-inline"></span></div>
+      <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+      <button uxgButton primary lg (click)="uploadTemplate()" [disabled]="templateFiles.length === 0 || templateLoading">Загрузить</button>
+    </div>
+  </ng-template>
+</uxg-modal>

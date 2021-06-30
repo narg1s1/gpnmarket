@@ -1,0 +1,103 @@
+.card {
+  width: 1000px;
+  text-align: left;
+  padding: 20px 60px 40px 80px;
+  margin-bottom: 40px;
+}
+
+label {
+  padding-top: 15px;
+  padding-bottom: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #999999;
+}
+
+.nopadding {
+  padding-top: 0;
+}
+
+.container {
+  text-align: -webkit-center;
+}
+
+.regHeader {
+  text-align: left;
+  width: 1000px;
+}
+
+.btn {
+  margin-right: 0;
+  padding: 0 25px;
+}
+
+.btn:not(:first-child) {
+  margin-left: 1em;
+}
+
+textarea {
+  width: 100%;
+}
+
+.card h3 {
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+}
+
+.agreement {
+  padding-top: 20px;
+}
+
+.agreement {
+  display: flex;
+  align-items: flex-end;
+  font-size: 14px;
+}
+
+.agreement label {
+  font-size: 14px;
+  padding: 0 0 0 25px;
+}
+
+.card-footer {
+  width: 100%;
+  text-align: right;
+  padding-right: 20px;
+  padding-top: 40px;
+}
+
+.next.btn {
+  padding: 0 50px;
+}
+
+.alert.autofill-alert {
+  padding: 5px 10px;
+  border-radius: 3px;
+  width: calc(100% - 20px);
+}
+
+::ng-deep input#address_input {
+  background-color: white;
+  padding: 10px 15px;
+  border: 1px solid #D4D9E2;
+}
+
+::ng-deep ngx-dadata.invalid input {
+  border: 1px solid red !important;
+}
+
+.modal-body .app-row:not(:last-child) {
+  margin-bottom: 24px
+}
+
+:host ::ng-deep .modal-dialog.modal-sm {
+  width: 420px
+}
+
+:host ::ng-deep .modal-dialog.modal-sm h2 {
+  margin: 0
+}

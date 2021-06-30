@@ -1,0 +1,121 @@
+@import "src/theme";
+
+.TASK_GROUP_INIT {
+  background-color: #C4C4C4;
+}
+
+.TASK_GROUP_NEW {
+  background-color: #BE3A3A;
+}
+
+.TASK_GROUP_TCP {
+  background-color: #F35C6C;
+}
+
+.TASK_GROUP_TP {
+  background-color: #ED9254;
+}
+
+.TASK_GROUP_CP {
+  background-color: #F9C74F;
+}
+
+.TASK_GROUP_CONTRACT {
+  background-color: #00AA5F;
+}
+
+.TASK_GROUP_RKD {
+  background-color: #56b9f2;
+}
+
+.TASK_GROUP_FINISH {
+  background-color: #9255CE;
+}
+
+.total {
+  color: uxg($theme, color-primary);
+  width: 35px;
+  display: inline-flex;
+}
+
+.percent {
+  width: 45px;
+  display: inline-flex;
+}
+
+.task-name {
+  width: 106px;
+  display: inline-flex;
+}
+
+.tasks-bar {
+  height: 25px;
+  margin-left: 15px;
+  border-top: 1px dashed uxg($theme, color-border);
+  border-right: 1px dashed uxg($theme, color-border);
+  border-left: 1px solid uxg($theme, color-border);
+  transition: top 300ms;
+  position: relative;
+}
+
+.extend-button {
+  max-width: 59px;
+  background: white;
+  button {
+    width: 100%;
+  }
+}
+
+.bar-item {
+  height: 25px;
+  &:hover {
+    background-color: #fff;
+  }
+  &:last-child {
+    & > .bar-grid:last-child {
+      border-bottom: 1px solid uxg($theme, color-border);
+    }
+  }
+}
+
+.bar-grid {
+  border-top: 1px dashed uxg($theme, color-border);
+  border-right: 1px dashed uxg($theme, color-border);
+  border-left: 1px solid uxg($theme, color-border);
+  margin: 0 59px 0 15px;
+  & > .app-col:not(:last-child) {
+    border-right: 1px dashed uxg($theme, color-border);
+  }
+}
+
+.bar-view {
+  background-color: white;
+  transition: 0.35s;
+  position: relative;
+}
+
+.bar-folded {
+  position: relative;
+}
+
+.bar-item-folded {
+  min-height: 25px;
+  transition: top 350ms;
+  top: 218px;
+  flex-grow: 1;
+  position: relative;
+}
+
+.app-col-auto {
+  align-self: center;
+}
+
+.no-border {
+  border: 0;
+}
+
+.bar-area {
+  position: absolute;
+  width: 100%;
+  display: flex;
+}

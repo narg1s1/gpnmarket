@@ -1,0 +1,34 @@
+<div class="app-card">
+  <div class="app-row app-align-items-center">
+    <h3 class="app-col">{{label}}</h3>
+
+    <ng-container *ngIf="canUpload">
+      <button uxgButton secondary iconText appUploadFile (select)="upload.emit($event)" [multiple]="true" [disabled]="disabled">
+        <uxg-icon shape="app-upload"></uxg-icon>
+        <span>Загрузить документы</span>
+      </button>
+    </ng-container>
+
+    <button uxgButton icon link (click)="folded = !folded">
+      <uxg-icon shape="app-chevron" [attr.dir]="folded ? 'down' : 'up'"></uxg-icon>
+    </button>
+  </div>
+  <ng-container *ngIf="!folded">
+    <hr/>
+    <app-document-simple-list
+      *ngIf="documents.length; else emptyList"
+      [gridable]="true"
+      [enableUpload]="false"
+      [showUploadedTime]="true"
+      [documents]="documents">
+    </app-document-simple-list>
+
+    <ng-template #emptyList>
+      <div class="app-row">
+        <div class="app-col app-ghost-color no-files-label">
+          Документы отсутствуют
+        </div>
+      </div>
+    </ng-template>
+  </ng-container>
+</div>

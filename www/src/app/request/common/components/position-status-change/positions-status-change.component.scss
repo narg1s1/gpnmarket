@@ -1,0 +1,13 @@
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  .app-position-status-icon {
+    margin-right: 7px;
+  }
+
+  .status-select {
+    width: 100%;
+  }
+}

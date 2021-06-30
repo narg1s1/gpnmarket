@@ -1,0 +1,38 @@
+:host {
+  display: block;
+
+  nouislider {
+    margin: 12px 0 24px;
+    padding: 8px;
+  }
+
+  ::ng-deep {
+    .noUi-horizontal {
+      height: 4px;
+    }
+
+    .noUi-target {
+      background: #dddee0;
+      border: unset;
+      border-radius: unset;
+    }
+
+    .noUi-connect {
+      background: #B2D0FF;
+    }
+
+    .noUi-horizontal .noUi-handle {
+      background: #2585F5;
+      border: unset;
+      border-radius: 50%;
+      box-shadow: unset;
+      height: 16px;
+      right: -8px !important;
+      width: 16px;
+
+      &:after, &:before {
+        content: unset;
+      }
+    }
+  }
+}

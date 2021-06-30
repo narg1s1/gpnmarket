@@ -1,0 +1,18 @@
+<div class="app-card">
+  <h2>Pagination</h2>
+  <br/>
+  <uxg-pagination [pages$]="pages$" [total]="total" [pageSize]="pageSize" [siblingLimit]="siblingLimit" (change)="onPageChanged($event)"></uxg-pagination>
+
+  <br/>
+
+  <h2>Sources</h2>
+  <br/>
+
+  <h3>Template: </h3>
+  <uxg-code language="html">{{paginationExampleHTML}}</uxg-code>
+
+  <br/>
+
+  <h3>Component: </h3>
+  <uxg-code language="javascript">{{paginationExampleJS}}</uxg-code>
+</div>

@@ -1,0 +1,41 @@
+<div class="app-row">
+  <div class="app-col action">
+    <uxg-tabs>
+      <uxg-tab-title #backofficeTab (click)="employeeActiveTabType = 'BACKOFFICE_BUYER'" [active]="true">
+        Младшие менеджеры
+        <ng-container *ngIf="backoffice">
+          <span class="counter">({{ backoffice.length }})</span>
+        </ng-container>
+      </uxg-tab-title>
+      <uxg-tab-title #employeesTab (click)="employeeActiveTabType = 'SENIOR_BACKOFFICE'">
+        Старшие менеджеры
+          <ng-container *ngIf="seniorBackoffice">
+            <span class="counter">({{ seniorBackoffice.length }})</span>
+          </ng-container>
+      </uxg-tab-title>
+    </uxg-tabs>
+  </div>
+</div>
+
+<app-employee-list [employees]="employeesTab.active ? seniorBackoffice : backoffice"
+                   [userInfo$]="userInfo$"
+                   (getUserInfo)="getUserInfo($event)"></app-employee-list>
+
+<!-- todo 22.06.2020 Редактирование сотрудника это теперь забота кейклока, но модалку и компонент удалять пока не стал на всякий -->
+
+<uxg-modal #createEmployeeModal size="l">
+  <h2 *ngIf="!editedEmployee; else editEmployee">Добавить нового сотрудника</h2>
+
+  <ng-template #editEmployee>
+    <h2>Редактировать сотрудника</h2>
+  </ng-template>
+
+  <app-employee-form *ngIf="createEmployeeModal.state"
+    (cancel)="editedEmployee = null; createEmployeeModal.close()"
+    (addEmployee)="addEmployee($event); createEmployeeModal.close()"
+    (editEmployee)="updateEmployeeListItem($event); createEmployeeModal.close()"
+    [roleSelectorDisabled]="false"
+    [employee]="editedEmployee"
+    [employeeActiveTabType]="employeeActiveTabType">
+  </app-employee-form>
+</uxg-modal>

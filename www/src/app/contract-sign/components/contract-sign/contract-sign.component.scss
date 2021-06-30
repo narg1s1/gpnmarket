@@ -1,0 +1,15 @@
+.certificates-list {
+  padding-top: 15px;
+
+  & .cert-item {
+    margin-bottom: 20px;
+  }
+}
+
+.cert-info {
+  padding-left: 15px;
+
+  & .name {
+    font-weight: bold;
+  }
+}

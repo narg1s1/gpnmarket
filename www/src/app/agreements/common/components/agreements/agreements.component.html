@@ -1,0 +1,101 @@
+<ng-container *ngIf="agreements; else loading">
+  <ng-container *ngIf="agreements.length > 0; else emptyAgreementsList">
+    <div class="app-table agreements-list-header app-no-border">
+      <div class="app-row" [ngClass]="{'dashboard-header': dashboardView}">
+        <small class="app-col-1 app-ghost-color id"><b>№ ЗАЯВКИ</b></small>
+        <small class="app-col-3 app-ghost-color name"><b>НАИМЕНОВАНИЕ ПОЗИЦИИ/ГРУППЫ</b></small>
+        <small class="app-col-2 app-ghost-color customer" *ngIf="!userInfoService.isCustomer()"><b>ЗАКАЗЧИК</b></small>
+        <small class="app-col-2 app-ghost-color date"><b>ПОСТУПЛЕНИЕ</b></small>
+        <small class="app-col-2 app-ghost-color status"><b>СТАТУС</b></small>
+        <small class="app-col-2 app-ghost-color action">
+          <b>{{agreementsView ? 'ПЕРЕХОД К ВЫПОЛНЕНИЮ' : 'ПЕРЕХОД К СОГЛАСОВАНИЮ'}}</b></small>
+      </div>
+    </div>
+
+    <div class="app-table agreements-list" [ngClass]="{'dashboard-table': dashboardView}">
+      <div class="app-row app-align-items-center" *ngFor="let agreement of agreements">
+        <div class="app-col-1 id">{{ agreement.request.number}}</div>
+        <div class="app-col-3 name">
+          <div class="app-ellipsis">
+            <ng-container *ngIf="agreement.type === 'REQUEST' || agreement.type === 'REQUEST_CONTRACT'">
+              <span class="app-ghost-color">Заявка: </span> <b>{{agreement.request.name}} </b>
+            </ng-container>
+
+            <ng-container *ngIf="agreement.type === 'REQUEST_TECHNICAL_PROPOSAL'">
+              <span class="app-ghost-color">ТП: </span>
+              <ng-container *ngIf="agreement.requestTechnicalProposal.name !== null; else noContragent">
+                <b>{{agreement.requestTechnicalProposal.name}}</b>
+              </ng-container>
+              <ng-template #noContragent>
+                Поставщик скрыт
+              </ng-template>
+            </ng-container>
+
+            <ng-container *ngIf="agreement.type === 'REQUEST_TECHNICAL_COMMERCIAL_PROPOSAL_GROUP'">
+              <span class="app-ghost-color">Группа ТКП: </span>
+              <b>{{agreement.requestTechnicalCommercialProposalGroup.name}}</b>
+            </ng-container>
+
+            <ng-container *ngIf="agreement.type === 'REQUEST_POSITION'">
+              <b>{{agreement.requestPosition.name}}</b>
+            </ng-container>
+          </div>
+
+          <span *ngIf="agreement.groupCounter > 0" class="app-ghost-color group-counter">({{agreement.groupCounter}})</span>
+        </div>
+
+        <div class="app-col-2 app-ellipsis customer" *ngIf="!userInfoService.isCustomer()">
+          {{agreement.request.contragent.shortName}}
+        </div>
+        <div class="app-col-2 date">
+          <span>{{ agreement.issuedDate | date : "dd.MM.yyyy" }} </span>
+          <span class="app-ghost-color">{{ agreement.issuedDate | date : "HH:mm" }}</span>
+        </div>
+        <div class="app-col-2 status app-ellipsis">
+          <app-position-status *ngIf="agreement.positionsStatus"
+                               [label]="agreement.positionsStatus.label"
+                               [status]="agreement.positionsStatus.name">
+          </app-position-status>
+        </div>
+        <div class="app-col-2 action app-ellipsis">
+          <ng-container *ngIf="agreement.action.name === 'REVIEW_COMPLETED_POSITION'; else routerLink">
+            <a class="app-link" (click)="setRatingModal.open()" title="{{ agreement.action.label }}">
+              {{ agreement.action.label }}
+            </a>
+          </ng-container>
+          <ng-template #routerLink>
+            <a [routerLink]="getRouterLink(agreement)"
+              title="{{ agreement.action.label }}"
+               [queryParams]="agreement.requestTechnicalCommercialProposalGroup?.id ? {source: 'TECHNICAL_COMMERCIAL_PROPOSAL'} : null">
+              {{ agreement.action.label }}
+            </a>
+          </ng-template>
+        </div>
+
+        <!-- Модальное окно оценки -->
+        <uxg-modal #setRatingModal size="s">
+          <h2>Оцените платформу</h2>
+          <p class="app-color-secondary">Оцените качество работы платформы и предоста- вленных услуг.
+            После сохранения оценку будет невозможно изменить.</p>
+          <app-star-rating
+            (sendRating)="sendRating.emit({requestId: agreement.request?.id, positionId: agreement.requestPosition?.id, rating: $event})"
+            (close)="setRatingModal.close()"></app-star-rating>
+        </uxg-modal>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #emptyAgreementsList>
+    <span class="empty-list">Список задач пуст</span>
+  </ng-template>
+
+</ng-container>
+
+<ng-template #loading>
+  <div class="app-card">
+    <div class="text-center">
+      <span class="spinner spinner-md"></span>
+    </div>
+  </div>
+</ng-template>
+

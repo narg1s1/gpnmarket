@@ -1,0 +1,7 @@
+$side-padding: 60px;
+
+@function col($cols: 1, $col-width: 280px, $col-padding: 20px) {
+  @return ($col-width + $col-padding) * $cols - $col-padding + ($side-padding * 2);
+}
+
+$topMenuHeight: 64px;

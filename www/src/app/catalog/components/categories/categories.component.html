@@ -1,0 +1,42 @@
+<div class="categories-wrap">
+  <div class="c2">
+    <div class="c3 app-row">
+
+      <!-- Левая панель с первым уровнем меню -->
+      <div class="clr-col-3 categories">
+        <ul class="main-categories">
+          <li *ngFor="let category of categories" (mouseenter)="onMainCategorySelect(category)">
+            <a [routerLink]="'/catalog/' + category.id"
+               (click)="onCategoryClick()"
+               [ngClass]="{'main-category-item-selected': category === selectedMainCategory}"
+               title="{{ category.name }}">
+              <span>{{ category.name }}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- Правая панель с 2-мя подуровнями -->
+      <div class="clr-col-9">
+        <div class="child-categories">
+          <div class="child-categories-container">
+            <div class="child-categories-wrap">
+              <div class="child-category-item" *ngFor="let subCategory of selectedMainCategory?.child">
+                <a [routerLink]="'/catalog/' + subCategory.id" title="{{ subCategory.name }}"
+                   (click)="onCategoryClick()">
+                  <span class="child-category-header">{{ subCategory.name }}</span>
+                </a>
+                <div class="subitem" *ngFor="let subSubCategory of subCategory?.child">
+                  <a [routerLink]="'/catalog/' + subSubCategory.id"
+                     (click)="onCategoryClick()"
+                     title="{{ subSubCategory.name }}">
+                    <span class="subitem-text">{{ subSubCategory.name }}</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

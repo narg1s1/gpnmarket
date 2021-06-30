@@ -1,0 +1,131 @@
+<ng-template #loading class="load-block">
+  <span class="spinner spinner-md"></span>
+</ng-template>
+
+<ng-container *ngIf="(contragent$ | async) as contragent; else loading">
+  <div class="app-row app-align-items-center action">
+    <div class="app-col-auto">
+      <span *ngIf="downloading" class="spinner spinner-sm"></span>
+    </div>
+
+    <ng-container *ngIf="featureService.authorize('editContragent')">
+      <button uxgButton secondary iconText
+              (click)="router.navigateByUrl('/contragents/' + contragent.id + '/edit')">
+        <uxg-icon shape="app-pen"></uxg-icon>
+        Редактировать контрагента
+      </button>
+    </ng-container>
+
+    <button uxgButton primary
+            (click)="onDownloadPrimaInformReport()"
+            [disabled]="downloading">
+      Отчет Прима-информ
+    </button>
+  </div>
+
+  <div class="app-row content">
+    <div class="app-col">
+      <uxg-tabs class="app-tabs-border">
+        <uxg-tab-title #contragentInfoTab [active]="true">Информация о контрагенте</uxg-tab-title>
+        <uxg-tab-title #employeesTab [hidden]="user.isCustomer() || (user.isBackOffice() && !user.isInGroup(contragent.usersGroupId))">Сотрудники</uxg-tab-title>
+      </uxg-tabs>
+
+      <ng-container *uxgTab="contragentInfoTab">
+        <app-contragent-info [contragent]="contragent"
+                            [modalView]="false">
+        </app-contragent-info>
+      </ng-container>
+
+      <ng-container *uxgTab="employeesTab">
+        <ng-template #loading class="load-block">
+          <span class="spinner spinner-md"></span>
+        </ng-template>
+
+        <div class="action" *ngIf="(customerBuyerUsersWithoutContragent$ | async)?.length > 0 && featureService.authorize('addContragentToUser')">
+          <button
+            uxgButton
+            primary
+            (click)="addContragentToUserModal.open()">
+            Привязать сотрудника заказчика
+          </button>
+        </div>
+
+        <div class="app-row app-align-items-center" *ngIf="(employeesList$ |async) as employeesList; else loading">
+          <div class="app-col">
+            <div class="app-card">
+              <div class="app-row employee-row" *ngFor="let employee of employeesList">
+                <div class="app-col">
+                  {{employee.lastName}} {{employee.firstName}} {{employee.middleName}}
+                </div>
+
+                <div class="app-col">
+                  {{employee.username}}
+                </div>
+
+                <div class="app-col">
+                  {{employee.phone}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="app-col app-col-aside">
+      <ng-container *ngIf="(contragent$ | async) as contragent">
+        <h3>Контакты и ответственный</h3>
+
+        <div class="app-section" *ngIf="contragent.email">
+          <div class="app-ghost-color info-label">Email контрагента</div>
+          <div>{{contragent.email}}</div>
+        </div>
+
+        <div class="app-section" *ngIf="contragent.phone">
+          <div class="app-ghost-color info-label">Телефон контрагента</div>
+          <div>{{contragent.phone}}</div>
+        </div>
+
+        <div class="app-section" *ngIf="contragent.responsible">
+          <div class="app-ghost-color">Ответственный менеджер БО</div>
+          <div>{{contragent.responsible.shortName}}</div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <uxg-modal #createEmployeeModal size="l">
+    <h2 *ngIf="!editedEmployee; else editEmployee">Добавить нового сотрудника {{contragent.shortName}}</h2>
+
+    <ng-template #editEmployee>
+      <h2>Редактировать сотрудника {{contragent.shortName}}</h2>
+    </ng-template>
+
+    <app-employee-form
+      *ngIf="createEmployeeModal.state"
+      (cancel)="editedEmployee = null; createEmployeeModal.close()"
+      (addEmployee)="addEmployee($event); createEmployeeModal.close()"
+      (editEmployee)="updateEmployeeListItem($event); createEmployeeModal.close()"
+      [employee]="editedEmployee">
+    </app-employee-form>
+  </uxg-modal>
+
+</ng-container>
+
+<uxg-modal size="m" #addContragentToUserModal>
+  <h2>Привязать сотрудника заказчика</h2>
+  <ng-container *ngIf="addContragentToUserModal.state">
+    <form [formGroup]="form" (ngSubmit)="addContragentToUser(); addContragentToUserModal.close()">
+          <br>
+    <uxg-dropdown lg placeholder="Выберите сотрудника" formControlName="user">
+      <div uxgDropdownItem [value]="user" *ngFor="let user of customerBuyerUsersWithoutContragent$ | async">{{ user.fullName || user.shortName }}</div>
+    </uxg-dropdown>
+      <div class="app-modal-footer app-row app-justify-content-end">
+        <button uxgButton secondary lg type="button" (click)="addContragentToUserModal.close()">Отмена</button>
+        <button uxgButton primary lg [disabled]="form.invalid">Привязать</button>
+      </div>
+    </form>
+  </ng-container>
+</uxg-modal>
+
+

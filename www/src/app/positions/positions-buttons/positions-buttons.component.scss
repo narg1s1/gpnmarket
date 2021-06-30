@@ -1,0 +1,19 @@
+@import 'src/theme';
+
+:host {
+  display: block;
+  position: sticky;
+  top: 64px;
+  z-index: 3;
+  background: uxg($theme, color-bg);
+
+  ::ng-deep {
+    .app-detachable-button {
+      display: block !important;
+    }
+  }
+
+  .position-buttons-new {
+    color: uxg($theme, color-primary);
+  }
+}

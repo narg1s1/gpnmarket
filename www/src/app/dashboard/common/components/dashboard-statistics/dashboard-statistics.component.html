@@ -1,0 +1,438 @@
+<div class="app-card">
+  <ng-container *ngIf="statusesStatistics as stats; else loading">
+    <div class="app-row">
+      <div class="statistics-filter-section app-col">
+        <!-- Первая часть формы -->
+        <form [formGroup]="form">
+          <!--  filter section    -->
+          <div class="app-row">
+            <div class="app-col">
+              <h3>Настройка отображения</h3>
+            </div>
+
+            <div class="app-col-auto">
+              <button uxgButton clear (click)="onResetFilter()" *ngIf="filterIsFilled()">
+                <uxg-icon shape="app-reset-filters"></uxg-icon>
+                <span>Сбросить все</span>
+              </button>
+            </div>
+          </div>
+
+          <br>
+
+          <div class="app-row app-align-items-center">
+            <div class="app-col-auto">
+              <span class="app-secondary-color">показать: </span>
+            </div>
+
+            <div class="app-col-auto">
+              <button uxgButton link clear (click)="filterRequestsListModal.open()">
+                <span><b>
+                  {{ selectedRequests?.length ?
+                  (selectedRequests.length | pluralize: "заявка" : "заявки" : "заявок") :
+                  'все заявки' }}</b></span>
+              </button>
+            </div>
+
+            <div class="vertical-divider"></div>
+
+            <ng-container *ngIf="user.isBackOffice()">
+              <div class="app-col-auto">
+                <span class="app-secondary-color">показать: </span>
+              </div>
+
+              <div class="app-col-auto">
+                <button uxgButton link clear (click)="filterCustomersListModal.open()">
+                <span><b>
+                  {{ selectedCustomers?.length ?
+                  (selectedCustomers?.length | pluralize: "заказчик" : "заказчика" : "заказчиков") :
+                  'все заказчики' }}</b></span>
+                </button>
+              </div>
+
+              <ng-container *ngIf="user.isSeniorBackoffice() || user.isBackofficeObserver()">
+                <div class="vertical-divider"></div>
+
+                <div class="app-col-auto">
+                  <span class="app-secondary-color">показать: </span>
+                </div>
+
+                <div class="app-col-auto">
+                  <button uxgButton link clear (click)="filterResponsibleUserListModal.open()">
+                <span><b>
+                  {{ selectedUsers?.length ?
+                  (selectedUsers?.length | pluralize: "ответственный" : "ответственных" : "ответственных") :
+                  'все ответственные' }}</b></span>
+                  </button>
+                </div>
+              </ng-container>
+            </ng-container>
+
+            <ng-container *ngIf="user.isCustomer()">
+              <div class="app-col-auto">
+                <span class="app-secondary-color">показать: </span>
+              </div>
+
+              <div class="app-col-auto">
+                <button uxgButton link clear (click)="filterApplicantsListModal.open()">
+                <span><b>
+                  {{ selectedApplicants?.length ?
+                  (selectedApplicants?.length | pluralize: "заявитель" : "заявителя" : "заявителей") :
+                  'все заявители' }}</b></span>
+                </button>
+              </div>
+            </ng-container>
+          </div>
+
+          <div class="app-row app-align-items-center">
+            <div class="app-col-auto">
+              <span class="app-ghost-color">Интервал дат поставки позиций:  </span>
+            </div>
+
+            <div class="app-col-auto" [style.padding-right.px]="10">
+              <div class="app-control-wrap">
+                <input uxgInput lg uxgDatepicker
+                       #dateFromRef
+                       formControlName="shipmentDateFrom"
+                       dateFormat="d.m.Y">
+
+                <label class="app-control-label" (click)="dateFromRef.focus()">Дата с</label>
+
+                <label class="app-control-icon" (click)="dateFromRef.focus()">
+                  <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+                </label>
+              </div>
+            </div>
+
+            <div class="app-col-auto" [style.padding-left.px]="10">
+              <div class="app-control-wrap">
+                <input uxgInput lg uxgDatepicker
+                       #dateTillRef
+                       formControlName="shipmentDateTo"
+                       dateFormat="d.m.Y">
+
+                <label class="app-control-label" (click)="dateTillRef.focus()">Дата по</label>
+
+                <label class="app-control-icon" (click)="dateTillRef.focus()">
+                  <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+                </label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <br><br>
+
+    <div class="app-row">
+      <div class="statistics-section app-col">
+        <div class="app-row app-ghost-color">
+          <div class="app-col">Заявок</div>
+          <div class="app-col">Позиций</div>
+          <div class="app-col" *ngIf="user.isCustomer()">Требует действий</div>
+          <div class="app-col" *ngIf="user.isCustomer()">Заявителей</div>
+          <div class="app-col" *ngIf="user.isBackOffice()">Заказчиков</div>
+          <div class="app-col" *ngIf="user.isBackOffice()">Требует действий БО</div>
+          <div class="app-col" *ngIf="user.isSeniorBackoffice() || user.isBackofficeObserver()">Ответственных</div>
+          <div class="app-col sum-column">Сумма без НДС</div>
+        </div>
+
+        <div class="app-row">
+          <h2 class="app-col">{{ stats.requestsCount }} <span class="app-ghost-color">шт</span></h2>
+          <h2 class="app-col">{{ stats.positionsCount }} <span class="app-ghost-color">шт</span></h2>
+          <h2 class="app-col" *ngIf="user.isCustomer()">{{ stats.applicantsTasksCount }}</h2>
+          <h2 class="app-col" *ngIf="user.isCustomer()">{{ stats.applicantsCount }}</h2>
+          <h2 class="app-col" *ngIf="user.isBackOffice()">{{ stats.customersCount }}</h2>
+          <h2 class="app-col" *ngIf="user.isBackOffice()">{{ stats.backofficeTasksCount }}</h2>
+          <h2 class="app-col" *ngIf="user.isSeniorBackoffice() || user.isBackofficeObserver()">{{ stats.responsibleUsersCount }}</h2>
+          <h2 class="app-col sum-column">
+            <b>{{ stats.positionsTotalSumWithoutVat | number: "1.0-2" }} <span class="app-ghost-color">{{ getCurrencySymbol('RUB', 'narrow') }}</span></b>
+          </h2>
+        </div>
+      </div>
+    </div>
+
+    <br><br>
+
+    <div class="app-row" *ngIf="stats.statusesList?.length">
+      <div class="statuses-and-sum-section app-col">
+        <!-- Хедер -->
+        <div class="app-row app-align-items-center header-row">
+          <div class="status-col"></div>
+
+          <div class="app-col">
+            <h3>Статусы позиций</h3>
+          </div>
+
+          <div class="app-col">
+            <h3>Деньги (стоимость) по статусам</h3>
+          </div>
+        </div>
+
+        <!-- Список статусов со статистикой -->
+        <ng-container *ngFor="let item of stats.statusesList">
+          <div class="app-row app-align-items-center status-row"
+               [ngClass]="{ 'disabled-row' : !item.quantityPercentage && !item.sumPercentage }">
+            <div class="status-col">
+              <div class="app-position-status">
+                <span>{{ item.statusGroupName }}</span>
+                <div class="app-position-status-icon {{ item.status }}"></div>
+              </div>
+            </div>
+
+            <div class="app-col">
+              <app-percentage-bar
+                [percentage]="item.quantityPercentage"
+                [count]="item.quantity">
+              </app-percentage-bar>
+            </div>
+
+            <div class="app-col">
+              <app-percentage-bar
+                [percentage]="item.sumPercentage"
+                [sum]="item.sum">
+              </app-percentage-bar>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="text-center">
+      <span class="spinner spinner-md"></span>
+    </div>
+  </ng-template>
+</div>
+
+
+<!-- Вторая часть формы -->
+<form [formGroup]="form">
+  <!-- Модальное окно со списком заявок для БО и Заказчика -->
+  <uxg-modal #filterRequestsListModal size="l">
+    <h2>Выбор заявок для отображения</h2>
+
+    <select-items-with-search
+      #requestsSelectList
+      *ngIf="filterRequestList as requests else loading"
+      class="select-list select-list-requests"
+      formControlName="requests"
+      placeholder="Наименование заявки"
+      [liveUpdate]="false"
+      [filterFn]="filterRequests"
+      [trackBy]="trackByRequestId"
+      [items]="requests">
+
+      <ng-template let-formGroup="formGroup" let-request="item">
+        <ng-container *ngIf="toRequestItem(request) as request">
+          <div class="app-row select-list-item" [formGroup]="formGroup">
+            <div class="app-col app-grow-0">
+              <uxg-checkbox formControlName="checked"></uxg-checkbox>
+            </div>
+
+            <div class="app-col app-bold select-list-item-request-number"><b>{{ request.number }}</b></div>
+
+            <div class="app-col app-col-auto select-list-item-request-customer">{{ request.customerName }}</div>
+
+            <div class="app-col app-col-auto app-ellipsis select-list-item-request-name" [title]="request.name">{{ request.name }}</div>
+
+            <div class="app-col select-list-item-request-date">
+              <ng-container *ngIf="request.positionsCount === 0; else deliveryDates">
+                <span>—</span>
+              </ng-container>
+
+              <ng-template #deliveryDates>
+                <ng-container *ngIf="request.asapDeliveryDatePositionsCount !== request.positionsCount; else allPositionsAsap">
+                  <span *ngIf="request.minDeliveryDate && request.asapDeliveryDatePositionsCount"
+                        title="как можно скорее">
+                   как можно скорее |
+                  </span>
+
+                  <span *ngIf="request.minDeliveryDate"
+                        title="{{ getDeliveryDate((request.minDeliveryDate | date:'dd.MM.yyyy'), (request.maxDeliveryDate | date:'dd.MM.yyyy')) }}">
+                    {{ getDeliveryDate((request.minDeliveryDate | date:'dd.MM.yyyy'), (request.maxDeliveryDate | date:'dd.MM.yyyy')) }}
+                  </span>
+                </ng-container>
+
+                <ng-template #allPositionsAsap>
+                  <span>Все как можно скорее</span>
+                </ng-template>
+              </ng-template>
+            </div>
+          </div>
+        </ng-container>
+      </ng-template>
+
+      <ng-template #footerContentTpl>
+        <div class="app-row select-list-item-footer app-uppercase app-ghost-color app-bold">
+          <div class="app-col-auto checkbox-space app-grow-0"></div>
+          <div class="app-col app-bold select-list-item-request-number">Номер</div>
+          <div class="app-col app-col-auto select-list-item-request-customer">Заказчик</div>
+          <div class="app-col app-col-auto select-list-item-request-name">Наименование заявки</div>
+          <div class="app-col select-list-item-request-date">Дата поставки</div>
+        </div>
+      </ng-template>
+    </select-items-with-search>
+
+    <ng-template uxgModalFooter>
+      <button uxgButton secondary lg type="button" (click)="filterRequestsListModal.close()">Отмена</button>
+      <button uxgButton primary lg (click)="onSubmitFilter(); filterRequestsListModal.close()">Продолжить</button>
+    </ng-template>
+  </uxg-modal>
+
+  <!-- Модальное окно со списком заказчиков для БО -->
+  <uxg-modal #filterCustomersListModal size="l">
+    <h2>Выбор заказчиков</h2>
+
+    <select-items-with-search
+      #customersSelectList
+      *ngIf="filterCustomerList as customers else loading"
+      class="select-list select-list-customers"
+      formControlName="customers"
+      placeholder="Наименование контрагентов"
+      [liveUpdate]="false"
+      [filterFn]="filterCustomers"
+      [trackBy]="trackByCustomerId"
+      [items]="customers">
+
+      <ng-template let-formGroup="formGroup" let-customer="item">
+        <ng-container *ngIf="toCustomerItem(customer) as customer">
+          <div class="app-row select-list-item" [formGroup]="formGroup">
+            <div class="app-col app-grow-0">
+              <uxg-checkbox formControlName="checked"></uxg-checkbox>
+            </div>
+
+            <div class="app-col app-bold select-list-item-customer-contragent">
+              <b>{{ customer.contragentName }}</b>
+            </div>
+
+            <div class="app-col select-list-item-customer-kpp">{{ customer.kpp }}</div>
+
+            <div class="app-col select-list-item-customer-inn">{{ customer.inn }}</div>
+
+            <div class="app-col select-list-item-customer-group">{{ customer.groupName }}</div>
+          </div>
+        </ng-container>
+      </ng-template>
+
+      <ng-template #footerContentTpl>
+        <div class="app-row select-list-item-footer app-uppercase app-ghost-color app-bold">
+          <div class="app-col-auto checkbox-space app-grow-0"></div>
+          <div class="app-col app-bold select-list-item-customer-contragent">Наименование</div>
+          <div class="app-col select-list-item-customer-kpp">КПП</div>
+          <div class="app-col select-list-item-customer-inn">ИНН</div>
+          <div class="app-col select-list-item-customer-group">Группа</div>
+        </div>
+      </ng-template>
+    </select-items-with-search>
+
+    <ng-template uxgModalFooter>
+      <button uxgButton secondary lg type="button" (click)="filterCustomersListModal.close()">Отмена</button>
+      <button uxgButton primary lg (click)="onSubmitFilter(); filterCustomersListModal.close()">Продолжить</button>
+    </ng-template>
+  </uxg-modal>
+
+  <!-- Модальное окно со списком ответственных для БО -->
+  <uxg-modal #filterResponsibleUserListModal size="l">
+    <h2>Выбор ответственных</h2>
+
+    <select-items-with-search
+      #usersSelectList
+      *ngIf="filterResponsibleUsersList as users else loading"
+      class="select-list select-list-users"
+      formControlName="users"
+      placeholder="ФИО сотрудника"
+      [liveUpdate]="false"
+      [filterFn]="filterResponsibleUsers"
+      [trackBy]="trackByResponsibleUserId"
+      [items]="users">
+
+      <ng-template let-formGroup="formGroup" let-user="item">
+        <ng-container *ngIf="toResponsibleUserItem(user) as user">
+          <div class="app-row select-list-item" [formGroup]="formGroup">
+            <div class="app-col app-grow-0">
+              <uxg-checkbox formControlName="checked"></uxg-checkbox>
+            </div>
+
+            <div class="app-col app-bold select-list-item-user-name"><b>{{ user.fullName }}</b></div>
+
+            <div class="app-col select-list-item-user-email">
+              <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+            </div>
+
+            <div class="app-col select-list-item-user-phone">{{ user.phone }}</div>
+
+            <div class="app-col select-list-item-user-group">{{ getGroupsInfo(user.groups) }}</div>
+          </div>
+        </ng-container>
+      </ng-template>
+
+      <ng-template #footerContentTpl>
+        <div class="app-row select-list-item-footer app-uppercase app-ghost-color app-bold">
+          <div class="app-col-auto checkbox-space app-grow-0"></div>
+          <div class="app-col app-bold select-list-item-user-name">Имя сотрудника</div>
+          <div class="app-col select-list-item-user-email">E-mail</div>
+          <div class="app-col select-list-item-user-phone">Телефон</div>
+          <div class="app-col select-list-item-user-group">Группа</div>
+        </div>
+      </ng-template>
+    </select-items-with-search>
+
+    <ng-template uxgModalFooter>
+      <button uxgButton secondary lg type="button" (click)="filterResponsibleUserListModal.close()">Отмена</button>
+      <button uxgButton primary lg (click)="onSubmitFilter(); filterResponsibleUserListModal.close()">Продолжить</button>
+    </ng-template>
+  </uxg-modal>
+
+
+  <!-- Модальное окно со списком заявителей для заказчика -->
+  <uxg-modal #filterApplicantsListModal size="l">
+    <h2>Выбор заявителей</h2>
+
+    <select-items-with-search
+      #applicantsSelectList
+      *ngIf="filterApplicantsList as applicants else loading"
+      class="select-list select-list-applicants"
+      formControlName="userIds"
+      placeholder="ФИО заявителей"
+      [liveUpdate]="false"
+      [filterFn]="filterApplicants"
+      [trackBy]="trackByApplicantId"
+      [items]="applicants">
+
+      <ng-template let-formGroup="formGroup" let-applicant="item">
+        <ng-container *ngIf="toApplicantItem(applicant) as applicant">
+          <div class="app-row select-list-item" [formGroup]="formGroup">
+            <div class="app-col app-grow-0">
+              <uxg-checkbox formControlName="checked"></uxg-checkbox>
+            </div>
+
+            <div class="app-col app-bold select-list-item-applicant-name">
+              <b>{{ applicant.fullName }}</b>
+            </div>
+
+            <div class="app-col select-list-item-applicant-phone">{{ applicant.phone }}</div>
+
+            <div class="app-col select-list-item-applicant-group">{{ getGroupsInfo(applicant.groups) }}</div>
+          </div>
+        </ng-container>
+      </ng-template>
+
+      <ng-template #footerContentTpl>
+        <div class="app-row select-list-item-footer app-uppercase app-ghost-color app-bold">
+          <div class="app-col-auto checkbox-space app-grow-0"></div>
+          <div class="app-col app-bold select-list-item-applicant-name">Имя сотрудника</div>
+          <div class="app-col select-list-item-applicant-phone">Телефон</div>
+          <div class="app-col select-list-item-applicant-group">Группа</div>
+        </div>
+      </ng-template>
+    </select-items-with-search>
+
+    <ng-template uxgModalFooter>
+      <button uxgButton secondary lg type="button" (click)="filterApplicantsListModal.close()">Отмена</button>
+      <button uxgButton primary lg (click)="onSubmitFilter(); filterApplicantsListModal.close()">Продолжить</button>
+    </ng-template>
+  </uxg-modal>
+</form>

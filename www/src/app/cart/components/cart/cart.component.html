@@ -1,0 +1,15 @@
+<div class="app-row app-justify-content-center" *ngIf="cartStore.getItems().length > 0; else emptyCart">
+  <div class="clr-col-xl-10">
+      <cart-items [items]="cartStore.getItems()"></cart-items>
+      <cart-order></cart-order>
+  </div>
+</div>
+
+<ng-template #emptyCart>
+  <div class="empty app-row app-justify-content-center app-align-items-center">
+    <div class="app-col text-center">
+      <img src="../../../../assets/images/cart.svg">
+      <div>Корзина пуста</div>
+    </div>
+  </div>
+</ng-template>

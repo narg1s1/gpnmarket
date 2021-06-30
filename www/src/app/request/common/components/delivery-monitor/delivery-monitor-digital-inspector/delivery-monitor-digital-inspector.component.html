@@ -1,0 +1,80 @@
+<ng-template #loading>
+  <span class="spinner spinner-md delivery-monitor-loader"></span>
+</ng-template>
+
+<app-request-delivery-monitor-good-card
+  [deliveryMonitorInfo]="productStages"
+  [requestPosition]="position">
+</app-request-delivery-monitor-good-card>
+<ng-container *ngIf="productStages && productStages.products; else loading">
+  <div class="good-infographics-card" *ngFor="let product of productStages.products">
+    <div class="good-info-block">
+      <div class="good-name">Изделие №{{product.position}}
+        <ng-container *ngIf="product.factoryNumber">зв. №{{product.factoryNumber}}</ng-container>
+      </div>
+      <ng-container *ngIf="product.schedulePlan">
+      <p class="inn-info app-ghost-color">
+        Готовность по плану: {{product.schedulePlan.plannedCompletionDate | date: 'shortDate'}}
+      </p>
+      </ng-container>
+    </div>
+
+    <div class="good-statistics-info">
+      <div class="awaiting-progress">
+        <div class="production-progress" [style.width.%]="product.percentComplete"></div>
+        <div class="app-row ready">
+          <div class="app-col-11">
+            <span>Готовность</span>
+          </div>
+          <div class="app-col-1">
+            <span>{{product.percentComplete}} %</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<div class="digital-inspector-content">
+  <ng-template #noData>
+    <ng-template #loadingInspectorData>
+      <p class="no-inspector-data app-ghost-color">Загружаются события инспекционного контроля...</p>
+    </ng-template>
+
+    <ng-container *ngIf="inspectorStages && inspectorStages.length === 0; else loadingInspectorData">
+      <p class="no-inspector-data app-ghost-color">На данный момент событий нет</p>
+    </ng-container>
+  </ng-template>
+
+  <ng-container *ngIf="inspectorStages && inspectorStages.length !== 0; else noData">
+
+    <div class="date-bubble-block">
+      <div class="status-dot"></div>
+      <div class="date-bubble">Инспекционный контроль</div>
+    </div>
+
+    <div class="manufacturing-timeline-block">
+      <div *ngFor="let inspectorEvent of inspectorStages" class="manufacturing-timeline-panel">
+
+        <div class="manufacturing-timeline-header">
+
+          <div class="status-dot">
+            <span class="time-item">{{ inspectorEvent.occurredAt | date : 'shortDate' }}</span>
+          </div>
+
+          <div class="app-row">
+            <div class="app-col manufacturing-timeline-item">
+              <div class="manufacturing-icon {{ inspectorEvent.type}}-icon"></div>
+
+              <div class="item-info-block">
+                <div class="item-name">{{ getEventTitleByType(inspectorEvent.type) }}</div>
+                <div class="item-info"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

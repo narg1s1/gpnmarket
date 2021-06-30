@@ -1,0 +1,40 @@
+@import "../uxg";
+
+@mixin buttons-group($theme) {
+.app-btn-group {
+  display: inline-flex;
+  max-width: 100%;
+
+  & + * {
+    margin-left: .5rem;
+  }
+
+  .app-btn {
+    margin: 0;
+
+    &-primary, &-secondary {
+      &:not(:last-child) {
+        margin-right: 1px;
+      }
+    }
+
+    &:not(:first-child) {
+      border-bottom-left-radius: 0;
+      border-top-left-radius: 0;
+    }
+
+    &:not(:last-child) {
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    & + .app-btn {
+      border-left: none;
+    }
+  }
+}
+
+* + .app-btn-group {
+  margin-left: .5rem;
+}
+}

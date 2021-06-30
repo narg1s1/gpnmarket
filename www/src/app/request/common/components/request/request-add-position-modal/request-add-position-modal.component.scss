@@ -1,0 +1,7 @@
+@import "src/theme";
+
+.modal-body {
+  margin-right: -15px;
+  padding-right: 15px;
+  @include scrollbar($theme);
+}

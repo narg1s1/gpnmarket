@@ -1,0 +1,17 @@
+cart-items {
+  display: block;
+  margin-bottom: 50px;
+}
+
+
+.empty {
+  height: calc(100vh - 165px);
+  font-size: 32px;
+  color: #b3b3b3;
+
+  img {
+    width: 200px;
+    opacity: .1;
+    margin-bottom: 30px;
+  }
+}

@@ -1,0 +1,7 @@
+.app-row {
+  .app-col {
+    &:first-child {
+      margin-right: 20px;
+    }
+  }
+}

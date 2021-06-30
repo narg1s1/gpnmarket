@@ -1,0 +1,51 @@
+<ul class="list-unstyled" [class.gridable]="gridable" [class.small]="size === 's'">
+  <li class="document" [class.awaiting]="document.id === null" *ngFor="let document of getDocuments()">
+    <document-icon (click)="onDownloadDocument(document)" [name]="document.filename" [size]="size"></document-icon>
+
+    <div (click)="onDownloadDocument(document)" title="{{ document.filename }}">
+      <div class="title">{{ document.filename }} <uxg-icon shape="app-download" size="14"></uxg-icon></div>
+
+      <div class="description">
+        <ng-container *ngIf="!uploadedDateHidden; else sizeInfo">
+            <span *ngIf="document.created">
+              <ng-container *ngIf="document.id === null">будет скорректирован до</ng-container>
+              {{ document.created  | date : showUploadedTime ? ' d MMM y, HH:mm' : ' d MMM y ' }}
+            </span>
+        </ng-container>
+
+        <ng-template #sizeInfo>
+          <span *ngIf="!sizeInfoHidden && document.size > 0">{{document.size | bytesToSize : 2}}</span>
+        </ng-template>
+      </div>
+    </div>
+
+    <button uxgButton secondary lg icon *ngIf="enableDelete" (click)="modal.open()" type="button" class="btn-delete"
+            title="Удалить"><uxg-icon shape="app-trash"></uxg-icon>
+    </button>
+
+    <uxg-modal #modal>
+      <h2>Удалить <b>{{document.filename}}</b>?</h2>
+      <ng-template uxgModalFooter>
+        <button uxgButton secondary lg (click)="modal.close()">
+          Отмена
+        </button>
+        <button uxgButton primary lg (click)="onDeleteDocument(document); modal.close()">
+          Удалить
+        </button>
+      </ng-template>
+    </uxg-modal>
+  </li>
+
+  <ng-container *ngIf="limit > 0 && limit < documents.length">
+    <div class="more" (click)="showAll = !showAll">
+      <uxg-icon shape="app-chevron" [attr.dir]="showAll ? 'up' : 'down'"></uxg-icon>
+      <span *ngIf="!showAll"> Еще {{ documents.length - limit | pluralize: "документ" : "документа" : "документов"}}</span>
+      <span *ngIf="showAll"> Скрыть</span>
+
+    </div>
+  </ng-container>
+
+  <div class="form-group" *ngIf="enableUpload">
+    <a appUploadFile (select)="onChangeDocuments($event)" [multiple]="true">{{ uploadLabel }}</a>
+  </div>
+</ul>

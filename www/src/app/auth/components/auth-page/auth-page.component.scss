@@ -1,0 +1,18 @@
+@import "src/theme";
+
+.app-row {
+  min-height: calc(100vh - 162px);
+}
+
+.app-col-auto {
+  flex-basis: 400px;
+}
+
+.app-logo {
+  margin: 48px -20px 48px 0;
+  display: block;
+}
+
+.app-card.app-modal {
+  border: none;
+}

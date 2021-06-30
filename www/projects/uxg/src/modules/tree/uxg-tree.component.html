@@ -1,0 +1,21 @@
+<div #nodeRef *ngFor="let node of tree; index as i">
+  <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: node, depth: depth, index: i }">
+  </ng-container>
+
+  <div *ngIf="depth > 0 && wrapTpl" #wrapRef>
+    <ng-container *ngTemplateOutlet="wrapTpl"></ng-container>
+  </div>
+
+  <uxg-tree *ngIf="getChildrenFn(node)" [tree]="getChildrenFn(node)" [getChildrenFn]="getChildrenFn" [depth]="depth + 1">
+    <ng-container *ngIf="wrapTpl">
+      <ng-container *uxgTreeNodeWrap>
+        <ng-container *ngTemplateOutlet="wrapTpl"></ng-container>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *uxgTreeNode="let node; let depth = depth; let i = index">
+      <ng-container *ngTemplateOutlet="nodeTpl; context: {$implicit: node, depth: depth, index: i}">
+      </ng-container>
+    </ng-container>
+  </uxg-tree>
+</div>

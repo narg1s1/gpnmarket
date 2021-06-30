@@ -1,0 +1,56 @@
+<form [formGroup]="form" (ngSubmit)="submit(formPositions.controls)">
+  <div class="app-secondary-color" *ngIf="source === 'TECHNICAL_COMMERCIAL_PROPOSAL' || source === 'TECHNICAL_PROPOSAL'">
+    Обратите внимание, что заводские наименования необходимо заполнить для всех выбранных позиций в одном
+    {{ source === 'TECHNICAL_PROPOSAL' ? 'техническом' : 'технико-коммерческом' }} предложении, частичное заполнение ЗН не допускается
+  </div>
+  <br/>
+  <div class="app-table app-no-border">
+    <div class="app-row">
+      <div class="app-col" [ngClass]="!showManufacturer ? 'position-name' : ''">
+        <small class="app-ghost-color app-bold">НАИМЕНОВАНИЕ ПОЗИЦИИ</small>
+      </div>
+      <div class="app-col"
+           *ngIf="source === 'TECHNICAL_COMMERCIAL_PROPOSAL' || source === 'TECHNICAL_PROPOSAL'">
+        <small class="app-ghost-color app-bold">ЗАВОДСКОЕ НАИМЕНОВАНИЕ</small>
+      </div>
+      <div class="app-col" *ngIf="source === 'COMMERCIAL_PROPOSAL' || source === 'TECHNICAL_COMMERCIAL_PROPOSAL'">
+        <small class="app-ghost-color app-bold">
+          ИЗГОТОВИТЕЛЬ
+        </small>
+        <small class="app-secondary-color counter" *ngIf="source === 'TECHNICAL_COMMERCIAL_PROPOSAL'">
+          Осталось заполнить: <b>{{ pristineCount }}</b>
+        </small>
+      </div>
+      <div class="app-col" *ngIf="source === 'COMMERCIAL_PROPOSAL'">
+        <small class="app-ghost-color app-bold">СТАНДАРТ</small>
+        <small class="app-secondary-color counter">Осталось заполнить: <b>{{ pristineCount }}</b></small>
+      </div>
+    </div>
+  <hr/>
+  <br/>
+  <ng-container *ngFor="let formGroup of formPositions.controls; index as i">
+    <ng-container *ngIf="formGroup.get('position').value as position">
+      <div class="app-row" [formGroup]="formGroup">
+        <div class="app-col app-bold item-title">{{ position.name }}</div>
+        <div class="app-col" *ngIf="source === 'TECHNICAL_COMMERCIAL_PROPOSAL' || source === 'TECHNICAL_PROPOSAL'">
+          <input type="text" uxgInput formControlName="manufacturingName"/>
+        </div>
+        <div class="app-col" *ngIf="source === 'COMMERCIAL_PROPOSAL' || source === 'TECHNICAL_COMMERCIAL_PROPOSAL'">
+          <input type="text" uxgInput formControlName="manufacturer"/>
+        </div>
+        <div class="app-col" *ngIf="source === 'COMMERCIAL_PROPOSAL'">
+          <input type="text" uxgInput formControlName="standard"/>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+  </div>
+  <hr/>
+  <br/>
+  <div class="app-row app-justify-content-end">
+    <button type="button" uxgButton lg secondary (click)="cancel.emit()">Отмена</button>
+    <button type="button" uxgButton lg primary [disabled]="form.invalid" (click)="submit(formPositions.controls)">Все
+      готово
+    </button>
+  </div>
+</form>

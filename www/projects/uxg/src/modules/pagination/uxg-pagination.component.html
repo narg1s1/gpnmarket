@@ -1,0 +1,31 @@
+<ng-container *ngIf="data$ | async as d">
+<div class="app-row app-align-items-center" *ngIf="total > 0">
+  <div class="app-pages" *ngIf="d.pages?.length > 1">
+
+    <ng-container *ngIf="d.pages[0] > 1">
+      <a class="app-pages-item" routerLink="." [queryParams]="{page: 1}">1</a>
+      <div class="app-pages-item" *ngIf="d.pages[0] - 1 > 1">...</div>
+    </ng-container>
+
+    <a *ngFor="let page of d.pages" class="app-pages-item" routerLink="."
+       [class.app-pages-item-current]="page === ((this.pages$ | async) || 1)" [queryParams]="{page: page}">{{ page }}</a>
+
+    <ng-container *ngIf="d.pages[d.pages.length - 1] < d.fullPages.length">
+      <div class="app-pages-item" *ngIf="d.pages[d.pages.length - 1] + 1 < d.fullPages.length">...</div>
+      <a class="app-pages-item" routerLink="." [queryParams]="{page: d.fullPages.length}">{{d.fullPages.length}}</a>
+    </ng-container>
+  </div>
+  <div class="app-col" *ngIf="d.pages?.length > 0">
+    <span class="app-ghost-color">На странице </span>
+    <span>{{ d.firstItem }} - {{ d.lastItem }} </span>
+    <span class="app-ghost-color">из </span>
+    <span>{{ total }}</span>
+  </div>
+  <div class="app-pages-size app-col app-grow-0" *ngIf="showSizeChanger">
+    <span class="app-ghost-color">Показывать на странице: &nbsp;</span>
+    <uxg-dropdown [(ngModel)]="currentPageSize" (select)="pageSizeChanged($event)">
+      <div uxgDropdownItem *ngFor="let option of pageSizeOptions" [value]="option.value">{{option.label}}</div>
+    </uxg-dropdown>
+  </div>
+</div>
+</ng-container>

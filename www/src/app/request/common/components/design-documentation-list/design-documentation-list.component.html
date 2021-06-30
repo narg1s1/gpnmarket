@@ -1,0 +1,329 @@
+<ng-template #loading class="load-block">
+  <span class="spinner spinner-md"></span>
+</ng-template>
+
+<ng-container *ngIf="(request$ | async) as request; else loading">
+  <div class="app-row">
+    <div class="info-card app-col">
+      <div class="request-info">
+
+        <ng-container *ngIf="featureService.authorize('addDesignDocumentation')">
+          <div class="app-row w-100">
+            <div class="clr-col-2">
+              <button uxgButton primary lg
+                      [disabled]="getPositions().length === 0"
+                      title="{{getPositions().length > 0 ? 'Добавить перечень РКД' : 'Нет доступных позиций'}}"
+                      (click)="onShowDesignDocumentationListModal()">
+                <uxg-icon shape="app-plus" class="is-solid"></uxg-icon>
+                <span> Добавить перечень РКД</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Модальное окно добавление перечня ркд -->
+          <uxg-modal [(state)]="showDesignDocumentationListModal" size="l">
+            <h3 class="modal-title">Новый перечень РКД</h3>
+            <form [formGroup]="addDocumentationForm" class="form">
+              <div formArrayName="addDocumentationListForm">
+                <ng-container *ngFor="let item of addDocumentationListForm.controls; let i=index">
+                  <div class="app-row" formGroupName="{{i}}">
+                    <div class="app-col-6">
+                      <div class="app-control-wrap">
+                        <input #nameRef uxgInput type="text" lg formControlName="name"/>
+                        <label class="app-control-label" (click)="nameRef.focus()">Наименование документа</label>
+                      </div>
+                    </div>
+
+                    <div class="app-col-3">
+                      <div class="app-control-wrap">
+                        <input #adjustmentLimitRef uxgInput type="number" lg formControlName="adjustmentLimit"/>
+                        <label class="app-control-label" (click)="adjustmentLimitRef.focus()">Срок корректировки (дн.)</label>
+                      </div>
+                    </div>
+
+                    <div class="app-col-3">
+                      <div class="app-control-wrap">
+                        <input #receivingLimitRef uxgInput type="number" lg formControlName="receivingLimit"/>
+                        <label class="app-control-label" (click)="receivingLimitRef.focus()">Срок предоставления (дн.)</label>
+                      </div>
+                    </div>
+
+                    <div class="app-col-1 app-row app-align-items-center">
+                      <button uxgButton link icon type="button" class="btn-delete" (click)="deleteItem(i)"
+                              title="Удалить из списка" *ngIf="i > 0">
+                        <uxg-icon shape="app-trash"></uxg-icon>
+                      </button>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <button uxgButton link iconText (click)="onAddNext()">
+                  <uxg-icon shape="app-plus"></uxg-icon>
+                  <span>Добавить документ</span>
+                </button>
+              </div>
+            </form>
+
+            <div class="position-list">
+              <div class="position-choice">
+                <b>Выберите позиции:</b>
+              </div>
+
+              <div class="app-row w-100" *ngFor="let position of getPositions()">
+                <div class="app-col-12">
+                  <div class="app-row app-align-items-center app-section">
+                    <uxg-checkbox
+                      class="app-control" #positionCheckbox
+                      [ngModel]="isPositionIsChecked(position)"
+                      (ngModelChange)="onSelectPosition(position)"
+                    ></uxg-checkbox>
+                    <label (click)="positionCheckbox.check($event)">&nbsp; {{ position.name }}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ng-template uxgModalFooter>
+              <button uxgButton secondary lg (click)="onCloseAddDesignDocumentationModal()">Отмена</button>
+              <button uxgButton primary lg (click)="onAddDesignDocumentationList()"
+                      [disabled]="addDocumentationForm.invalid || selectedPositions.length === 0">
+                Добавить
+              </button>
+            </ng-template>
+          </uxg-modal>
+        </ng-container>
+
+        <div class="design-documentation-card-list"
+               *ngFor="let designDocumentation of designDocumentations; index as j">
+            <div class="design-documentation-card">
+              <div class="app-row">
+                <span class="app-col position-name">
+                  <span>{{designDocumentation.position.name}}</span>
+                </span>
+
+                <span>
+                  <ng-container *ngIf="designDocumentation.status as status">
+                    <ng-container [ngSwitch]="status">
+                      <div *ngSwitchCase="designDocStatus.ON_APPROVAL"
+                           class="app-bold app-ghost-color">На согласовании</div>
+                      <div *ngSwitchCase="designDocStatus.APPROVED"
+                           class="app-bold app-success-color status-success">Согласовано</div>
+                      <div *ngSwitchCase="designDocStatus.REJECTED"
+                           class="app-bold app-warning-color status-warning">Отклонено заказчиком</div>
+                    </ng-container>
+
+                    <ng-container *ngIf="status === designDocStatus.NEW">
+                      <uxg-modal #confirmDelete size="s">
+                        <h2>Удалить перечень полностью?</h2>
+                        <br/>
+                        <div>Отменить действие будет невозможно.</div>
+                        <ng-template uxgModalFooter>
+                          <button class="app-col" uxgButton secondary uxgModalClose lg>Отмена</button>
+                          <button class="app-col" uxgButton primary uxgModalClose lg (click)="removeDesignDocumentList(request, designDocumentation)">
+                            Удалить
+                          </button>
+                        </ng-template>
+                      </uxg-modal>
+
+                      <button uxgButton secondary lg
+                              *ngIf="designDocumentation.status === 'NEW' && featureService.authorize('deleteDesignDocList')"
+                              (click)="confirmDelete.open()" type="button">
+                        Удалить
+                      </button>
+                    </ng-container>
+
+                    <button uxgButton primary lg *ngIf="canEditDesignDocList(designDocumentation) && featureService.authorize('sendForApprovalDesignDocList')"
+                            [clrLoading]="this.isSendingForApproval(designDocumentation) ? clrLoadingState.LOADING : clrLoadingState.DEFAULT"
+                            [disabled]="!isSendOnApproveActive(designDocumentation)"
+                            (click)="sendForApproval(designDocumentation)">Согласовать</button>
+                  </ng-container>
+                </span>
+              </div>
+
+              <div class="app-row app-align-items-center">
+                <table class="document-list table table-noborder">
+                  <thead>
+                  <tr class="app-row head-nowrap">
+                    <th class="left clr-col-lg-2 clr-col-xl-3">Наименование документа</th>
+                    <th class="left clr-col-lg-1 clr-col-xl-2">Документ</th>
+                    <th class="left app-col">Дата корректировки</th>
+                    <th class="left app-col">Дата предоставления</th>
+                    <th class="left app-col">Дата рассмотрения</th>
+                    <th class="left clr-col-3" *ngIf="designDocumentation.status === designDocStatus.NEW"></th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr class="app-row"
+                      *ngFor="let designDoc of designDocumentation.designDocs; index as i">
+                    <td class="left clr-col-lg-2 clr-col-xl-3">
+                      <span *ngIf="!designDocModels[j+'_'+i]">{{designDoc.name}}</span>
+                      <input *ngIf="designDocModels[j+'_'+i]" type="text" required [(ngModel)]="designDocModels[j+'_'+i].name"
+                             appFormControlInvalidClass="invalid"/>
+                    </td>
+                    <td class="left clr-col-lg-1 clr-col-xl-2">
+                      <div class="form-group compact">
+                        <app-document-simple-list
+                          [documents]="designDoc.documents"
+                          [enableUpload]="designDoc.id && canUploadDocuments(designDoc, designDocumentation)"
+                          [limit]="5"
+                          [enableDelete]="designDocumentation.status === designDocStatus.NEW && featureService.authorize('addOrEditDesignDocuments')"
+                          (delete)="removeDocuments(request, designDoc, [$event])"
+                          (selected)="onSelectDocument($event, designDoc)"
+                        ></app-document-simple-list>
+                        <label class="document-loading" *ngIf="isLoadingDesignDoc(designDoc)">Загрузка...</label>
+                      </div>
+                    </td>
+                    <td class="left app-col">
+                      <span *ngIf="!designDocModels[j+'_'+i]" [class.expired]="isDateExpired(designDoc.adjustmentDate)">
+                        {{designDoc.adjustmentDate | date :'shortDate'}}
+                      </span>
+                      <input *ngIf="designDocModels[j+'_'+i]" type="text" required [(ngModel)]="designDocModels[j+'_'+i].adjustmentLimit"
+                             appFormControlInvalidClass="invalid"/>
+                    </td>
+                    <td class="left app-col">
+                      <span *ngIf="!designDocModels[j+'_'+i]" [class.expired]="isDateExpired(designDoc.receivingDate)">
+                        {{designDoc.receivingDate | date :'shortDate'}}
+                      </span>
+                      <input *ngIf="designDocModels[j+'_'+i]" type="text" required [(ngModel)]="designDocModels[j+'_'+i].receivingLimit"
+                             appFormControlInvalidClass="invalid"/>
+                    </td>
+                    <td class="left app-col">
+                      <span>{{designDoc.reviewDate | date :'shortDate'}}</span>
+                    </td>
+                    <td class="left clr-col-3" *ngIf="designDocumentation.status === designDocStatus.NEW">
+                      <uxg-modal #confirmDeleteDoc size="s">
+                        <h2>Удалить документ {{ designDoc.name }}?</h2>
+                        <div *ngIf="designDoc.documents.length > 0">
+                          Документ содержит загруженные файлы, которые тоже будут удалены.
+                        </div>
+                        <div><b>Отменить действие будет невозможно.</b></div>
+                        <ng-template uxgModalFooter>
+                          <button class="app-col" uxgButton secondary lg uxgModalClose>Отмена</button>
+                          <button class="app-col" uxgButton primary lg uxgModalClose (click)="removeDesignDocument(request, designDoc)">
+                            Удалить
+                          </button>
+                        </ng-template>
+                      </uxg-modal>
+                      <div class="app-row app-justify-content-end">
+                        <ng-container *ngIf="canEditDesignDoc(designDocumentation, designDoc) && !designDocModels[j+'_'+i]">
+                          <button uxgButton secondary lg (click)="confirmDeleteDoc.open()" type="button">Удалить</button>
+                          <button uxgButton secondary lg (click)="designDocModels[j+'_'+i] = getDesignDocModel(designDoc)">Изменить</button>
+                        </ng-container>
+                        <ng-container *ngIf="designDocModels[j+'_'+i]">
+                          <button uxgButton secondary lg (click)="designDocModels[j+'_'+i] = null">Отмена</button>
+                          <button uxgButton primary lg
+                                  [disabled]="isDesignDocModelInvalid(designDocModels[j+'_'+i]) && featureService.authorize('addOrEditDesignDocuments')"
+                                  (click)="editDesignDoc(request, j+'_'+i, designDocumentation)" type="button">
+                            Сохранить
+                          </button>
+                        </ng-container>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="app-row" *ngFor="let newDesignDocModel of newDesignDocModels[j]; index as i; ">
+                    <td class="clr-col-4">
+                      <input type="text" [(ngModel)]="newDesignDocModel.model.name"/>
+                    </td>
+                    <td class="clr-col-4"></td>
+                    <td class="app-col">
+                      <input type="text" [(ngModel)]="newDesignDocModel.model.adjustmentLimit"/>
+                    </td>
+                    <td class="app-col">
+                      <input type="text" [(ngModel)]="newDesignDocModel.model.receivingLimit"/>
+                    </td>
+                    <td class="clr-col-2">
+                      <div class="app-row app-justify-content-end" *ngIf="featureService.authorize('addOrEditDesignDocuments')">
+                        <button uxgButton secondary lg (click)="removeNewDesignDoc(j, i)" type="button">Удалить</button>
+                        <button [disabled]="isDesignDocModelInvalid(newDesignDocModel.model)"
+                                [clrLoading]="newDesignDocModel.state"
+                                (click)="addDesignDoc(request, newDesignDocModel.model, designDocumentation, j, i)"
+                                type="button"
+                                uxgButton primary lg
+                        >Добавить
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="app-row" *ngIf="canEditDesignDocList(designDocumentation) && featureService.authorize('addOrEditDesignDocuments')">
+                    <td class="app-col app-justify-content-end">
+                      <div class="app-row app-justify-content-end">
+                        <button uxgButton primary lg (click)="pushNewDesignDoc(j)" type="button">
+                          Добавить документ
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        <div class="designDocumentation" *ngIf="userInfoService.isCustomer()">
+          <div class="table designDocumentationHead">
+            <div class="app-row">
+              <div class="left clr-col-4">ПОЗИЦИЯ</div>
+              <div class="left clr-col-6">ДОКУМЕНТЫ</div>
+              <div class="left clr-col-2"></div>
+            </div>
+          </div>
+
+          <div class="table designDocumentationBody">
+            <div class="app-row" *ngFor="let designDocumentation of designDocumentations">
+
+              <div class="left clr-col-4 title">{{designDocumentation.position.name}}</div>
+
+              <div class="left clr-col-6">
+                <div *ngIf="canEditDesignDocList(designDocumentation); else designDocs" class="app-ghost-color">В процессе загрузки</div>
+                <ng-template #designDocs>
+                  <ng-container *ngFor="let designDoc of designDocumentation.designDocs">
+                    <app-document-simple-list
+                      *ngIf="designDoc.type !== designDocumentationType.REMARK"
+                      [documents]="designDoc.documents.length > 0 ? designDoc.documents : [getAwaitingDoc(designDoc)]"
+                      [enableUpload]="false"
+                      [limit]="5"
+                    ></app-document-simple-list>
+                  </ng-container>
+                </ng-template>
+              </div>
+
+              <div class="design-actions clr-col-2">
+                <ng-container *ngIf="designDocumentation.status !== designDocStatus.APPROVED">
+                  <uxg-dropdown lg>
+                    <div uxgDropdownItem (click)="approve(designDocumentation)">
+                      <uxg-icon shape="app-check"></uxg-icon>
+                      <span> Согласовать</span>
+                    </div>
+                    <div uxgDropdownItem appUploadFile (select)="reject(designDocumentation, $event)">
+                      <uxg-icon shape="app-warning" class="is-solid"></uxg-icon>
+                      <span> Приложить замечания</span>
+                    </div>
+                  </uxg-dropdown>
+                </ng-container>
+                <ng-container [ngSwitch]="designDocumentation.status">
+                  <span *ngSwitchCase="designDocStatus.NEW" class="status status-info" disabled="">
+                    <span>Новый</span>
+                  </span>
+                  <span *ngSwitchCase="designDocStatus.APPROVED" class="status status-success">
+                    <uxg-icon shape="app-check"></uxg-icon>
+                    <span> Согласовано</span>
+                  </span>
+                  <span *ngSwitchCase="designDocStatus.REJECTED" class="status status-warning">
+                    <uxg-icon shape="app-warning" class="is-solid"></uxg-icon>
+                    <span> На доработке</span>
+                  </span>
+                </ng-container>
+                <br/><br/>
+
+                <app-document-simple-list
+                  [documents]="getRemark(designDocumentation).documents"
+                  [enableUpload]="false"
+                ></app-document-simple-list>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

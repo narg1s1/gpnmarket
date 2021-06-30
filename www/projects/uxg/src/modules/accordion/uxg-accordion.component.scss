@@ -1,0 +1,31 @@
+:host {
+  display: block;
+
+  [hidden] {
+    display: none;
+  }
+
+  .uxg-accordion {
+    &-title {
+      cursor: pointer;
+      position: relative;
+      padding: 0 50px 0 0;
+
+      &-chevron {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+
+        &.rotated {
+          transform: rotate(180deg) translateY(50%);
+        }
+      }
+    }
+
+    &-body {
+      padding: 0;
+      margin-top: 20px;
+    }
+  }
+}

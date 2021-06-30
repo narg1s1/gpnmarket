@@ -1,0 +1,115 @@
+<ng-container *ngIf="(status$ | async) !== 'fetching' && (requestStatus$ | async) !== 'fetching'; else placeholder">
+<ng-container *ngIf="(request$ | async) as request" uxgFilter>
+
+  <!-- actions -->
+  <div class="app-row">
+    <div class="app-col">
+      <div class="app-row app-align-items-center">
+        <div class="app-col"></div>
+        <uxg-filter-button></uxg-filter-button>
+
+        <button uxgButton primary iconText
+                (click)="contractFormModal.open()"
+                [disabled]="(suppliers$ | async)?.length === 0"
+                *ngIf="featureService.authorize('addContract')">
+          <uxg-icon shape="app-plus"></uxg-icon>
+          <span>Добавить договор</span>
+        </button>
+      </div>
+    </div>
+    <div class="app-col-aside detachable"></div>
+  </div>
+
+  <br/>
+
+  <!-- list -->
+  <div class="app-row">
+    <div class="app-col contract-list">
+      <app-contract-list-item
+        *ngFor="let contract of contracts$ | async"
+        [contract]="contract"
+        [status]="status$ | async"
+        [rollbackDate]="contract.statusChangedDate"
+        [rollbackDuration]="600"
+        (send)="store.dispatch(send(request, contract, $event.files, $event.comment))"
+        (download)="store.dispatch(download(contract))"
+        (sign)="store.dispatch(sign(request, contract))"
+        (rollback)="rollbackContract = contract"
+        (delete)="deleteContract = contract"
+      ></app-contract-list-item>
+
+      <!-- empty -->
+      <div *ngIf="(contracts$ | async).length === 0 && form.pristine">
+        <h1 class="text-center" [style.opacity]="0.1"><br/><uxg-icon shape="app-waiting-big" size="270"></uxg-icon><br/><br/>Пока еще не создано ни одного договора</h1>
+      </div>
+    </div>
+
+    <uxg-filter [formGroup]="form" [count]="(contracts$ | async).length" (filter)="store.dispatch(filter(request, $event))">
+      <uxg-filter-section label="Наименование позиции">
+        <input uxgInput type="text" formControlName="positionName" placeholder="Наименование позиции или его часть" />
+      </uxg-filter-section>
+
+      <uxg-filter-section label="Контрагент" [disabled]="form.get('suppliers').disabled">
+        <uxg-filter-checkbox-list
+          formControlName="suppliers"
+          searchPlaceholder="Наименование контрагента или ИНН"
+          [foldedSearch]="true"
+          [items$]="contractSuppliersItems$"
+          [limit]="5"
+          (search)="suppliersSearch$.next($event)">
+        </uxg-filter-checkbox-list>
+      </uxg-filter-section>
+
+      <uxg-filter-section label="Согласование" [disabled]="form.get('statuses').disabled">
+        <uxg-filter-checkbox-list formControlName="statuses" [items$]="contractStatusesItems$"></uxg-filter-checkbox-list>
+      </uxg-filter-section>
+    </uxg-filter>
+  </div>
+
+    <uxg-modal #contractFormModal size="l">
+      <ng-container *ngIf="contractFormModal.state">
+        <h2 class="modal-title"><b>Добавить новый договор</b></h2>
+        <app-contract-form
+          [request]="request"
+          [suppliers]="suppliers$ | async"
+          (close)="contractFormModal.close()"
+          (filterPositions)="store.dispatch(fetchSuppliers(request, $event))">
+        </app-contract-form>
+      </ng-container>
+    </uxg-modal>
+
+    <uxg-modal [(state)]="deleteContract" size="s">
+      <h2 class="modal-title"><b>Подтвердите удаление</b></h2>
+      <div class="app-section">Все данные по уже созданному договору c <b>{{deleteContract?.supplier?.shortName}}</b> будут удалены.</div>
+      <ng-template uxgModalFooter>
+        <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+        <button uxgButton primary lg (click)="store.dispatch(delete(request, deleteContract)); deleteContract = null">Удалить</button>
+      </ng-template>
+    </uxg-modal>
+
+    <uxg-modal [(state)]="rollbackContract" size="s">
+      <h2 class="modal-title"><b>Обратите внимание!</b></h2>
+      <div class="app-section">Ваш последний комментарий и приложенный файл при отзыве будут удалены, вам потребуется прикрепить файл снова и написать новый комментарий.</div>
+      <ng-template uxgModalFooter>
+        <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+        <button uxgButton primary lg (click)="store.dispatch(rollback(request, rollbackContract)); rollbackContract = null">Продолжить</button>
+      </ng-template>
+    </uxg-modal>
+</ng-container>
+</ng-container>
+
+<ng-template #placeholder>
+  <div class="app-row">
+    <div class="app-col">
+      <div class="app-row">
+        <div class="app-col app-row">
+          <div class="placeholder-row" *ngFor="let i of [].constructor(2)" [style.height.px]="40" [style.width.px]="200"></div>
+        </div>
+        <div class="placeholder-row" [style.height.px]="40" [style.width.px]="80"></div>
+      </div>
+
+      <div class="placeholder" *ngFor="let i of [].constructor(10)" [style.height.px]="160"></div>
+    </div>
+    <div class="app-col-aside detachable"></div>
+  </div>
+</ng-template>

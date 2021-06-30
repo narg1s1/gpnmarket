@@ -1,0 +1,8 @@
+<div class="app-modal-wrap" *ngIf="is(state)">
+  <div class="app-modal" [class.app-modal-full-height]="is(fullHeight)" [ngClass]="['app-modal-'+size]">
+    <div class="app-modal-close" *ngIf="closable" (click)="close()"><uxg-icon shape="app-cross"></uxg-icon></div>
+    <div class="app-modal-body"><ng-content></ng-content></div>
+    <div class="app-modal-footer" *ngIf="footerTpl"><ng-container *ngTemplateOutlet="footerTpl"></ng-container></div>
+  </div>
+  <div class="app-modal-backdrop" *ngIf="!is(noBackdrop)" (click)="!is(staticBackdrop) && close()"></div>
+</div>

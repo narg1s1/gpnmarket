@@ -1,0 +1,84 @@
+@import "src/theme";
+hr {
+  border:none;
+  margin: 0;
+  border-bottom: 1px uxg($theme, color-divider) solid;
+}
+
+.search {
+  margin-left: .5em;
+
+  &.wide {
+    width: 280px;
+  }
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+
+.app-table {
+  padding: 5px 22px 5px 22px;
+  margin: 0px -22px 0 -22px;
+
+  &.scroll-area {
+    @include scrollbar($theme);
+
+    overflow-x: auto;
+    overflow-y: scroll;
+    padding: 5px 5px 5px 22px;
+    margin: 0px -20px 0 -22px;
+  }
+
+  &::ng-deep > .app-row {
+    padding: 8px 0;
+
+    & > .app-col {
+      padding: 0 10px;
+      &:first-child { padding-left: 0; }
+      &:last-child { padding-right: 0; }
+    }
+  }
+
+  & p.empty-list {
+    margin: 40px 0;
+    text-align: center;
+  }
+}
+
+.select-list {
+  &-item-footer {
+    padding: 10px 0;
+
+    & * {
+      padding: 0 10px;
+      font-size: 11px;
+      box-sizing: content-box;
+      text-align: right;
+
+      &:first-child { padding-left: 0; }
+      &:last-child { padding-right: 0; }
+    }
+
+    & .quantity {
+      flex-grow: .15; // 15% width
+      max-width: 100px;
+    }
+
+    & .total-price {
+      flex-grow: .15;
+      min-width: 150px;
+    }
+
+    & .date {
+      min-width: 130px;
+    }
+  }
+}

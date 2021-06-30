@@ -1,0 +1,73 @@
+<ng-container *ngIf="deliveryMonitorInfo && deliveryMonitorCounters">
+<div class="good-infographics-card">
+
+  <div class="good-info-block">
+    <div>
+      <div class="inn-info app-ghost-color">{{ deliveryMonitorInfo.material.codeMtr }}</div>
+      <div class="total-label app-ghost-color">всего</div>
+    </div>
+
+    <div>
+      <div class="good-name">{{ deliveryMonitorInfo.material.mtrName }}</div>
+      <div class="total-count">
+        {{ deliveryMonitorInfo.amountBei }} {{ deliveryMonitorInfo.material.basicUnitMeasureAei }}
+      </div>
+    </div>
+  </div>
+
+  <div class="good-statistics-info">
+    <div class="awaiting-progress" [style.width]="getProgressWidth(deliveryMonitorCounters.awaiting) + '%'">
+      <span>{{ getProgressCountLabel(deliveryMonitorCounters.awaiting) }}</span>
+    </div>
+
+    <div class="production-progress" [style.width]="getProgressWidth(deliveryMonitorCounters.inProduction) + '%'">
+      <span>{{ getProgressCountLabel(deliveryMonitorCounters.inProduction) }}</span>
+    </div>
+
+    <div class="shipment-progress" [style.width]="getProgressWidth(deliveryMonitorCounters.loading) + '%'">
+      <span>{{ getProgressCountLabel(deliveryMonitorCounters.loading) }}</span>
+    </div>
+
+    <div class="in-transit-progress" [style.width]="getProgressWidth(deliveryMonitorCounters.inTransit) + '%'">
+      <span>{{ getProgressCountLabel(deliveryMonitorCounters.inTransit) }}</span>
+    </div>
+
+    <div class="delivered-progress" [style.width]="getProgressWidth(deliveryMonitorCounters.delivered) + '%'">
+      <span>{{ getProgressCountLabel(deliveryMonitorCounters.delivered) }}</span>
+    </div>
+  </div>
+
+  <div class="good-statuses">
+    <div class="good-status-block">
+      <div class="good-status-label st-awaiting">Ожидает</div>
+      <div class="good-status-count">{{ getProgressCountLabel(deliveryMonitorCounters.awaiting) }}</div>
+    </div>
+
+    <div class="good-status-block">
+      <div class="good-status-label st-production">Производство</div>
+      <div class="good-status-count">{{ getProgressCountLabel(deliveryMonitorCounters.inProduction) }}</div>
+    </div>
+
+    <div class="good-status-block">
+      <div class="good-status-label st-shipment">Отгрузка</div>
+      <div class="good-status-count">{{ getProgressCountLabel(deliveryMonitorCounters.loading) }}</div>
+    </div>
+
+    <div class="good-status-block">
+      <div class="good-status-label st-in-transit">В пути</div>
+      <div class="good-status-count">{{ getProgressCountLabel(deliveryMonitorCounters.inTransit) }}</div>
+    </div>
+
+    <div class="good-status-block">
+      <div class="good-status-label st-delivered">Доставлено</div>
+      <div class="good-status-count">{{ getProgressCountLabel(deliveryMonitorCounters.delivered) }}</div>
+    </div>
+  </div>
+
+
+
+</div>
+
+
+<p class="updated-date-info">Обновлено {{ getUpdatedDate() }}</p>
+</ng-container>

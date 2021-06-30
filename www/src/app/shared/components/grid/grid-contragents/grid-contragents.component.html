@@ -1,0 +1,71 @@
+<div class="contragents-row" [class.with-analogs]="hasSupplierWithAnalogs(suppliers)">
+  <div #gridRow class="app-row grid-row app-layout">
+    <div *ngIf="positionCell" class="app-col grid-cell app-bold" [style.padding-left.px]="userInfoService.isCustomer() ? 20 : 0">Наименование позиции</div>
+    <div class="app-col grid-cell app-ellipsis app-row app-flex-column app-flex-nowrap"
+         *ngFor="let supplier of suppliers; index as i; trackBy: trackBySupplierId">
+      <div class="app-row">
+<!--        todo Радиокнопка временно скрыта У БО (isprocessor-976) -->
+        <uxg-radio-item
+          *ngIf="isShowRadiobuttons && !supplier.hasAnalogs && userInfoService.isCustomer() && activeTab === 'sentToReviewTab'"
+          class="app-control app-col app-grow-0"
+          [style.margin-right]="'8px'"
+          [name]="'selectedSupplier'"
+          [value]="supplier"
+          [checked]="selectedSupplier?.id === supplier.id ? true : false"
+          [(ngModel)]="selectedSupplier"
+          (ngModelChange)="supplierSelect.emit($event)"
+          (click)="$event.stopPropagation()"></uxg-radio-item>
+        <app-contragent-info-link class="app-col app-bold app-ellipsis" hiddenName="Поставщик №{{ getUniqueSupplierIndex(supplier.id) + 1}}" [contragent]="supplier">
+        </app-contragent-info-link>
+      </div>
+      <div class="app-ghost-color" *ngIf="supplier.hasAnalogs">аналоги</div>
+    </div>
+  </div>
+  <button class="left arrow" *ngIf="userInfoService.isCustomer() || canScrollLeft" uxgButton secondary icon (click)="scrollLeft()">
+    <uxg-icon shape="app-chevron" dir="left"></uxg-icon>
+  </button>
+  <button class="right arrow" *ngIf="userInfoService.isCustomer() || canScrollRight" uxgButton secondary icon (click)="scrollRight()">
+    <uxg-icon shape="app-chevron" dir="right"></uxg-icon>
+  </button>
+</div>
+
+<div class="contragents-common-params">
+  <div class="contragents-scroll" *ngIf="showCommonParams">
+    <div #gridRow class="app-row grid-row app-layout">
+      <div *ngIf="positionCell" class="app-col grid-cell app-bold"></div>
+      <ng-container *ngFor="let supplier of suppliers; index as i; trackBy: trackBySupplierId">
+        <div class="app-col grid-cell app-ellipsis app-row app-flex-column app-flex-nowrap">
+          <app-grid-common-parameters
+            #gridCommonParams
+            class="app-col"
+            *ngIf="getProposalBySupplier(supplier, proposals) as proposal"
+            [proposal]="proposal"
+            [hasAnalogs]="supplier.hasAnalogs"
+            [hasWinnerFn]="hasWinnerFn"
+            [showDocs]="showDocsControl.value"
+            [positions]="positions"
+            (close)="showCommonParams = false"
+            (openEditModal)="edit.emit(proposal)"
+            (selectAll)="selectBySupplier.emit(proposal)"
+          ></app-grid-common-parameters>
+          <div class="common-footer">
+            <uxg-switcher *ngIf="showCommonParams && i === 0" label="Показать документы предложений" labelAlign="right" [formControl]="showDocsControl">
+            </uxg-switcher>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Временно скрыто в матрице КП-->
+  <ng-container *ngIf="showParams && suppliers.length">
+    <ng-container *ngIf="showCommonParams === false; else close">
+      <button uxgButton primary class="common-params" (click)="showCommonParams = true">Общие параметры</button>
+    </ng-container>
+    <ng-template #close>
+      <button uxgButton icon primary class="common-params" (click)="showCommonParams = false">
+        <uxg-icon shape="app-cross"></uxg-icon>
+      </button>
+    </ng-template>
+  </ng-container>
+</div>

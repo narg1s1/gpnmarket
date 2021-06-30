@@ -1,0 +1,82 @@
+<div class="app-row app-align-items-center app-section app-layout">
+  <ng-content></ng-content>
+</div>
+
+<div #gridRow class="grid-row app-row items-row app-layout">
+  <ng-container *ngTemplateOutlet="positionTpl"></ng-container>
+  <ng-container *ngIf="!simpleView">
+    <ng-container *ngIf="user.isCustomer() && tradingScheme === 'TRADE' else bySuppliers">
+      <ng-container *ngFor="let supplier of suppliers; trackBy: trackByProposalPositionId">
+        <!-- Заглушка когда нет основного предложения у заказчика -->
+        <div *ngIf="!supplier.hasAnalogs && !mainProposals?.length" class="placeholder">
+          Не предоставлено
+        </div>
+        <app-grid-cell
+          *ngFor="let proposal of (supplier.hasAnalogs ? analogProposals : mainProposals); trackBy: trackByProposalPositionId"
+          [selectedProposal]="selectedProposal"
+          [position]="position"
+          [editable]="editable && !proposal.hasAnalogs && proposal.source === 'MANUAL'"
+          [proposal]="proposal"
+          [tradingScheme]="tradingScheme"
+          [proposalGroupId]="proposalGroupId"
+          [disableSelectTCPs]="disableSelectTCPs"
+          [selectedSuppliers]="selectedSuppliers"
+          [activeTab]="activeTab"
+          [proposalStatusCode]="proposalStatusCode"
+          [approveType]="approveType"
+          (show)="show.emit($event)"
+          (edit)="edit.emit($event)"
+          (create)="create.emit(getSupplier(proposal))"
+          (selectPositionTCP)="selectPositionTCP.emit($event)"
+          (selectProposal)="selectProposal.emit($event)"
+        ></app-grid-cell>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #bySuppliers>
+      <app-grid-cell
+        *ngFor="let supplier of suppliers; trackBy: trackByProposalPositionId"
+        [selectedProposal]="selectedProposal"
+        [position]="position"
+        [editable]="editable && !supplier.hasAnalogs && supplier.source !== 'ETP'"
+        [proposal]="getProposal(supplier)"
+        [tradingScheme]="tradingScheme"
+        [proposalGroupId]="proposalGroupId"
+        [disableSelectTCPs]="disableSelectTCPs"
+        [selectedSuppliers]="selectedSuppliers"
+        [activeTab]="activeTab"
+        [proposalStatusCode]="proposalStatusCode"
+        [approveType]="approveType"
+        (show)="show.emit($event)"
+        (edit)="edit.emit($event)"
+        (create)="create.emit(supplier)"
+        (selectPositionTCP)="selectPositionTCP.emit($event)"
+        (selectProposal)="selectProposal.emit($event)"
+      ></app-grid-cell>
+    </ng-template>
+  </ng-container>
+
+  <ng-container *ngIf="simpleView">
+    <app-grid-cell *ngIf="editable" [editable]="editable" (create)="create.emit(null)"></app-grid-cell>
+
+    <app-grid-cell
+      *ngFor="let proposal of proposals; trackBy: trackBySupplierId"
+      [selectedProposal]="selectedProposal"
+      [position]="position"
+      [editable]="editable && !proposal.hasAnalogs && proposal.source === 'MANUAL'"
+      [proposal]="proposal"
+      [supplier]="getSupplier(proposal)"
+      [disableSelectTCPs]="disableSelectTCPs"
+      [selectedSuppliers]="selectedSuppliers"
+      [tradingScheme]="tradingScheme"
+      [activeTab]="activeTab"
+      [proposalStatusCode]="proposalStatusCode"
+      [approveType]="approveType"
+      (show)="show.emit($event)"
+      (edit)="edit.emit($event)"
+      (create)="create.emit(null)"
+      (selectPositionTCP)="selectPositionTCP.emit($event)"
+      (selectProposal)="selectProposal.emit($event)"
+    ></app-grid-cell>
+  </ng-container>
+</div>

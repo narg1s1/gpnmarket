@@ -1,0 +1,16 @@
+<app-request-technical-proposal
+  *ngIf="!editing"
+  [request]="request"
+  [technicalProposal]="technicalProposal"
+  (edit)="editing = $event"
+  (update)="update.emit($event)"
+  (cancelTechnicalProposal)="cancelTechnicalProposal.emit($event)"
+></app-request-technical-proposal>
+
+<app-request-technical-proposals-form
+  *ngIf="editing"
+  [technicalProposal]="technicalProposal"
+  [request]="request"
+  (update)="update.emit($event)"
+  (visibleChange)="editing = $event"
+></app-request-technical-proposals-form>

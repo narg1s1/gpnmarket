@@ -1,0 +1,92 @@
+@import "src/theme";
+@import "src/assets/styles/helpers";
+
+.app-menu {
+  background: uxg($theme, color-default);
+  border-bottom: 1px #d5dde2 solid;
+  height: $topMenuHeight;
+
+  & > .app-row {
+    align-items: center;
+    height: 100%;
+  }
+
+  &-logo {
+    margin-right: 32px;
+    width: 155px;
+  }
+
+  &-item {
+    font-size: uxg($theme, font-size-l);
+    font-weight: bold;
+    line-height: $topMenuHeight;
+    margin: 0 12px;
+    position: relative;
+
+    &.active, &.active:hover {
+      color: uxg($theme, color-font-link);
+
+      &:after {
+        background: uxg($theme, color-font-link);
+        bottom: 0;
+        content: '';
+        height: 4px;
+        left: 0;
+        position: absolute;
+        width: 100%;
+      }
+    }
+  }
+
+  &-icon {
+    margin: 0 8px;
+    position: relative;
+
+    .counter {
+      background: uxg($theme, color-font-link);
+      border: 2px solid;
+      border-radius: uxg($theme, counter-border-radius) + 2px;
+      box-sizing: content-box;
+      color: uxg($theme, color-default);
+      height: 16px;
+      line-height: 16px;
+      position: absolute;
+      right: -8px;
+      text-align: center;
+      top: -8px;
+      min-width: 10px;
+      padding: 0 3px;
+    }
+  }
+
+  &-login {
+    align-self: center;
+    border-left: 1px #d5dde2 solid;
+    margin-left: 20px;
+    padding-left: 20px;
+
+    .username {
+      font-size: uxg($theme, font-size-l);
+    }
+
+    .app-row {
+      flex-wrap: nowrap;
+      cursor: pointer;
+      > div { max-width: 130px}
+      img { margin-right: 8px }
+    }
+  }
+}
+
+app-notification-popup {
+  position: absolute;
+  right: 10px;
+  top: 64px;
+  overflow: hidden;
+  padding: 8px 18px 18px 18px;
+  margin-top: 10px;
+
+  &:hover {
+    z-index: 100;
+  }
+}

@@ -1,0 +1,36 @@
+<ng-container *ngIf="(stateStatus$ | async) !== 'fetching'; else placeholder">
+<app-common-proposal-view
+  *ngIf="request$ | async as request"
+  [proposals]="proposals$ | async"
+  [request]="request$ | async"
+  [proposalsByPosSentToReview]="proposalsByPosSentToReview$ | async"
+  [proposalsByPosSendToEdit]="proposalsByPosSendToEdit$ | async"
+  [proposalsByPosReviewed]="proposalsByPosReviewed$ | async"
+  [proposalsSentToReview]="proposalsSentToReview$ | async"
+  [proposalsSendToEdit]="proposalsSendToEdit$ | async"
+  [proposalsReviewed]="proposalsReviewed$ | async"
+  [stateStatus]="stateStatus$ | async"
+  [groupId]="groupId"
+  [view]="view"
+  [positions]="positions$ | async"
+  [source]="source"
+  (viewChange)="switchView($event)"
+  (review)="store.dispatch(review(request.id, $event.accepted, $event.sendToEdit))"
+  (downloadAnalyticalReport)="store.dispatch(downloadAnalyticalReport(request.id, groupId))"
+></app-common-proposal-view>
+</ng-container>
+<ng-template #placeholder>
+  <div class="app-row" [class.app-layout]="view === 'grid'">
+    <div class="app-col">
+      <div class="app-row">
+        <div class="app-col app-row">
+          <div class="placeholder-row" *ngFor="let i of [].constructor(2)" [style.height.px]="40" [style.width.px]="200"></div>
+        </div>
+        <div class="placeholder-row" [style.height.px]="40" [style.width.px]="80"></div>
+      </div>
+
+      <div class="placeholder" *ngFor="let i of [].constructor(10)" [style.height.px]="160"></div>
+    </div>
+    <div class="app-col-aside detachable"></div>
+  </div>
+</ng-template>

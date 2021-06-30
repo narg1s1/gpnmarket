@@ -1,0 +1,38 @@
+<div class="app-row">
+  <div class="app-col">
+    <div class="input-group">
+      <input class="contragent-search-field"
+             type="text"
+             placeholder="Введите наименование контрагента или ИНН..."
+             [value]="customerSearchValue"
+             (input)="onCustomerSearchInputChange($event.target.value)"/>
+      <button type="button"
+              uxgButton icon
+              class="btn-clear"
+              aria-label="Очистить фильтр"
+              [disabled]="!this.customerSearchValue.length"
+              (click)="onClearFilterClick()">
+        <uxg-icon shape="app-cross"></uxg-icon>
+      </button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="featureService.authorize('createContragent')">
+    <div class="app-col action">
+      <button uxgButton secondary iconText
+              (click)="router.navigateByUrl('contragents/create')">
+        <uxg-icon size="16" shape="app-plus"></uxg-icon>
+        <span>Новый контрагент</span>
+      </button>
+    </div>
+  </ng-container>
+</div>
+
+<app-contragent-list
+  [searchValue]="customerSearchValue"
+  [contragents]="(contragents$ | async)">
+</app-contragent-list>
+
+<uxg-modal #modal size="l">
+  <app-contragent-registration (contragentCreated)="getContragentList(); modal.close();"></app-contragent-registration>
+</uxg-modal>

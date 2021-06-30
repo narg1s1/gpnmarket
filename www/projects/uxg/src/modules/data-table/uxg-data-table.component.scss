@@ -1,0 +1,285 @@
+:host {
+    display: block;
+    position: relative;
+
+    .rotated {
+        transform: rotate(180deg);
+    }
+
+    .sortable {
+        cursor: pointer;
+    }
+
+    [hidden] {
+        display: none;
+    }
+}
+
+.sticky-header {
+  position: sticky;
+  top: 130px;
+  z-index: 2;
+  overflow-x: hidden;
+}
+
+.uxg-datatable {
+    // Variables
+    $pinnedColumnWidth: 250px;
+    $checkboxColumnWidth: 40px;
+    $defaultColumnMinWidth: 250px;
+
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    min-height: 350px;
+
+    &-headers,
+    &-body-row {
+        display: flex;
+        flex-wrap: nowrap;
+        flex-grow: 1;
+    }
+
+    &-header {
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    &-headers {
+        font-size: 11px;
+        color: rgba(0, 0, 0, 0.3);
+        white-space: nowrap;
+        flex-wrap: nowrap;
+        background: #fff;
+        height: 30px;
+
+        &-col {
+            height: 30px;
+            padding: 10px;
+            background: #fff;
+
+            &:hover,
+            &.sorted {
+              .uxg-datatable-headers-sort {
+                display: inline-block;
+              }
+            }
+
+            &.pinnable {
+              height: 30px;
+            }
+        }
+
+        &-sort {
+          display: none;
+        }
+
+        &-settings-icon {
+            cursor: pointer;
+        }
+    }
+
+    &-body {
+        &-col {
+            background:#F8F9FD;
+            padding: 10px;
+            border-bottom: 8px solid #fff;
+            height: 50px;
+
+            &.pinnable {
+                background: #FBFCFE;
+                border-bottom: 8px solid #F4F6FB;
+            }
+
+            &.pinnable:not(.checkbox-col) {
+                border-right: 1px solid #D5DDE2
+            }
+
+            &.first {
+              border-top: 1px solid #D5DDE2;
+            }
+
+            &.last {
+              border-bottom: none;
+            }
+        }
+        &-group {
+            background: #EFF4FF;
+            width: 100%;
+            margin-bottom: 8px;
+
+            .uxg-datatable-body-col {
+                background: #EFF4FF;
+                border-bottom: none;
+                &:first-child {
+                    border-left: 4px solid #C8CAFF;
+                }
+            }
+
+            &-items {
+                margin-bottom: 0;
+                height: 50px;
+
+                .uxg-datatable-body-col {
+                    padding: 14px 10px;
+                }
+
+                .checkbox-col,
+                .uxg-datatable-body-col:first-child:not(.checkbox-col) {
+                    padding-left: $checkboxColumnWidth + 10px;
+                }
+
+                .checkbox-col + .uxg-datatable-body-col {
+                    margin-left: $checkboxColumnWidth * 2 !important;
+                    min-width: $pinnedColumnWidth - $checkboxColumnWidth !important;
+                    width: $pinnedColumnWidth - $checkboxColumnWidth !important;
+                }
+
+                .uxg-datatable-body-col:first-child:not(.checkbox-col) {
+                  min-width: $pinnedColumnWidth + $checkboxColumnWidth !important;
+                  width: $pinnedColumnWidth + $checkboxColumnWidth !important;
+                }
+            }
+
+            &-arrow {
+                cursor: pointer;
+                right: 0;
+                position: absolute;
+                height: 50px;
+                min-width: $checkboxColumnWidth !important;
+            }
+
+            &-placeholder {
+                position: absolute;
+                right: 0;
+                height: 50px;
+                width: calc(100% - #{$pinnedColumnWidth} + #{$checkboxColumnWidth});
+            }
+        }
+    }
+
+    &-headers-col,
+    &-body-col {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        flex-basis: 0;
+        min-width: $defaultColumnMinWidth;
+        flex-grow: 1;
+
+        &.pinnable {
+            position: absolute;
+            left: 0;
+            z-index: 1;
+        }
+
+        &.checkbox-col + &.pinnable,
+        &.settings-col + &.pinnable {
+            margin-left: $checkboxColumnWidth;
+            width: $pinnedColumnWidth;
+        }
+
+        &.checkbox-col + :not(.pinnable),
+        &.settings-col + :not(.pinnable) {
+            margin-left: $checkboxColumnWidth;
+        }
+
+        &.pinnable:not(.settings-col, .checkbox-col) + :not(.pinnable) {
+            margin-left: $pinnedColumnWidth + $checkboxColumnWidth;
+        }
+
+        &.settings-col,
+        &.checkbox-col {
+            flex-grow: 0;
+            flex-basis: $checkboxColumnWidth;
+            min-width: $checkboxColumnWidth;
+        }
+
+        &:first-child:not(.checkbox-col, .settings-col) {
+          width: $pinnedColumnWidth + $checkboxColumnWidth;
+          min-width: $pinnedColumnWidth + $checkboxColumnWidth;
+        }
+    }
+
+    &-arrows {
+        position: absolute;
+        user-select: none;
+    }
+
+    &-arrow {
+        position: absolute;
+        padding: 6px;
+        background: #fff;
+        user-select: none;
+        cursor: pointer;
+
+        &.left {
+            left: $checkboxColumnWidth;
+            box-shadow: 10px 0px 20px #fff;
+        }
+
+        &.right {
+            right: 0;
+            box-shadow: -10px 0px 20px #fff;
+        }
+    }
+
+    &-loader {
+      margin: 100px 50%;
+      position: absolute;
+      transform: translateX(-50%);
+    }
+
+    &-empty {
+      padding: 30px;
+      text-align: center;
+      background: #fff;
+    }
+
+    &-modal {
+        &-items {
+            columns: 2;
+            overflow: hidden;
+            padding-left: 15px;
+            margin-left: -15px;
+        }
+
+        &-item {
+            column-width: 320px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        &-title {
+            font-weight: bold;
+            font-size: 22px;
+            line-height: 28px;
+        }
+
+        &-description {
+            font-weight: normal;
+            font-size: 14px;
+            line-height: 18px;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .app-control {
+            margin-right: 8px;
+        }
+
+        label {
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 18px;
+        }
+
+        [hidden] {
+            display: none;
+        }
+    }
+}
+
+@-moz-document url-prefix() {
+  .uxg-datatable-modal-items {
+     column-fill: auto;
+  }
+}

@@ -1,0 +1,145 @@
+<form [formGroup]="form" uxgFilter>
+  <!-- tabs -->
+  <div class="app-row">
+    <div class="app-col">
+      <div class="app-row app-align-items-center">
+        <uxg-tabs class="app-col">
+          <uxg-tab-title id="review" [active]="true" [disabled]="(statusCounters$ | async)?.proofOfNeedRequestsCount === 0">
+            <span>Необходимо рассмотреть </span>
+            <span class="counter">({{(statusCounters$ | async)?.proofOfNeedRequestsCount}})</span>
+          </uxg-tab-title>
+          <uxg-tab-title #approvedTab id="approved" [disabled]="(statusCounters$ | async)?.notProofOfNeedRequestsCount === 0">
+            <span>Рассмотренные </span>
+            <span class="counter">({{(statusCounters$ | async)?.notProofOfNeedRequestsCount}})</span>
+          </uxg-tab-title>
+        </uxg-tabs>
+        <uxg-filter-button></uxg-filter-button>
+      </div>
+    </div>
+    <div class="app-col-aside detachable"></div>
+  </div>
+
+  <!-- headers -->
+  <div class="app-row">
+    <div class="app-col">
+      <div class="app-table app-no-border">
+        <div class="app-row app-uppercase app-ghost-color app-bold app-align-items-center">
+          <!-- Царь-чекбокс -->
+          <div class="app-col select app-col-auto" *ngIf="!approvedTab.active" [style.display]="useAllRequests ? 'none':'block'">
+            <uxg-checkbox *ngFor="let form of [form]" formControlName="checked" uxgSelectAllFor="requests"></uxg-checkbox>
+          </div>
+          <small class="app-col-auto number"><span>Номер</span></small>
+          <small class="app-col-6 name"><span>Наименование</span></small>
+          <small class="app-col-2 initiator">Инициатор</small>
+          <small class="app-col-2 published">Поступила/создана</small>
+          <small class="app-col-2 total">Общая стоимость</small>
+        </div>
+      </div>
+    </div>
+    <div class="app-col-aside detachable"></div>
+  </div>
+
+  <div class="app-row" *ngIf="showRequestsSelectionBlock">
+    <div class="app-col app-row selection-block">
+      <div class="app-col-auto selected-info app-ellipsis" [style.padding-left.px]="useAllRequests ? 20 : 60">
+        <ng-container *ngIf="!useAllRequests; else selectedAllRef">
+          Выбраны все заявки ({{ checkedRequests.length }}) на странице.
+        </ng-container>
+
+        <ng-template #selectedAllRef>
+          Выбраны все заявки на рассмотрении
+        </ng-template>
+      </div>
+
+      <div class="app-col app-ellipsis">
+        <a class="app-link app-bold" (click)="useAllRequests = !useAllRequests">
+          <ng-container *ngIf="!useAllRequests; else cancelRef">
+            Выбрать все заявки на рассмотрении.
+          </ng-container>
+
+          <ng-template #cancelRef>
+            Отменить выбор
+          </ng-template>
+        </a>
+      </div>
+    </div>
+
+    <div class="app-col app-col-aside"></div>
+  </div>
+
+  <div class="app-row">
+    <div class="app-col table-col">
+      <div class="app-table" [class.disabled]="(status$ | async) !== 'received'">
+        <ng-container formArrayName="requests" *ngFor="let request of requests$ | async; index as i">
+          <a class="app-row app-link-no-color" [routerLink]="request.request.id" [queryParams]="{showOnlyApproved: approvedTab.active ? 1:0 }" >
+            <div class="app-col-auto select app-bold"
+                 [style.display]="useAllRequests ? 'none':'block'"
+                 *ngIf="!approvedTab.active && formRequests.at(i)"
+                 [formGroupName]="i">
+              <uxg-checkbox formControlName="checked"></uxg-checkbox>
+            </div>
+            <div class="app-col-auto number app-bold">{{ request.request.number | number:'1.0-2' }}</div>
+            <div class="app-col-6 name app-ellipsis">{{ request.request.name }}</div>
+            <div class="app-col-2 initiator app-ellipsis">{{request.request.user.shortName}}</div>
+            <div class="app-col-2 published app-ghost-color">{{ request.request.publishedDate | date:'dd.MM.yyyy' }}</div>
+            <div class="app-col-2 total app-ellipsis app-bold">
+              <span>{{(request.request.amount || 0) | number:'1.0-2'}} </span>
+              <span class="app-ghost-color">{{getCurrencySymbol('RUB', "narrow")}}</span>
+            </div>
+          </a>
+        </ng-container>
+      </div>
+      <br/>
+
+      <app-pagination [total]="tabTotalCount$ | async" [pageSize]="pageSize" [pages$]="pages$" (change)="fetchFilters$.next({page: $event})"></app-pagination>
+    </div>
+
+    <uxg-filter [formGroup]="filterForm" [count]="totalCount$ | async" (filter)="fetchFilters$.next({filters: $event})">
+      <uxg-filter-section label="Заявка">
+        <input uxgInput type="text" formControlName="requestNameOrNumber" placeholder="Номер или наименование заявки" />
+      </uxg-filter-section>
+
+      <uxg-filter-section label="Создал заявку" *ngIf="filterForm.get('userIds')">
+        <uxg-filter-checkbox-list
+          formControlName="userIds"
+          searchPlaceholder="Заказчик"
+          [foldedSearch]="true"
+          [items$]="users$"
+          [limit]="5"
+          (search)="usersSearch$.next($event)">
+        </uxg-filter-checkbox-list>
+      </uxg-filter-section>
+
+      <uxg-filter-section label="Даты поставки" *ngIf="filterForm.get('shipmentDateFrom') && filterForm.get('shipmentDateTo')">
+        <div class="app-row">
+          <div class="app-col" [style.padding-right.px]="15">
+            <div class="app-control-wrap" [style.padding]="0">
+              <input #shipmentDateFrom uxgInput uxgDatepicker placeholder="Дата с" class="delivery-date" formControlName="shipmentDateFrom">
+              <label class="app-control-icon" (click)="shipmentDateFrom.focus()">
+                <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+              </label>
+            </div>
+          </div>
+
+          <div class="app-col">
+            <div class="app-control-wrap" [style.padding]="0">
+              <input #shipmentDateTo uxgInput uxgDatepicker placeholder="Дата по" class="delivery-date" formControlName="shipmentDateTo">
+              <label class="app-control-icon" (click)="shipmentDateTo.focus()">
+                <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+              </label>
+            </div>
+          </div>
+        </div>
+      </uxg-filter-section>
+    </uxg-filter>
+  </div>
+</form>
+
+<uxg-footer [formGroup]="filterForm" [hidden]="approvedTab.active || (requests$ | async)?.length === 0">
+  <button uxgButton outline lg (click)="form.get('checked').setValue(true)">Выбрать все</button>
+  <button uxgButton outline lg (click)="form.get('checked').setValue(false); useAllRequests = false">Сбросить</button>
+  <div class="app-col"></div>
+  <div class="app-col-auto"><span class="app-ghost-color">Выбрано заявок: </span><span>{{(selectedRequests$ | async)?.length}}</span></div>
+  <button uxgButton secondary lg (click)="review$.next(false)" [disabled]="form.disabled || form.invalid">Отклонить</button>
+  <button uxgButton primary lg (click)="review$.next(true)" [disabled]="form.disabled || form.invalid">Подтвердить</button>
+</uxg-footer>

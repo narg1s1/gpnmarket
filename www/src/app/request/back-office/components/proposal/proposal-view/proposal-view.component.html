@@ -1,0 +1,378 @@
+<ng-container [formGroup]="form">
+  <!-- actions -->
+  <div class="app-row" [class.app-layout]="view !== 'list'">
+    <div class="app-col">
+      <div class="app-row app-justify-content-end analytical-report">
+        <button uxgButton clear class="app-link" (click)="downloadAnalyticalReport.emit()">
+          <span>Аналитическая справка </span>
+          <uxg-icon shape="app-download"></uxg-icon>
+        </button>
+      </div>
+      <div #actionsRef class="app-table app-no-border">
+        <ng-container *ngTemplateOutlet="actionsTpl"></ng-container>
+      </div>
+    </div>
+    <div @sidebarHide *ngIf="view === 'list'" class="app-col app-col-aside detachable"></div>
+  </div>
+  <ng-template #actionsTpl let-popoverDirection let-slave="slave">
+    <div class="app-row app-align-items-center">
+      <ng-container *ngIf="view === 'grid'">
+        <uxg-checkbox formControlName="checked" uxgSelectAllFor="positions" [slave]="slave" *ngFor="let c of [form.get('positions')]">
+        </uxg-checkbox>
+        <uxg-popover #selectPopover>
+          <button uxgButton uxgPopoverTrigger link icon>
+            <uxg-icon shape="app-triangle down"></uxg-icon>
+          </button>
+          <div *uxgPopoverContent="popoverDirection">
+            <div>
+              <button uxgButton clear (click)="form.get('checked').setValue(true); selectPopover.hide()">Все</button>
+            </div>
+            <div>
+              <button uxgButton clear (click)="form.get('checked').setValue(false); selectPopover.hide()">Ни одного</button>
+            </div>
+          </div>
+        </uxg-popover>
+      </ng-container>
+      <div>
+        <span class="app-secondary-color">показать: </span>
+        <uxg-popover #viewPopover>
+          <button uxgButton uxgPopoverTrigger link clear [ngSwitch]="view">
+            <span *ngSwitchCase="'grid'"><b>по позициям матрица</b></span>
+            <span *ngSwitchCase="'list'"><b>по поставщикам</b></span>
+          </button>
+          <div *uxgPopoverContent="popoverDirection">
+            <div><button uxgButton clear (click)="switchView('grid')">по позициям матрица</button></div>
+            <div><button uxgButton clear (click)="switchView('list')">по поставщикам</button></div>
+          </div>
+        </uxg-popover>
+      </div>
+      <div class="app-col"></div>
+      <div [ngSwitch]="view">
+
+        <button uxgButton secondary iconText
+                (click)="procedureModalPayload = {action: 'create'}; filterProcedureCreationPositions.emit()"
+                *ngIf="featureService.authorize('createProcedure')">
+          <uxg-icon shape="app-plus"></uxg-icon>
+          <span>Создать процедуру</span>
+        </button>
+
+        <ng-container *ngIf="featureService.authorize('createProposal')">
+          <!-- Новое предложение  -->
+          <button *ngSwitchCase="'list'"
+                  uxgButton secondary iconText
+                  (click)="showForm = true">
+            <uxg-icon shape="app-plus"></uxg-icon>
+            <span>Новое {{ sourceLabels[source]}}</span>
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="featureService.authorize('addProposalContragent')">
+          <!-- Добавить столбец контрагента  -->
+          <button *ngSwitchCase="'grid'" uxgButton secondary iconText
+                  [disabled]="isAddContragentDisabled()"
+                  (click)="addContragentModal.open()">
+            <uxg-icon shape="app-plus"></uxg-icon>
+            <span>Контрагент</span>
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="featureService.authorize('createProposalsFromTemplate')">
+          <!-- Новое предложение шаблона -->
+          <button uxgButton primary iconText (click)="uploadTemplateModal.open()">
+            <uxg-icon shape="app-plus"></uxg-icon>
+            <span>{{ sourceLabels[source]}} из шаблона</span>
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="featureService.authorize('publishProposalPositions')">
+          <!-- Отправить на согласование -->
+          <button *ngSwitchCase="'grid'" uxgButton primary
+                  [disabled]="selectedPositions?.length === 0 || (status) !=='received'"
+                  (click)="publishPositions.emit(selectedPositions)">
+            Отправить на согласование
+          </button>
+        </ng-container>
+      </div>
+    </div>
+  </ng-template>
+  <!-- grid -->
+  <ng-container *ngIf="(view !=='list' && proposals.length + procedures.length)">
+    <div #gridTable [ngClass]="{
+    'grid-table': view === 'grid',
+    'simple-grid-table': view === 'simple-grid',
+    'disabled': status === 'updating'}"
+    >
+      <app-grid-contragents
+        *ngIf="view === 'grid' && proposals.length"
+        [gridRows]="gridRows"
+        [positionCell]="true"
+        [positions]="positions"
+        [suppliers]="suppliers(proposals)"
+        [proposals]="proposals"
+        [showParams]="true"
+        [hasWinnerFn]="hasWinnerFunction"
+        (openCommonParams)="gridTable.scrollIntoView()"
+        (edit)="addContragentModal.open(); editingProposal = $event"
+        (scrollUpdated)="stickedPosition = $event.canScrollLeft"
+      ></app-grid-contragents>
+
+      <!-- procedure info -->
+      <ng-container *ngFor="let procedure of procedures; trackBy: trackById">
+        <div class="position-row" *ngIf="!procedure.isCanceled">
+          <app-procedure-grid
+            [procedure]="procedure"
+            [source]="source"
+            (bargain)="procedureModalPayload = {action: 'bargain', procedure: procedure}"
+            (prolong)="prolongModalPayload = procedure"
+          ></app-procedure-grid>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="suppliers.length || view === 'simple-grid'" formArrayName="positions">
+        <app-grid-row
+          *ngFor="let proposalsByPos of proposalsByPositions; trackBy trackByProposalByPositionId; index as i"
+          [class.sticked]="stickedPosition"
+          [position]="proposalsByPos.position"
+          [suppliers]="suppliers(proposals)"
+          [proposals]="converProposalPosition(proposalsByPos)"
+          [simpleView]="view === 'simple-grid'"
+          [isReviewed]="true"
+          [getProposal]="getProposalItemBySupplier(proposalsByPos)"
+          [getSupplier]="getSupplierByProposalItem(proposals)"
+          [editable]="!isReviewed(proposalsByPos) && !isOnReview(proposalsByPos) && !isInQueue(proposalsByPos)"
+          [formGroupName]="i"
+          (show)="proposalModalData = { position: proposalsByPos.position, items: [$event.sourceProposal] }"
+          (edit)="addProposalPosition(getProposalByProposalPosition($event.sourceProposal, proposals), proposalsByPos.position, $event.sourceProposal)"
+          (create)="addProposalPosition(getProposalBySupplier($event, proposals), proposalsByPos.position)"
+        >
+          <ng-template #position>
+            <div class="grid-cell app-col grid-cell-sticky" [class.grid-cell-sticky-bg]="stickedPosition">
+              <div class="app-row" style="flex-wrap: nowrap" *ngFor="let c of [form.get('positions')]">
+                <uxg-checkbox class="app-control" #checked formControlName="checked"></uxg-checkbox>
+                <div class="app-row app-flex-column">
+                  <label (click)="checked.check($event)"><b>{{proposalsByPos.position.name}}</b></label>
+
+                  <div class="app-secondary-color">
+                    <span>{{proposalsByPos.position.quantity}} </span>
+                    <span class="app-ghost-color">{{proposalsByPos.position.measureUnit}}</span>
+                    <span class="app-ghost-color"> | </span>
+                    <ng-container *ngIf="proposalsByPos.position.startPrice">
+                      <span class="app-ghost-color">{{proposalsByPos.position.startPrice | number:'1.0-2'}} </span>
+                      <span class="app-ghost-color">{{getCurrencySymbol(proposalsByPos.position.currency, "narrow")}}/{{proposalsByPos.position.measureUnit}}</span>
+                      <span class="app-ghost-color"> | </span>
+                    </ng-container>
+                    <span *ngIf="proposalsByPos.position.isDeliveryDateAsap; else deliveryDate">как можно скорее</span>
+                    <ng-template #deliveryDate>
+                      <span>{{proposalsByPos.position.deliveryDate | date:"dd.MM.yyyy"}}</span>
+                    </ng-template>
+                  </div>
+                  <div class="app-col"></div>
+                  <ng-container *ngIf="!isPositionOnApprove(proposalsByPos)">
+                    <div class="app-success-color app-bold" *ngIf="isReviewed(proposalsByPos) && !isInQueue(proposalsByPos)">
+                      <uxg-icon shape="app-check"></uxg-icon>
+                      <span>Выбран победитель</span>
+                    </div>
+                    <div class="app-ghost-color app-bold" *ngIf="isOnReview(proposalsByPos) && !isInQueue(proposalsByPos)">
+                      <uxg-icon shape="app-waiting"></uxg-icon>
+                      <span>На согласовании</span>
+                    </div>
+                    <div class="app-warning-color app-bold" *ngIf="isSentToEdit(proposalsByPos) && !isInQueue(proposalsByPos)">
+                      <uxg-icon shape="app-warning"></uxg-icon>
+                      <span>На доработке</span>
+                    </div>
+                    <div class="app-ghost-color app-bold" *ngIf="isDraft(proposalsByPos) && !isInQueue(proposalsByPos)">
+                      <uxg-icon shape="app-draft"></uxg-icon>
+                      <span>Черновик</span>
+                    </div>
+                    <div class="app-ghost-color app-bold" *ngIf="isInQueue(proposalsByPos)">
+                      <uxg-icon shape="app-waiting"></uxg-icon>
+                      <span>В обработке</span>
+                    </div>
+                  </ng-container>
+
+                  <div *ngIf="isPositionOnApprove(proposalsByPos)" class="app-ghost-color app-bold">
+                    <div title="Позиция была отредактирована и находится на согласовании заказчика, работа с предложениями недоступна">
+                      <uxg-icon shape="app-waiting"></uxg-icon>
+                      <span>Позиция отредактирована</span>
+                    </div>
+                  </div>
+                  <ng-container *ngIf="canRollback(proposalsByPos.position, rollbackDuration) && featureService.authorize('cancelPublishProposal')">
+                    <button uxgButton primary type="button" [style.min-width.px]="135" (click)="rollback.emit(proposalsByPos.position)">
+                      Отозвать <span class="cancel-timer"> {{ proposalsByPos.position.statusChangedDate | countdownTimer: rollbackDuration }} </span>
+                    </button>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </app-grid-row>
+      </ng-container>
+
+    </div>
+
+    <div class="proposals-footer"
+         [class.hidden]="(scrollPositionService.scroll$ | async) < actionsRef.offsetTop + actionsRef.offsetHeight"
+         [class.overflow-visible]="viewPopover?.last?.isOpen || selectPopoverRef?.last?.isOpen">
+      <div class="proposals-footer-body">
+        <ng-container
+          *ngTemplateOutlet="actionsTpl; context: { $implicit: 'app-popover-content-top-left', slave: true}"></ng-container>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- list -->
+  <div class="app-row" *ngIf="view === 'list'">
+    <div class="app-col app-technical-commercial-proposal-list" [class.disabled]="status !== 'received'">
+      <!-- create proposal -->
+      <app-common-proposal-form
+        *ngIf="proposals?.length + procedures?.length === 0 || showForm"
+        [request]="request"
+        [closable]="proposals.length > 0"
+        [groupId]="groupId"
+        (close)="showForm = false"
+        [availablePositions]="availablePositions"
+        [source]="source"
+        [selectedContragents]="getContragents(proposals)"
+        (create)="create.emit($event)"
+      ></app-common-proposal-form>
+      <ng-container *ngFor="let procedure of procedures; trackBy: trackById">
+        <app-request-procedure
+          [procedure]="procedure"
+          [source]="source"
+          (bargain)="procedureModalPayload = {action: 'bargain', procedure: procedure}"
+          (prolong)="prolongModalPayload = procedure"
+        ></app-request-procedure>
+      </ng-container>
+      <ng-container *ngFor="let proposal of proposals; trackBy: trackById">
+        <app-common-proposal
+          [request]="request"
+          [groupId]="groupId"
+          [source]="source"
+          [positions]="positions"
+          [availablePositions]="availablePositions"
+          [proposal]="proposal"
+          [selectedContragents]="getContragents(proposals)"
+          (edit)="edit.emit($event)"
+        ></app-common-proposal>
+      </ng-container>
+    </div>
+    <div class="app-col-aside detachable">
+    </div>
+  </div>
+
+  <!-- modals -->
+  <uxg-modal size="l" [staticBackdrop]="true" [(state)]="procedureModalPayload" [ngSwitch]="procedureModalPayload?.action">
+    <h2 *ngSwitchCase="'create'">Создание новой процедуры</h2>
+    <h2 *ngSwitchCase="'bargain'">Уторговывание процедуры №{{procedureModalPayload?.procedure.procedureId}}</h2>
+    <h2 *ngSwitchCase="'prolong'">Продление процедуры №{{procedureModalPayload?.procedure.procedureId}}</h2>
+    <ng-container *ngIf="positions">
+      <app-request-procedure-form
+        *ngIf="procedureModalPayload"
+        [request]="request"
+        [positions]="procedureCreationPositions"
+        [action]="procedureModalPayload.action"
+        [procedure]="procedureModalPayload.procedure"
+        [procedureSource]="source"
+        [contragents]="contragentsWithTp"
+        [groupId]="groupId"
+        (filterPositions)="filterProcedureCreationPositions.emit($event)"
+        (positionsSelected)="procedurePositionsSelected.emit($event)"
+        (complete)="updateProcedures.emit(); procedureModalPayload = null"
+        (cancel)="procedureModalPayload = null"
+      ></app-request-procedure-form>
+    </ng-container>
+  </uxg-modal>
+
+  <uxg-modal #uploadTemplateModal size="l" (stateChange)="$event && (files = [])">
+    <ng-container *ngIf="uploadTemplateModal.state">
+      <h2 class="modal-title"><b>Загрузить {{ sourceLabels[source]}} из шаблона</b></h2>
+      <div class="app-secondary-color template">
+        Вы можете загрузить {{ sourceLabels[source]}} списком, если заполните шаблон xls таблицы (<a class="app-link" (click)="downloadTemplate.emit()"><b>скачать
+        шаблон</b></a>), и загрузите файл в систему. Если указать несколько поставщиков, то будет создано несколько {{ sourceLabels[source]}}.
+      </div>
+      <div class="dragAndDropArea">
+        <app-template-upload
+          [invalid]="invalidUploadTemplate"
+          (fileSelected)="onChangeFilesList($event)"></app-template-upload>
+      </div>
+      <ng-template uxgModalFooter>
+        <div class="doc-error-message" *ngIf="invalidUploadTemplate">Пожалуйста, загрузите необходимый шаблон</div>
+
+        <button type="button" uxgButton secondary lg uxgModalClose (click)="invalidUploadTemplate = false">Отмена</button>
+        <button uxgButton primary lg (click)="onSendTemplatePositions()">
+          Загрузить
+        </button>
+      </ng-template>
+    </ng-container>
+  </uxg-modal>
+
+  <uxg-modal [(state)]="addProposalPositionPayload">
+    <h2>Добавить новое {{ sourceLabels[source]}} от {{addProposalPositionPayload?.proposal?.supplier.shortName}}</h2>
+    <app-proposal-item-form
+      *ngIf="addProposalPositionPayload as p"
+      [position]="p.position"
+      [proposalItem]="p.proposalPosition"
+      [source]="source"
+      (close)="addProposalPositionPayload = null"
+      (save)="saveProposalItem.emit({item: $event, proposal: addProposalPositionPayload.proposal})"
+    ></app-proposal-item-form>
+  </uxg-modal>
+
+  <uxg-modal #addContragentModal size="m">
+    <h2><b>{{ editingProposal ? 'Редактировать' : 'Добавить' }} столбик контрагента</b></h2>
+    <ng-container *ngIf="addContragentModal.state">
+      <common-proposal-contragent-form
+        [source]="source"
+        [request]="request"
+        [groupId]="groupId"
+        [selectedContragents]="getContragents(proposals)"
+        [proposal]="editingProposal"
+        (close)="addContragentModal.close(); editingProposal = null"
+        (edit)="edit.emit({proposal: $event})"
+        (create)="create.emit({proposal: $event})"
+      ></common-proposal-contragent-form>
+    </ng-container>
+  </uxg-modal>
+
+  <uxg-modal [(state)]="prolongModalPayload">
+    <h2>Продление процедуры №{{prolongModalPayload?.procedureId}}</h2>
+    <app-procedure-prolongate
+      *ngIf="prolongModalPayload"
+      [dateEndRegistration]="prolongModalPayload.dateEndRegistration"
+      [dateSummingUp]="prolongModalPayload.dateSummingUp"
+      [procedureId]="prolongModalPayload.procedureId"
+      [requestId]="request.id"
+      (close)="prolongModalPayload = null"
+      (complete)="updateProcedures.emit(); prolongModalPayload = null"
+    ></app-procedure-prolongate>
+  </uxg-modal>
+
+  <uxg-modal [(state)]="proposalModalData" size="l">
+    <ng-container *ngIf="proposalModalData as modalData">
+      <h2>{{ modalData.position.name }}</h2>
+      <app-proposal-detail
+        *ngIf="modalData.items[0] as item"
+        [supplier]="item.supplierContragent"
+        [paymentTerms]="item.paymentTerms"
+        [manufacturingName]="item.manufacturingName"
+        [proposal]="item"
+        [position]="modalData.position"
+        [manufacturer]="item.manufacturer"
+        [standard]="item.standard"
+      ></app-proposal-detail>
+
+      <ng-template uxgModalFooter>
+        <div class="app-col app-bold">
+          <div class="app-success-color" *ngIf="helper.isQuantityValid(modalData.position, modalData.items[0])">- Позиция в нужном количестве</div>
+          <div class="app-success-color" *ngIf="helper.isDateValid(modalData.position, modalData.items[0])"> - Сроки укладываются в заданные</div>
+
+          <div class="app-error-color" *ngIf="!helper.isQuantityValid(modalData.position, modalData.items[0])">
+            {{ helper.getRequestedQuantityLabel(modalData.position, modalData.items[0]) }}
+          </div>
+          <div class="app-error-color" *ngIf="!helper.isDateValid(modalData.position, modalData.items[0])"> - Сроки не укладываются в заданные</div>
+        </div>
+        <button uxgButton lg secondary uxgModalClose>Закрыть</button>
+      </ng-template>
+    </ng-container>
+  </uxg-modal>
+</ng-container>

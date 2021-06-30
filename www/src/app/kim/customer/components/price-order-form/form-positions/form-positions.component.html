@@ -1,0 +1,55 @@
+<form appFormValidation (ngSubmit)="submit()">
+  <div class="app-secondary-color">Добавьте все необходимые позиции, по которым вы хотите создать ценовой запрос</div>
+  <div *ngFor="let formGroup of formArray?.controls; index as i" >
+    <div class="app-row" [formGroup]="asFormGroup(formGroup)">
+      <ng-container *ngTemplateOutlet="controlInput; context: {control: formGroup.get('name'), label: 'Наименование МТР', sm: true}"></ng-container>
+
+      <div class="app-col app-row app-align-items-center">
+        <ng-container *ngTemplateOutlet="controlInput; context: {control: formGroup.get('quantity'), label: 'Кол-во', sm: true}"></ng-container>
+
+        <div class="app-col app-col-m">
+          <uxg-dropdown-input appSuggestions strictMode formControlName="okei" placeholder="Ед. измерения"
+                              [$]="okeiList$" [searchFn]="okeiService.searchOkei" #okei="appSuggestions"
+                              [displayByFn]="getOkeiSymbol">
+            <ng-container *ngIf="(okei.suggestions$ | async) as okeiSuggestions">
+              <div uxgDropdownItem
+                   *ngFor="let suggestion of okeiSuggestions"
+                   [value]="suggestion"
+                   [attr.title]="suggestion.name | lowercase"
+              >{{suggestion.symbol | lowercase }} <span class="app-ghost-color">- {{suggestion.name | lowercase}}</span></div>
+            </ng-container>
+            <ng-template #errors>
+              <div class="app-control-error" *ngIf="formGroup.get('okei').errors as e">
+                <span *ngIf="e.required">Обязательное поле</span>
+              </div>
+            </ng-template>
+          </uxg-dropdown-input>
+        </div>
+        <div><button uxgButton link lg icon type="button" (click)="formArray.removeAt(i)"><uxg-icon shape="app-trash"></uxg-icon></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="app-row app-justify-content-center">
+    <button uxgButton lg link iconText type="button" (click)="formArray.push(fetchFormPosition())">
+      <uxg-icon shape="app-plus"></uxg-icon>
+      <span>Добавить</span>
+    </button>
+  </div>
+  <div class="app-row app-justify-content-end">
+    <button uxgButton lg secondary type="button" (click)="cancel.emit()">Отмена</button>
+    <button uxgButton lg primary>Сохранить</button>
+  </div>
+</form>
+
+<ng-template #controlInput let-control="control" let-label="label" let-sm="sm">
+  <div class="app-col">
+    <div class="app-control-wrap">
+      <input #controlRef uxgInput [lg]="!sm" [formControl]="control"/>
+      <label class="app-control-label" (click)="controlRef.focus()">{{label}}</label>
+      <div class="app-control-error" *ngIf="control.errors as e">
+        <span *ngIf="e.required">Обязательное поле</span>
+      </div>
+    </div>
+  </div>
+</ng-template>

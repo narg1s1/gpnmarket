@@ -1,0 +1,111 @@
+@import "src/theme";
+@import "src/assets/styles/statuses";
+
+:host {
+  display: block;
+}
+
+.notification-card {
+  height: 150px;
+  width: 412px;
+  border-radius: 4px;
+  padding: 18px 10px 18px 18px;
+  margin-bottom: 16px;
+  overflow: auto;
+
+  &-header {
+    margin-bottom: 10px;
+  }
+
+  &-request {
+    font-weight: 500;
+    margin-bottom: 5px;
+
+    & .position-item {
+      max-width: 290px;
+    }
+  }
+
+  &-footer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    box-shadow: 0 0 10px 10px #fff;
+  }
+
+  &.popup {
+    background-color: white;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+  }
+
+  &.list {
+    border: solid 1px uxg($theme, color-border);
+
+    &.not_seen {
+      background-color: #F0FAF6;
+      border: 1px solid #F0FAF6;
+    }
+
+    transition: background-color 1s, border 1s;
+  }
+
+  &.auto_height {
+    height: auto !important;
+
+    .notification-link {
+      height: auto !important;
+    }
+  }
+}
+
+.notification-link {
+  position: relative;
+  display: block;
+}
+
+.notification-card-footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.btn-close-popup {
+  float: right;
+  min-height: initial;
+  line-height: 0;
+}
+
+.date {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.notification-link {
+  height: 112px;
+}
+
+.notification-card-header * {
+  line-height: 20px;
+}
+
+div.notification-card-header:before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 3px;
+  margin-right: 10px;
+  border: 6px solid #5066FF;
+  display: block;
+  box-sizing: content-box;
+}
+
+@each $status, $color in $statuses {
+  div[class*="status-#{$status}-badge"] {
+    &:before {
+      border-color: $color;
+    }
+  }
+}

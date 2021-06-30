@@ -1,0 +1,55 @@
+@import "../../../../../../theme";
+
+.status {
+  text-align: right;
+}
+
+.app-no-border {
+  border-top: 1px solid uxg($theme, color-secondary);
+  border-bottom: 1px solid uxg($theme, color-secondary);
+}
+
+.summary {
+  font-size: 11px;
+}
+
+.filter {
+  margin-bottom: 10px;
+}
+
+.search {
+  min-width: 280px;
+}
+
+.show-all {
+  margin: 0;
+  text-align: left;
+}
+
+.pr-20 {
+  padding-right: 20px;
+}
+
+.app-table {
+  & > .app-row {
+    padding: 10px 6px;
+  }
+}
+
+.procedure-block {
+  max-width: 300px;
+}
+
+.status-block {
+  uxg-icon {
+    margin: 10px 0;
+  }
+}
+
+.procedure-actions {
+  padding-top: 20px;
+}
+
+.positions {
+  padding-top: 10px;
+}

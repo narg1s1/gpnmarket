@@ -1,0 +1,21 @@
+:host {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  margin-bottom: -50px;
+
+  .footer-body {
+    background: #fff;
+    padding: 20px 60px;
+    border-top: 1px #ececec solid;
+    transition: 300ms 600ms margin;
+  }
+
+  &.hidden .footer-body {
+    transition-delay: 0ms;
+    margin-bottom: -81px;
+  }
+}

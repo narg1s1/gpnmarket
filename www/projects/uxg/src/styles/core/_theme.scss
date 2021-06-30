@@ -1,0 +1,82 @@
+$theme: (
+  content-width: 1920px,
+
+  /**
+   Цвета заливки
+   Фоны, бордеры. Не контролы
+  */
+  color-default: #fff,
+  color-primary: #2585f5,
+  color-soft: #cccccc, // 20% black
+  color-divider: #dedede, // 13% black
+  color-secondary: #e5e5e5, // 11% black
+  color-stripe: #f6faff,
+  color-list-hover: #f0f6fa,
+  color-border: #b2d0ff,
+  color-bg: #fbfcfe,
+
+  /**
+    Контролы
+    Кнопки, инпуты, т. д.
+   */
+  color-control-primary: #2585f5,
+  color-control-primary-hover: #1a71d8,
+  color-control-invalid: #eb5757,
+  color-control-warning: #ffa10a,
+  color-control-disabled: #e8e8e8, // 10% black
+  color-control-secondary: #e5e8ef,
+  color-control-secondary-hover: #d0d4de,
+  color-control-secondary-hover-border: #b3b3b3, // 30% black
+  color-control-input-bg: #fff,
+  color-popover-bg: #fff,
+
+  control-border-radius: 4px,
+  control-height: 32px,
+  control-height-l: 40px,
+  button-min-width: 3rem,
+  button-max-width: 15rem,
+  button-padding: 0 16px,
+  button-padding-l: 0 20px,
+
+  /**
+    Цвета типографики
+    Цвета иконок на этих же переменных
+   */
+  color-font-primary: #000,
+  color-font-secondary: #666666, // 60% black
+  color-font-ghost: #b3b3b3, // 30% black
+  color-font-brand: #2585f5,
+  color-font-link: #2585f5,
+  color-font-link-hover: #55a3ff,
+  color-font-success: #0ea04b,
+  color-font-warning: #ffa10a,
+  color-font-alert: #eb3333,
+
+  /**
+     Размеры типографики
+   */
+  font-size-xxl: 32px,
+  font-size-xl: 22px,
+  font-size-l: 17px,
+  font-size-m: 14px,
+  font-size-s: 11px,
+
+  card-border-radius: 8px,
+  counter-border-radius: 50%,
+
+  aside-width: 280px,
+
+  padding-3xs: 2px,
+  padding-xxs: 4px,
+  padding-xs: 8px,
+  padding-s: 12px,
+  padding-m: 16px,
+  padding-l: 20px,
+  padding-xl: 24px,
+  padding-xxl: 32px,
+  padding-3xl: 40px,
+  padding-4xl: 48px,
+  padding-5xl: 72px,
+  padding-6xl: 96px,
+);
+

@@ -1,0 +1,121 @@
+<div class="activity-feed">
+
+  <div class="empty-history" *ngIf="history && history.length <= 0; else historyList">
+    <p>История позиции пуста</p>
+  </div>
+
+  <ng-template #historyList>
+    <div class="activity-block app-row" *ngFor="let activityItem of history">
+      <div class="status-pie">
+        <div [class]="getNewStatusClass(activityItem)"></div>
+        <div [class]="getCurrentStatusClass(activityItem)"></div>
+        <div class="white-circle"></div>
+      </div>
+      <div class="app-col timeline">
+        <span class="activity-date">{{activityItem.createdDate | date: 'd LLLL в H:mm'}}</span>
+      </div>
+      <div class="app-col">
+        <span class="activity-type" [class.app-bold]="isPositionWinnerSelectedAction(activityItem)"
+              [class.app-ghost-color]="isStatusChangeAction(activityItem)">
+          {{ activityItem.typeLabel }}
+        </span>
+
+        <ng-container *ngIf="isDocumentUploadAction(activityItem); else restActivityData">
+          <a class="document-item" (click)="downloadDocument(activityItem.documentId, activityItem.data.filename)">
+            {{ activityItem.data.filename }}
+          </a>
+        </ng-container>
+
+        <ng-template #restActivityData>
+
+          <ng-container *ngIf="isPositionEditAction(activityItem)">
+            <div class="position-edit-item">
+              <div class="edit-info-item" *ngFor="let item of getPositionEditInfoList(activityItem.data)">
+                <span class="edit-info-label app-ghost-color">{{ item.label }}:</span>
+
+                <span class="edit-info-value">{{ item.oldValue }}</span>
+                <span class="arrow">→</span>
+                <span class="edit-info-value">{{ item.newValue }}</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="isStatusChangeAction(activityItem)">
+            <div class="position-status-change">
+              <app-position-status [label]="activityItem.data.oldStatusLabel"
+                                   [status]="activityItem.data.oldStatus"
+                                   [type]="activityItem.type"></app-position-status>
+              <uxg-icon shape="app-top" dir="right"></uxg-icon>
+              <app-position-status [label]="activityItem.data.newStatusLabel"
+                                   [status]="activityItem.data.newStatus"
+                                   [type]="activityItem.type"></app-position-status>
+            </div>
+
+            <div *ngIf="activityItem.data?.statusComment?.length && activityItem.data.statusComment[0].length">
+              <span class="edit-info-label app-ghost-color">Комментарий:</span> «{{ getStatusCommentLabel(activityItem.data.statusComment[0]) }}»
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="isPositionWinnerSelectedAction(activityItem)">
+            <div class="position-winner-selected-item">
+              <div class="position-winner-name">
+                <span *ngIf="activityItem.data.supplierName === 'Победитель'; else clickableWinnerLink">
+                Поставщик
+              </span>
+
+                <ng-template #clickableWinnerLink>
+                  <app-contragent-info-link [contragent]="{
+                    id: activityItem.data.supplierId,
+                    shortName: activityItem.data.supplierName
+                  }"></app-contragent-info-link>
+                </ng-template>
+              </div>
+
+              <div class="position-winner-offer">
+                {{ activityItem.data.offerPrice * activityItem.data.offerQuantity |
+                currency : activityItem.data.offerCurrency }}
+                <span class="app-ghost-color">
+                  за </span>
+                {{ activityItem.data.offerQuantity }}
+                <span class="app-ghost-color">
+                  {{ activityItem.data.offerMeasureUnit }}
+                </span>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="isPositionWinnerRemovedAction(activityItem)">
+            <div class="position-winner-selected-item">
+              <div class="position-winner-name">
+                <span *ngIf="!activityItem.data.supplierId; else clickableRemovedWinnerLink">
+                {{ activityItem.data.supplierName || 'Без имени' }}
+              </span>
+
+                <ng-template #clickableRemovedWinnerLink>
+                  <app-contragent-info-link [contragent]="{
+                    id: activityItem.data.supplierId,
+                    shortName: activityItem.data.supplierName
+                  }"></app-contragent-info-link>
+                </ng-template>
+              </div>
+
+              <div class="position-winner-offer">
+                {{ activityItem.data.offerPrice * activityItem.data.offerQuantity |
+                currency : activityItem.data.offerCurrency }}
+                <span
+                  class="app-ghost-color">за {{ activityItem.data.offerQuantity }} {{ activityItem.data.offerMeasureUnit }}</span>
+              </div>
+            </div>
+          </ng-container>
+
+        </ng-template>
+
+        <div class="author-block">
+          <span class="user-name app-ghost-color">
+            {{ activityItem.user.lastName }} {{ activityItem.user.firstName }} {{ activityItem.user.middleName }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>

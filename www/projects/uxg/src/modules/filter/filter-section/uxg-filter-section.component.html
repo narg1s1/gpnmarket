@@ -1,0 +1,8 @@
+<h3 class="app-row app-align-items-center" (click)="showed = !showed" [class.showed]="showed">
+  <div class="app-col">{{ label }}</div>
+  <uxg-icon shape="app-chevron" [attr.dir]="showed ? 'down' : 'up'"></uxg-icon>
+</h3>
+
+<div class="control" *ngIf="showed">
+  <ng-content></ng-content>
+</div>

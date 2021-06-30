@@ -1,0 +1,8 @@
+<ng-container *ngIf="(groups$ | async) as groups">
+  <app-common-proposal-group-list
+    *ngIf="(request$ | async) as request"
+    [groups]="groups"
+    [request]="request"
+    (filter)="filter$.next($event)"
+  ></app-common-proposal-group-list>
+</ng-container>

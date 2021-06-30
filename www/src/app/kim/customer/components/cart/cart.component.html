@@ -1,0 +1,77 @@
+<ng-container *ngIf="(cartItems$ | async) as cartItems; else emptyCart">
+
+  <div class="app-row" *ngIf="cartItems?.length !== 0; else emptyCart">
+    <div class="app-col">
+      <ng-container *ngIf="cartItems?.length !== 0; else emptyCart">
+      <div class="app-card" *ngFor="let cartItem of cartItems; trackBy: trackByFn">
+        <div class="app-row">
+          <div class="app-col app-bold name">
+            {{cartItem.kimDictionaryPosition.dictionaryPositionName}}
+          </div>
+          <div class="app-col app-grow-0">
+            <button uxgButton icon clear (click)="deleteItem(cartItem)" class="app-secondary-color">
+              <uxg-icon shape="app-trash" class="is-solid" size="14"></uxg-icon>
+            </button>
+          </div>
+        </div>
+        <div class="app-row">
+          <div class="app-col">
+            <div class="app-secondary-color">
+              Единица измерения
+            </div>
+            <div class="measure-units">
+            </div>
+          </div>
+          <div class="app-col">
+            <div class="app-secondary-color">
+              Код позиции
+            </div>
+            <div class="position-code">
+              {{cartItem.kimDictionaryPosition.dictionaryPositionCategoryCode}}
+            </div>
+          </div>
+          <div class="app-col quantity app-align-items-center">
+            <span class="app-secondary-color quantity-label">Количество</span>
+            <input uxgInput
+                  type="number"
+                  #quantity
+                  [value]="cartItem.quantity"
+                  (change)="updateItemQuantity(cartItem, $event.target.value)"
+                  [class.invalid]="cartItem.quantity <= 0">
+          </div>
+          <div class="app-col">
+          </div>
+        </div>
+      </div>
+      </ng-container>
+    </div>
+    <div class="app-col app-col-aside">
+      <h2>Итого в корзине</h2>
+      <p class="app-secondary-color">Товаров</p>
+      <span class="app-bold">{{cartItems?.length}}</span>
+      <p class="app-secondary-color">Дата обновления</p>
+      <div class="app-bold">
+        -
+      </div>
+      <button uxgButton lg primary class="create-request"
+      (click)="createPriceOrderModal.open()" [disabled]="cartItems?.length === 0">Отправить ценовой запрос</button>
+    </div>
+  </div>
+
+</ng-container>
+
+<ng-template #emptyCart>
+  <div class="empty app-row app-justify-content-center app-align-items-center">
+    <h1 class="text-center" [style.opacity]="0.1">
+      <uxg-icon shape="app-basket" size="270"></uxg-icon>
+      <br/>
+      Корзина пуста
+    </h1>
+  </div>
+</ng-template>
+
+<!-- Модальное окно создание ЦЗ -->
+<uxg-modal #createPriceOrderModal size="l">
+  <h2>Создание ценового запроса из корзины</h2>
+    <app-kim-price-order-form *ngIf="createPriceOrderModal.state" [cartView]="true" (close)="createPriceOrderModal.close()"></app-kim-price-order-form>
+</uxg-modal>

@@ -1,0 +1,5 @@
+@import "projects/uxg/src/styles/index";
+
+$theme: map_merge($theme,(
+  content-width: 1280px
+));

@@ -1,0 +1,120 @@
+<div class="container">
+  <h2 class="regHeader">Регистрация пользователя</h2>
+  <div class="card">
+    <form [formGroup]="form" class="form" (ngSubmit)="submit()">
+      <div class="form-block">
+        <div>
+          <h3>Личная информация</h3>
+          <div class="app-row w-100">
+            <div class="clr-col-4">
+              <label class="clr-control-label" for="email">Email</label>
+              <input type="text" id="email" formControlName="username" appFormControlInvalidClass="invalid"/>
+            </div>
+            <div class="clr-col-4">
+              <label class="clr-control-label" for="password">Пароль</label>
+              <input type="password" id="password" formControlName="password"
+                     appFormControlInvalidClass="invalid">
+            </div>
+            <div class="clr-col-4">
+              <label class="clr-control-label" for="confirmedPassword">Подтверждение пароля</label>
+              <input type="password" id="confirmedPassword" formControlName="confirmedPassword"
+                     appFormControlInvalidClass="invalid">
+            </div>
+          </div>
+          <div class="app-row w-100">
+            <div class="clr-col-4">
+              <label class="clr-control-label" for="lastName">Фамилия</label>
+              <input id="lastName" type="text" formControlName="lastName"
+                     appFormControlInvalidClass="invalid"/>
+            </div>
+            <div class="clr-col-4">
+              <label class="clr-control-label" for="firstName">Имя</label>
+              <input id="firstName" type="text" formControlName="firstName"
+                     appFormControlInvalidClass="invalid"/>
+            </div>
+            <div class="clr-col-4">
+              <label class="clr-control-label" for="secondName">Отчество</label>
+              <input id="secondName" type="text" formControlName="middleName"
+                     appFormControlInvalidClass="invalid"/>
+            </div>
+          </div>
+          <div class="app-row">
+            <div class="clr-col-4">
+              <label class="clr-control-label" for="phone">Телефон</label>
+              <input id="phone" type="text" formControlName="phone" appFormControlInvalidClass="invalid" [textMask]="phoneMask" />
+            </div>
+            <div class="clr-col-6 agreement">
+              <uxg-checkbox class="app-control" #agreement formControlName="agreement"></uxg-checkbox>
+              <label (click)="agreement.check($event)">Согласие на обработку персональных данных</label>
+            </div>
+          </div>
+
+          <h3>Контрагент</h3>
+          <div class="app-row w-100" [formGroup]="contragentForm">
+            <div class="clr-col-4">
+              <label class="clr-control-label" for="inn">ИНН</label>
+              <input id="inn" type="text" formControlName="inn" appFormControlInvalidClass="invalid"/>
+            </div>
+
+            <div class="clr-col-4">
+              <label class="clr-control-label" for="kpp2">КПП</label>
+              <input id="kpp2" type="text" formControlName="kpp" appFormControlInvalidClass="invalid"/>
+            </div>
+          </div>
+
+          <div class="card-footer app-row app-align-items-center app-justify-content-end">
+            <div>
+              <span *ngIf="isLoading" class="spinner spinner-inline"></span>
+            </div>
+            <button uxgButton primary lg class="next" [disabled]="form.invalid || contragentForm.invalid">Регистрация</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<uxg-modal #contragentFound size="s">
+  <h3>Найден контрагент с такими данными</h3>
+  <br/>
+  <div class="app-section" *ngIf="contragentForm.value as contragent">
+    <h2>{{contragent.name}} </h2>
+    <div class="app-row app-section">
+      <div class="app-col"><span class="app-secondary-color">ИНН:</span>{{ contragent.inn }}</div>
+      <div class="app-col"><span class="app-secondary-color">КПП:</span>{{ contragent.kpp }}</div>
+    </div>
+    <div class="app-row app-secondary-color app-section">
+      Если это ваша организация нажмите кнопку: «Зарегистрироваться», чтобы завершить процесс регистрации. Если нет, то
+      проверьте правильность ввода ИНН и КПП, нажав кнопку: «Отмена».
+    </div>
+    <ng-template uxgModalFooter>
+      <button class="app-col" uxgButton secondary lg type="button" (click)="contragentFound.close()">Отмена</button>
+      <button uxgButton primary lg [disabled]="registrationProcessing" (click)="register();">Зарегистрироваться</button>
+    </ng-template>
+  </div>
+</uxg-modal>
+
+<uxg-modal #contragentNotFound size="s">
+  <h3>Контрагент с такими данными не найден</h3>
+  <br/>
+  <div class="app-section" *ngIf="contragentForm.value as contragent">
+    <div class="app-row app-section">
+      <div class="app-col"><span class="app-secondary-color">ИНН:</span>{{ contragent.inn }}</div>
+      <div class="app-col"><span class="app-secondary-color">КПП:</span>{{ contragent.kpp }}</div>
+    </div>
+    <div class="app-row app-secondary-color app-section">
+      Если данные введены верно, то Вы можете обратиться к администраторам проекта, чтобы контрагент был зарегистрирован,
+      или скорректируйте данные.
+    </div>
+    <ng-template uxgModalFooter>
+      <button uxgButton primary lg (click)="contragentNotFound.close()">Все понятно</button>
+    </ng-template>
+  </div>
+</uxg-modal>
+
+<ng-template #successRegister let-toast>
+  <div>Регистрация прошла успешно.</div>
+  <div>На Вашу почту отправлено письмо со ссылкой для активации учетной записи.</div>
+  <br/>
+  <div><button uxgButton lg primary (click)="dismiss(toast)" id="submit">ОК</button></div>
+</ng-template>

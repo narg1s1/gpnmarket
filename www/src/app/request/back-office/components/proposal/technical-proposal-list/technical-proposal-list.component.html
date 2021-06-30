@@ -1,0 +1,118 @@
+<ng-container *ngIf="(request$ | async) as request; else loading" uxgFilter>
+  <div class="app-row" *ngIf="(technicalProposals$ | async) as technicalProposals">
+    <ng-container *ngIf="(procedures$ | async) as procedures">
+      <div class="app-col" [class.disabled]="state === 'updating'">
+
+        <div class="app-row">
+          <div class="app-col app-table app-no-border">
+            <div class="app-row app-justify-content-end">
+              <div class="app-col-auto">
+
+                <uxg-filter-button></uxg-filter-button>
+
+                <!-- Создать процедуру  -->
+                <button uxgButton secondary iconText
+                        *ngIf="featureService.authorize('createProcedure')"
+                        (click)="procedureModalPayload = {action: 'create'}">
+                  <uxg-icon shape="app-plus"></uxg-icon>
+                  <span>Создать процедуру</span>
+                </button>
+
+                <!-- Новое ТП  -->
+                <button uxgButton primary iconText
+                        [disabled]="!(positions$ | async)?.length"
+                        *ngIf="featureService.authorize('createTechnicalProposal')"
+                        (click)="showForm = true">
+                  <uxg-icon shape="app-plus"></uxg-icon>
+                  <span>Новое ТП</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-container *ngIf="featureService.authorize('createTechnicalProposal')">
+          <app-request-technical-proposals-form
+            *ngIf="showForm || (technicalProposals.length + procedures.length === 0 && (positions$ | async)?.length)"
+            [request]="request"
+            [closable]="technicalProposals.length + procedures.length > 0"
+            (visibleChange)="showForm = $event"
+            (create)="addTechnicalProposal($event)"
+          ></app-request-technical-proposals-form>
+        </ng-container>
+
+        <app-request-procedure
+          *ngFor="let procedure of procedures"
+          [procedure]="procedure"
+          [source]="procedureSource.TECHNICAL_PROPOSAL"
+          (bargain)="procedureModalPayload = { action: 'bargain', procedure: procedure }"
+          (prolong)="prolongModalPayload = procedure"
+        ></app-request-procedure>
+
+        <app-request-backoffice-technical-proposal
+          *ngFor="let technicalProposal of technicalProposals"
+          [request]="request"
+          [technicalProposal]="technicalProposal"
+          (update)="updateTechnicalProposal($event)"
+          (cancelTechnicalProposal)="onCancelPublishTechnicalProposal($event)"
+        ></app-request-backoffice-technical-proposal>
+
+        <uxg-modal size="l" [staticBackdrop]="true" [(state)]="procedureModalPayload" [ngSwitch]="procedureModalPayload?.action">
+          <h2 *ngSwitchCase="'create'">Создание новой процедуры</h2>
+          <h2 *ngSwitchCase="'bargain'">Уторговывание процедуры №{{procedureModalPayload?.procedure.procedureId}}</h2>
+          <h2 *ngSwitchCase="'prolong'">Продление процедуры №{{procedureModalPayload?.procedure.procedureId}}</h2>
+          <ng-container *ngIf="(positions$ | async) as positions">
+            <app-request-procedure-form
+              *ngIf="procedureModalPayload"
+              [request]="request"
+              [positions]="positions"
+              [action]="procedureModalPayload.action"
+              [procedure]="procedureModalPayload.procedure"
+              [procedureSource]="procedureSource.TECHNICAL_PROPOSAL"
+              (complete)="refreshProcedures(); procedureModalPayload = null"
+              (cancel)="procedureModalPayload = null"
+            ></app-request-procedure-form>
+          </ng-container>
+        </uxg-modal>
+
+        <uxg-modal [(state)]="prolongModalPayload">
+          <h2>Продление процедуры №{{prolongModalPayload?.procedureId}}</h2>
+          <app-procedure-prolongate
+            *ngIf="prolongModalPayload"
+            [dateEndRegistration]="prolongModalPayload.dateEndRegistration"
+            [dateSummingUp]="prolongModalPayload.dateSummingUp"
+            [procedureId]="prolongModalPayload.procedureId"
+            [requestId]="requestId"
+            (close)="refreshProcedures(); prolongModalPayload = null"
+            (complete)="refreshProcedures(); prolongModalPayload = null"
+          ></app-procedure-prolongate>
+        </uxg-modal>
+      </div>
+
+      <uxg-filter [formGroup]="form" [count]="technicalProposals.length" (filter)="filter($event)">
+        <uxg-filter-section label="Заявка">
+          <input uxgInput type="text" formControlName="positionName" placeholder="Наименование позиции" />
+        </uxg-filter-section>
+
+        <uxg-filter-section label="Контрагент" *ngIf="(contragentsFilter$ | async)?.length">
+          <uxg-filter-checkbox-list formControlName="contragents" searchPlaceholder="Заказчик"
+            [foldedSearch]="true"
+            [items$]="contragentsFilter$"
+            [limit]="5"
+            (search)="contragentsSearch$.next($event)">
+          </uxg-filter-checkbox-list>
+        </uxg-filter-section>
+
+        <uxg-filter-section label="Согласование" *ngIf="(statusesFilter$ | async)?.length">
+          <uxg-filter-checkbox-list formControlName="tpStatus" [items$]="statusesFilter$"></uxg-filter-checkbox-list>
+        </uxg-filter-section>
+      </uxg-filter>
+    </ng-container>
+  </div>
+</ng-container>
+
+<ng-template #loading>
+  <div class="text-center">
+    <span class="spinner spinner-md"></span>
+  </div>
+</ng-template>

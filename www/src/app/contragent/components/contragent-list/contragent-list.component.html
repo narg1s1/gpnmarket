@@ -1,0 +1,44 @@
+<ng-template #loading class="load-block">
+  <span class="spinner spinner-md"></span>
+</ng-template>
+
+<ng-container *ngIf="contragents; else loading">
+  <div class="app-table app-no-border">
+    <div class="app-row app-uppercase app-ghost-color app-bold">
+      <small class="app-col name">Наименование контрагента</small>
+      <small class="app-col inn">ИНН</small>
+      <small class="app-col kpp">КПП</small>
+      <small class="app-col email">E-mail</small>
+      <small class="app-col responsible">Ответственный менеджер БО</small>
+      <small class="app-col-auto edit" *ngIf="featureService.authorize('editContragent')"></small>
+    </div>
+  </div>
+
+  <div class="app-table">
+    <ng-container *ngFor="let contragent of contragents | contragentSearchFilter: searchValue">
+      <a class="app-row app-align-items-center app-link-no-color" [routerLink]="['/contragents', contragent.id, 'info']">
+        <div class="app-col app-bold name">{{ contragent.shortName }}</div>
+
+        <div class="app-col inn">{{ contragent.inn }}</div>
+
+        <div class="app-col kpp">{{ contragent.kpp }}</div>
+
+        <div class="app-col email">
+          <a (click)="mailto($event, contragent.email)" href="mailto:{{ contragent.email }}">{{ contragent.email }}</a>
+        </div>
+
+        <div class="app-col responsible">{{ contragent.responsible?.shortName || '—' }}</div>
+
+        <ng-container *ngIf="featureService.authorize('editContragent')">
+          <div class="app-col-auto edit">
+            <button uxgButton secondary icon
+              *ngIf="user.isBackOffice() || user.isAdmin()"
+              (click)="edit($event, contragent)">
+              <uxg-icon shape="app-pen"></uxg-icon>
+            </button>
+          </div>
+        </ng-container>
+      </a>
+    </ng-container>
+  </div>
+</ng-container>

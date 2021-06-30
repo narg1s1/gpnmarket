@@ -1,0 +1,16 @@
+<app-request-list
+  [requests]="requests$ | async"
+  [total]="totalCount$ | async"
+  [tabTotal]="tabTotalCount$ | async"
+  [status]="status$ | async"
+  [statusCounters]="statusCounters$ | async"
+  [filters]="fetchFilters$ | async"
+  [pageSize]="pageSize"
+  [availableFilters$]="availableFilters$"
+  [form]="form"
+  [downloadRequestsList]="downloadRequestsList"
+  (openDownloadRequestsListModal)="onOpenDownloadRequestsListModal()"
+  (filter)="fetchFilters$.next($event)"
+  (refresh)="fetchFilters$.next({})"
+  (downloadRequests)="downloadRequests($event)"
+></app-request-list>
