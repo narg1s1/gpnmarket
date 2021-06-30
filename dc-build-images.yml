@@ -1,0 +1,8 @@
+version: '3.7'
+
+services:
+  angular:
+    build:
+      context: .
+      dockerfile: docker/angular/Dockerfile.python-tests
+    image: nexus-docker-registry.etpgpb.ru/isource/processor/angular:latest
