@@ -81,7 +81,7 @@ npm install --global @angular/cli
 Repository cloning:
 
 ```bash
-git clone git@gitlab.etpgpb.loc:newetp/gpnmarket-front.git $GPNMARKET_FRONT
+git clone git.etpgpb.loc:newetp/gpnmarket-front.git $GPNMARKET_FRONT
 ```
 
 Perform configuration of the frontend:
@@ -196,7 +196,7 @@ If the project is not built on port 4200 by default, start it with the configure
 ```bash
 ng e2e --port 4201
 ```
-# Style guide именования роутов
+# Style guide for naming routers
 
 - Routes for a struct module that provides several actions, must be partitioned with the children parameter
 
