@@ -1,0 +1,27 @@
+<h2>Подтверждение результатов выбора</h2>
+
+<div class="list-header-row app-row app-align-items-center">
+  <div class="app-col">
+    <small class="selected-counters">
+      <span class="counter"><span class="app-ghost-color">Всего позиций: </span>{{ approvalModalData.counters.totalCounter }}</span>
+      <span class="counter"><span class="app-ghost-color">Победителей: </span>{{ approvalModalData.counters.toApproveCounter }}</span>
+      <span class="counter"><span class="app-ghost-color">На доработку: </span>{{ approvalModalData.counters.sendToEditCounter }}</span>
+    </small>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<br/>
+
+<div class="app-row app-justify-content-end">
+  <div class="app-row app-col app-col-auto app-align-items-center">
+    <span *ngIf="isLoading" class="spinner spinner-inline"></span>
+    <button uxgButton clear class="app-link" (click)="downloadAnalyticalReport.emit()">
+      <span>Аналитическая справка </span>
+      <uxg-icon shape="app-download"></uxg-icon>
+    </button>
+    <button type="button" uxgButton secondary lg (click)="close.emit()">Отмена</button>
+    <button uxgButton primary lg (click)="reviewMultiple.emit(); close.emit()">Подтвердить выбор</button>
+  </div>
+</div>

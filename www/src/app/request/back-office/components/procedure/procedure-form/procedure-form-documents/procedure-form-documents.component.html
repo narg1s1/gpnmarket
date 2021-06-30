@@ -1,0 +1,36 @@
+<ng-container [formGroup]="form">
+  <div class="app-row app-align-items-center">
+    <ng-container *ngIf="formDocuments.controls.length">
+    <uxg-checkbox formControlName="checked" uxgSelectAllFor="documents"></uxg-checkbox>
+    </ng-container>
+    <h3 class="app-col">&nbsp; Документы процедуры</h3>
+    <button type="button" uxgButton secondary iconText appUploadFile [multiple]="true"
+            (select)="addDocuments.emit($event)">
+      <uxg-icon shape="app-upload"></uxg-icon>
+      Загрузить документы
+    </button>
+  </div>
+  <hr class="divider"/>
+  <div class="scrollable">
+    <br/>
+    <div class="app-documents app-documents-grid" *ngIf="formDocuments.controls.length; else empty">
+      <div *ngFor="let formGroup of formDocuments.controls; index as i" [formGroup]="formGroup">
+        <uxg-checkbox formControlName="checked"></uxg-checkbox>
+
+        <ng-template #document let-document="document">
+          <div class="app-documents-item">
+            <document-icon class="app-documents-item-icon" [name]="document.filename" size="s"></document-icon>
+            <div>{{ document.filename }}</div>
+          </div>
+        </ng-template>
+
+        <ng-container *ngTemplateOutlet="document; context:{document: formGroup.get('document').value}"></ng-container>
+      </div>
+    </div>
+    <ng-template #empty>
+      <div class="app-ghost-color text-center">Отсутствуют документы заявки и позиций</div>
+    </ng-template>
+    <br/>
+    <hr class="divider"/>
+  </div>
+</ng-container>

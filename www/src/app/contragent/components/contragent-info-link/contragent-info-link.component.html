@@ -1,0 +1,20 @@
+<a *ngIf="contragent?.shortName else noname" [href]="'/contragents/' + contragent.id + '/info'" (click)="showContragentInfo($event, contragent.id)">
+  <b>{{ contragent?.shortName }}</b>
+</a>
+<ng-template #noname>{{ hiddenName }}</ng-template>
+
+<!-- Модальное окно с карточкой контрагента -->
+<uxg-modal size="l" *ngIf="isModalOpened" [(state)]="isModalOpened">
+  <h2 class="contragent-name app-ellipsis">{{ contragent?.shortName }}</h2>
+
+  <ng-container *ngIf="(contragentInfo$ | async) as contragentInfo; else loader">
+    <app-contragent-info
+      [contragent]="contragentInfo">
+    </app-contragent-info>
+  </ng-container>
+
+  <ng-template #loader>
+    <span class="spinner spinner-md"></span>
+  </ng-template>
+
+</uxg-modal>

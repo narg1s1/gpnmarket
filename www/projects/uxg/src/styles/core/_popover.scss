@@ -1,0 +1,79 @@
+@import "../uxg";
+
+@mixin popover($theme) {
+$arrWidth: 8px;
+$arrRound: 3px;
+$arrOffset: 20px;
+$contentMargin: $arrWidth * 1.4142 + 2;
+$contentOffset: $arrOffset + $arrWidth;
+
+.app-popover {
+  display: inline-block;
+  position: relative;
+
+  &-open {
+    z-index: 3;
+  }
+
+  & .app-popover-content {
+    background: uxg($theme, color-popover-bg);
+    border-radius: uxg($theme, control-border-radius);
+    box-shadow: 0 0 16px rgba(black, 0.1), 0 4px 12px rgba(black, 0.1);
+    min-width: 140px;
+    padding: 20px;
+    position: absolute;
+    white-space: nowrap;
+
+    &:after {
+      z-index: -1;
+      box-shadow: 0 0 16px rgba(black, 0.1), 0 4px 12px rgba(black, 0.1);
+    }
+
+    &:before, &:after {
+      border: $arrWidth uxg($theme, color-popover-bg) solid;
+      content: "";
+      position: absolute;
+      transform: rotate(45deg);
+    }
+
+    &-top-left, &-top-right {
+      margin-bottom: $contentMargin;
+      bottom: 100%;
+
+      &:before, &:after {
+        bottom: -$arrWidth;
+        border-bottom-right-radius: $arrRound;
+      }
+    }
+
+    &-bottom-left, &-bottom-right {
+      margin-top: $contentMargin;
+      top: 100%;
+
+      &:before, &:after {
+        top: -$arrWidth;
+        border-top-left-radius: $arrRound;
+      }
+    }
+
+    &-bottom-left, &-top-left {
+      left: 50%;
+      margin-left: -$contentOffset;
+
+      &:before, &:after { left: $arrOffset }
+    }
+
+    &-bottom-right, &-top-right {
+      right: 50%;
+      margin-right: -$contentOffset;
+
+      &:before, &:after { right: $arrOffset }
+    }
+
+    * {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+}

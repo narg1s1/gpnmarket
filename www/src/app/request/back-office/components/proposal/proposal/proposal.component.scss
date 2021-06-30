@@ -1,0 +1,42 @@
+hr { margin: 14px 0; }
+
+.app-table > .app-row {
+  padding: 8px 0;
+
+  .app-col {
+    &:first-child { padding-left: 0; }
+    &:last-child { padding-right: 0; }
+  }
+}
+
+.name,
+.manufacturing-name,
+.manufacturer {
+  flex-grow: .3;
+  min-width: 160px;
+}
+
+.manufacturing-name,
+.manufacturer {
+  max-width: 200px;
+}
+
+.total,
+.price {
+  min-width: 125px;
+  flex-grow: 0.1;
+}
+
+.quantity,
+.date {
+  min-width: 82px;
+  flex-grow: 0.1;
+}
+
+.status {
+  flex-basis: 40px;
+}
+.conditions-info {
+  padding-top: 15px;
+  display: block;
+}

@@ -1,0 +1,53 @@
+@import "../uxg";
+
+@mixin modal($theme) {
+  .app-modal {
+    &-wrap, &-backdrop {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    &-wrap {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      overflow: auto;
+      padding: 60px;
+      z-index: 1000;
+    }
+
+    & {
+      background: uxg($theme, color-popover-bg);
+      box-shadow: 0 0 15px rgba(#000, 0.1);
+      display: flex;
+      flex-direction: column;
+      margin: auto;
+      padding: 32px;
+      position: relative;
+      z-index: 1;
+
+      &-s { width: 400px; }
+      &-m { width: 720px; }
+      &-l { width: 900px; }
+      &-auto { width: 100%; }
+      &-full-height { min-height: calc(100vh - 120px) }
+      &-body { flex: 1; }
+      &-footer { margin-top:32px; display:flex; justify-content: flex-end }
+      &-full-height &-body { display: flex; flex-direction: column }
+    }
+
+    &-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      cursor: pointer;
+    }
+
+    &-backdrop {
+      background: rgba(uxg($theme, color-font-primary), 0.3);
+    }
+  }
+}

@@ -1,0 +1,17 @@
+<ng-container *ngIf="newNotifications$ | async as newNotifications">
+  <div *ngFor="let notification of (view === 'popup' ? (newNotifications.slice(0, maxPopupCount)) : newNotifications)"
+       class="notification-popup-item"
+       (mouseenter)="holdNotifications = true"
+       (mouseleave)="holdNotifications = false"
+       [@notificationAnimate]>
+
+    <app-notification-card
+      (click)="hideAllNotifications()"
+      (contextmenu)="hideNotification(notification, $event)"
+      (hideNotification)="hideNotification($event)"
+      (readNotification)="readNotification($event)"
+      [notification]="notification"
+      [view]="view">
+    </app-notification-card>
+  </div>
+</ng-container>

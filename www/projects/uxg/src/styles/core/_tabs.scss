@@ -1,0 +1,89 @@
+@import "../uxg";
+
+@mixin tabs($theme) {
+.app-tabs {
+  &-wrap {
+    display: block;
+    position: relative;
+  }
+
+  &-scroll {
+    overflow: hidden;
+    scroll-behavior: smooth;
+
+    &-active {
+      margin: 0 36px;
+
+      & ~ .app-tabs-slide {
+        display: flex;
+      }
+    }
+  }
+
+  & {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+  }
+
+  &-item {
+    color: uxg($theme, color-font-secondary);
+    cursor: pointer;
+    display: block;
+    padding: 10px 0;
+    position: relative;
+    white-space: nowrap;
+
+    &:not(:last-child) {
+      margin-right: 20px;
+    }
+
+    &[disabled]:not([disabled=false]) {
+      cursor: default;
+      opacity: .5;
+    }
+
+    &-active {
+      color: uxg($theme, color-font-link);
+      font-weight: bold;
+    }
+
+  }
+
+  &-border {
+    border-bottom: 1px uxg($theme, color-secondary) solid;
+  }
+
+  &-indicator {
+    background: uxg($theme, color-primary);
+    bottom: 0;
+    content: "";
+    display: block;
+    height: 2px;
+    left: 0;
+    position: absolute;
+
+    &-left {
+      transition: left .125s cubic-bezier(0.35, 0, 0.25, 1), right .25s cubic-bezier(0.35, 0, 0.25, 1);
+    }
+
+    &-right {
+      transition: left .25s cubic-bezier(0.35, 0, 0.25, 1), right .125s cubic-bezier(0.35, 0, 0.25, 1);
+    }
+  }
+
+  &-slide {
+    background: uxg($theme, color-bg);
+    cursor: pointer;
+    display: none;
+    height: 100%;
+    padding: 0 10px;
+    position: absolute;
+    align-items: center;
+    top: 0;
+
+    &-left { left: 0; }
+    &-right { right: 0; }
+  }
+}
+}

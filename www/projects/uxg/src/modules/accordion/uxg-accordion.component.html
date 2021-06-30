@@ -1,0 +1,9 @@
+<div class="uxg-accordion">
+  <div class="uxg-accordion-title" (click)="isOpened = !isOpened; toggle.emit()">
+    <ng-content select="[title]"></ng-content>
+    <uxg-icon class="uxg-accordion-title-chevron" [class.rotated]="!isOpened" shape="app-chevron"></uxg-icon>
+  </div>
+  <div class="uxg-accordion-body" [hidden]="!isOpened" [style.border-top]="isShowBorder ? '1px #C8CAFF dotted' : 'none'">
+    <ng-content select="[body]"></ng-content>
+  </div>
+</div>

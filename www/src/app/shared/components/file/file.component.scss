@@ -1,0 +1,27 @@
+:host {
+  display: flex;
+  align-items: center;
+}
+
+.app-file {
+  &-icon {
+    margin-right: 12px;
+  }
+
+  &-delete {
+    align-self: flex-start;
+  }
+}
+
+.app-popover-content {
+  width: 280px;
+  white-space: normal;
+}
+
+[hidden=true] {
+  display: none;
+}
+
+div.file-item {
+  display: inline-grid;
+}

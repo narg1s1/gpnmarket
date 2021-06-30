@@ -1,0 +1,66 @@
+@import "src/theme";
+
+.scrollable {
+  padding: 11px 3px 11px 11px;
+  margin: -11px -19px 0 -11px;
+  overflow-y: auto;
+  max-height: 300px;
+
+  @include scrollbar($theme);
+
+  & > * {
+    flex-wrap: nowrap;
+  }
+}
+
+.checked-items {
+  display: flex;
+  flex-flow: wrap;
+  gap: 9px;
+  margin-bottom: -20px;
+  margin-top: 20px;
+}
+
+.search-results {
+  border: 1px solid #5066fb;
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 4px;
+  padding: 0;
+}
+
+.item {
+  width: auto;
+  padding: 3px;
+  border: 1px solid #D0D4DE;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: white;
+
+  &-label {
+    line-height: 1;
+    vertical-align: middle;
+  }
+
+  & .remove-btn {
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+    vertical-align: middle;
+    margin-left: 5px;
+    font-weight: 300;
+
+    &:hover {
+      color: #1a71d8;
+    }
+  }
+}
+
+.search-item {
+  padding: 4px 10px;
+
+  &:hover {
+    cursor: pointer;
+    background: #f0f6fa;
+  }
+}

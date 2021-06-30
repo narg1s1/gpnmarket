@@ -1,0 +1,74 @@
+<!-- <h2>Задачи или согласования по статусам</h2>
+<div class="app-row app-align-items-center">
+  <div class="app-col">
+    <span class="app-secondary-color">показать: </span>
+    <uxg-popover #viewPopover>
+      <button uxgButton uxgPopoverTrigger link clear [ngSwitch]="view">
+        <span *ngSwitchCase="'tasks'"><b>мои задачи</b></span>
+        <span *ngSwitchCase="'agreements'"><b>согласования заказчика</b></span>
+      </button>
+      <div *uxgPopoverContent>
+        <div>
+          <button uxgButton clear (click)="switchView('tasks')">мои задачи</button>
+        </div>
+        <div>
+          <button uxgButton clear (click)="switchView('agreements')">согласования заказчика</button>
+        </div>
+      </div>
+    </uxg-popover>
+  </div>
+  <div class="app-col"></div>
+  <div class="app-col-auto">
+    <div *ngIf="view === 'tasks'">
+      <a routerLink="/agreements/backoffice"><b>Все задачи ({{tasksTotalCount$ | async}})</b></a>
+    </div>
+    <div *ngIf="view === 'agreements'">
+      <a routerLink="/agreements/backoffice" [queryParams]="getQueryParams()"><b>Все согласования ({{agreementsTotalCount$ | async}})</b></a>
+    </div>
+  </div>
+</div>
+<app-dashboard-agreements
+  [agreements]="agreements$ | async"
+  [tasks]="tasks$ | async"
+  [tasksTotalCount]="tasksTotalCount$ | async"
+  [agreementsTotalCount]="agreementsTotalCount$ | async"
+  [agreementsBar]="agreementsBar$ | async"
+  [tasksBar]="tasksBar$ | async"
+  [view]="view"
+  >
+</app-dashboard-agreements> -->
+
+<br><br>
+
+<div class="app-row app-align-items-center">
+  <div class="app-col">
+    <h2>Процедуры</h2>
+  </div>
+
+  <div class="app-col-auto" *ngIf="(procedures$ | async)?.length">
+    <a routerLink="/procedures"><b>Все процедуры ({{ proceduresTotalCount$ | async}})</b></a>
+  </div>
+</div>
+
+<app-procedures-list
+  [procedures]="procedures$ | async"
+  [proceduresTotalCount]="proceduresTotalCount$ | async"
+></app-procedures-list>
+
+<br><br><br>
+
+<div class="app-row">
+  <div class="app-col">
+    <h2>Статистика по статусам и деньгам</h2>
+
+    <app-dashboard-statistics
+      #dashboardStatisticsComponent
+      [statusesStatistics]="statusesStatistics$ | async"
+      [filterRequestList]="filterRequestList$ | async"
+      [filterCustomerList]="filterCustomerList$ | async"
+      [filterResponsibleUsersList]="filterResponsibleUsersList$ | async"
+      (submitFilter)="submitFilter()"
+      (resetFilter)="resetFilter()"
+    ></app-dashboard-statistics>
+  </div>
+</div>

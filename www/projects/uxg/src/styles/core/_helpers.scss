@@ -1,0 +1,67 @@
+@import "../uxg";
+
+@mixin helpers($theme) {
+*, *::before, *::after { box-sizing: border-box; }
+
+.app-bold { font-weight: bold; }
+.app-font-normal { font-weight: normal; }
+
+// Text transformation
+.app-uppercase { text-transform: uppercase; }
+.app-capitalize { text-transform: capitalize; }
+.app-lowercase { text-transform: lowercase; }
+.app-ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+// Colors
+.app-primary-color { color: uxg($theme, color-font-primary); }
+.app-ghost-color { color: uxg($theme, color-font-ghost); }
+.app-secondary-color { color: uxg($theme, color-font-secondary); }
+.app-error-color { color: uxg($theme, color-control-invalid); }
+.app-success-color { color: uxg($theme, color-font-success); }
+.app-warning-color { color: uxg($theme, color-font-warning); }
+.app-alert-color { color: uxg($theme, color-font-alert); }
+.app-link-color { color: uxg($theme, color-primary); }
+
+// Flex
+.app-basis-auto { flex-basis: auto;}
+.app-shrink-0 { flex-shrink: 0;}
+.app-shrink-1 { flex-shrink: 1;}
+.app-grow-0 { flex-grow: 0;}
+.app-grow-1 { flex-grow: 1;}
+.app-flex-column { flex-direction: column;}
+.app-flex-nowrap { flex-wrap: nowrap;}
+.app-align-items-center { align-items: center; }
+.app-align-items-end { align-items: flex-end; }
+.app-justify-content-between { justify-content: space-between; }
+.app-justify-content-center { justify-content: center; }
+.app-justify-content-end { justify-content: flex-end; }
+.app-align-self-start { align-self: start; }
+
+// Paddings
+.padding-3xs{ padding: uxg($theme, padding-3xs); }
+.padding-xxs{ padding: uxg($theme, padding-xxs); }
+.padding-xs{ padding: uxg($theme, padding-xs); }
+.padding-s{ padding: uxg($theme, padding-s); }
+.padding-m{ padding: uxg($theme, padding-m); }
+.padding-l{ padding: uxg($theme, padding-l); }
+.padding-xl{ padding: uxg($theme, padding-xl); }
+.padding-xxl{ padding: uxg($theme, padding-xxl); }
+.padding-3xl{ padding: uxg($theme, padding-3xl); }
+.padding-4xl{ padding: uxg($theme, padding-4xl); }
+.padding-5xl{ padding: uxg($theme, padding-5xl); }
+.padding-6xl{ padding: uxg($theme, padding-6xl); }
+
+.divider {
+  border-top:1px uxg($theme, color-divider) solid;
+  border-bottom: none;
+  border-right: none;
+  border-left: none;
+  display: block;
+  margin: 15px 0;
+  width: 100%;
+}
+
+.app-section {
+  margin-bottom: .9em;
+}
+}

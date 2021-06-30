@@ -1,0 +1,42 @@
+<div class="app-card">
+  <div class="app-row app-align-items-center mtr-params-title">
+    <h3 class="app-col">
+      <span>{{ title }}</span>
+    </h3>
+  </div>
+
+  <br><hr><br>
+
+  <div class="mtr">
+    <div class="origin-name-section">
+      <div class="title app-uppercase app-ghost-color app-bold">
+        <small>Наименование до отправки в НСИ</small>
+      </div>
+
+      <div class="mtr">
+        <span class="mtr-name app-bold app-col-5">{{ requestPosition.beforeNormalizedName || '—' }}</span>
+      </div>
+    </div>
+
+    <div class="attributes-section" *ngIf="(mtrPositionInfo$ | async) as mtrPositionInfo">
+      <div class="title app-uppercase app-ghost-color app-bold">
+        <small>Основные характеристики</small>
+      </div>
+
+      <div class="attributes" *ngIf="mtrPositionInfo.values; else loading">
+        <div class="attribute-item app-row" *ngFor="let attribute of mtrPositionInfo.values">
+          <div class="app-col app-row">
+            <span class="attribute-name app-col-auto app-ghost-color">{{ attribute.name }}</span>
+            <span class="dots app-col"></span>
+          </div>
+
+          <span class="attribute-values app-col-auto">{{ attribute.value ? attribute.value : '-' }}</span>
+        </div>
+      </div>
+
+      <ng-template #loading>
+        <span class="spinner spinner-md"></span>
+      </ng-template>
+    </div>
+  </div>
+</div>

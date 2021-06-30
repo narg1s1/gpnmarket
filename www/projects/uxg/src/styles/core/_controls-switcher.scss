@@ -1,0 +1,56 @@
+@import "../uxg";
+
+@mixin controls-switcher($theme) {
+$slider-margin: calc(.5em + 6px);
+
+.app-control-switcher {
+  input[type=checkbox] {
+    display: none;
+
+    & + .app-control-checkbox {
+      background: uxg($theme, color-control-secondary);
+      border-radius: 7px;
+      display: inline-block;
+      height: 14px;
+      position: relative;
+      transition: background-color 250ms;
+      width: 34px;
+      margin-left: 3px;
+
+      + label {
+        margin-left: $slider-margin;
+      }
+
+      &:after {
+        background: uxg($theme, color-soft);
+        border-radius: 50%;
+        content: "";
+        height: 20px;
+        left: -3px;
+        position: absolute;
+        top: -3px;
+        transition-property: left, background-color;
+        transition-duration: 150ms;
+        width: 20px;
+      }
+    }
+
+    &:checked + .app-control-checkbox {
+      background: uxg($theme, color-border);
+
+      &:after {
+        background: uxg($theme, color-primary);
+        left: 17px;
+      }
+    }
+
+    &:disabled + .app-control-checkbox {
+      cursor: not-allowed;
+    }
+  }
+
+  label + input[type=checkbox] + .app-control-checkbox {
+    margin-left: $slider-margin;
+  }
+}
+}

@@ -1,0 +1,76 @@
+<ng-container *ngIf="documents?.length">
+  <small class="app-uppercase app-ghost-color app-bold">Документы предложения</small>
+  <app-document-simple-list [gridable]="true" [enableUpload]="false" [documents]="documents">
+  </app-document-simple-list>
+</ng-container>
+<small class="app-uppercase app-ghost-color app-bold">Параметры предложения</small>
+<div class="modal-section">
+  <div class="app-row ">
+    <div class="app-col-6 modal-section-header">
+      <div class="app-ghost-color">Наименование контрагента</div>
+      <div class="app-bold">
+        <app-contragent-info-link [contragent]="supplier" hiddenName="Наименование скрыто"></app-contragent-info-link>
+      </div>
+    </div>
+    <div class="app-col-6 modal-section-header" *ngIf="manufacturingName">
+      <div class="app-ghost-color">Заводское наименование</div>
+      <div class="app-bold">{{ manufacturingName }}</div>
+    </div>
+    <div class="app-col-6 modal-section-header" *ngIf="manufacturer">
+      <div class="app-ghost-color">Изготовитель</div>
+      <div class="app-bold">{{ manufacturer }}</div>
+    </div>
+    <div class="app-col-6 modal-section-header" *ngIf="standard">
+      <div class="app-ghost-color">Стандарт</div>
+      <div class="app-bold">{{ standard }}</div>
+    </div>
+    <div class="app-col-6 modal-section-header">
+      <div class="app-ghost-color">Условия оплаты</div>
+      <div class="app-bold">{{ paymentTerms }}</div>
+    </div>
+  </div>
+</div>
+<div class="modal-section modal-info">
+  <div class="app-row app-ghost-color">
+    <div class="app-col">Количество</div>
+    <div class="app-col">Цена за единицу без НДС</div>
+    <div class="app-col">Срок поставки</div>
+    <div class="app-col">Сумма без НДС</div>
+  </div>
+  <div class="app-row">
+    <h2 class="app-col">
+      <span [class.app-error-color]="!helper.isQuantityValid(position, proposal)">{{proposal.quantity}}
+        <span class="app-ghost-color">{{proposal.measureUnit}}</span>
+      </span>
+    </h2>
+
+    <h2 class="app-col">
+      {{proposal.priceWithoutVat | number:'1.0-2'}}
+      <span class="app-ghost-color">{{getCurrencySymbol(proposal.currency, "narrow")}}</span>
+    </h2>
+
+    <h2 class="app-col" [class.app-error-color]="!helper.isDateValid(position, proposal)">
+      {{proposal.deliveryDate | date:"dd.MM.yyyy"}}
+    </h2>
+
+    <h2 class="app-col">
+      {{proposal.priceWithoutVat * proposal.quantity | number:'1.0-2'}}
+      <span class="app-ghost-color">{{getCurrencySymbol(proposal.currency, "narrow")}}</span>
+    </h2>
+  </div>
+
+</div>
+<div class="modal-section" *ngIf="proposal.increase">
+  <div class="app-row proposal-increase-container">
+    <div class="app-col">
+      <p class="proposal-item-uppercase">Сумма наценки</p>
+      <div class="app-row">
+        <h2 class="app-col">
+          {{proposal.increase.value}}
+          <span class="app-ghost-color" *ngIf="proposal.increase.type == 'ABSOLUTE'">{{getCurrencySymbol(proposal.currency, "narrow")}}</span>
+          <span class="app-ghost-color" *ngIf="proposal.increase.type == 'RELATIVE'">%</span>
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>

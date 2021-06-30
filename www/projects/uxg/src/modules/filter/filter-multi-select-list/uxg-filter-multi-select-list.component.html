@@ -1,0 +1,30 @@
+<uxg-dropdown-input
+  uxgSuggestions
+  #uxgSuggestions="uxgSuggestions"
+  [formControl]="searchControl"
+  [placeholder]="searchPlaceholder"
+  [$]="items$"
+  [minLength]="minLength"
+  [displayByFn]="getItemLabel"
+  [searchFn]="searchItems"
+  [strictMode]="true"
+  [appControlWrap]="false"
+  (select)="addCheckedItem($event)"
+>
+  <ng-container *ngFor="let item of (uxgSuggestions.suggestions$ | async) | slice:0:100; trackBy: trackByFn" >
+    <div uxgDropdownItem [value]="item">
+      <div class="search-item">
+        <div class="search-item-label">
+          {{ item.label }}
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</uxg-dropdown-input>
+
+<div class="checked-items" *ngIf="checkedItemsList?.length">
+  <div class="item" *ngFor="let item of checkedItemsList">
+    <span class="item-label">{{ item.label }}</span>
+    <span class="remove-btn" (click)="removeItem(item)">×</span>
+  </div>
+</div>

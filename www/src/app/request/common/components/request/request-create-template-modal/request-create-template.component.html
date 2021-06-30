@@ -1,0 +1,27 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <p class="app-secondary-color">Выбранные позиции будут помещены в один шаблон. Задайте наименование шаблона и тег. Присвоение тега не обязательно.</p>
+  <br/>
+ <div class="app-row">
+   <div class="app-col">
+     <div class="app-control-wrap">
+       <input #titleRef uxgInput type="text" lg formControlName="title"/>
+       <label class="app-control-label" (click)="titleRef.focus()">Наименование шаблона</label>
+       <div class="app-control-error" *ngIf="form.get('title').errors as e">
+         <span *ngIf="e.required">Обязательное поле</span>
+       </div>
+     </div>
+   </div>
+   <div class="app-col">
+     <div class="app-control-wrap">
+       <input #tagRef uxgInput type="text" lg formControlName="tag"/>
+       <label class="app-control-label" (click)="tagRef.focus()">Тег</label>
+     </div>
+   </div>
+ </div>
+
+  <div class="app-modal-footer app-row app-justify-content-end">
+    <button uxgButton secondary lg type="button" (click)="close.emit()">Отмена</button>
+    <button uxgButton primary lg [disabled]="form.invalid">Создать</button>
+  </div>
+</form>
+

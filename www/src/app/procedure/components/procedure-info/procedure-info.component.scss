@@ -1,0 +1,128 @@
+@import "src/theme";
+
+.app-table > .app-row {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+hr {
+  border: none;
+  border-top: 1px #C8CAFF dotted;
+  margin: 20px 0;
+}
+
+h3.section-title {
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.info-label {
+  margin-bottom: 10px;
+}
+
+.info-item {
+  margin-bottom: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.position-list, .supplier-list {
+  margin-bottom: 15px;
+
+  & > .app-col:not(:last-child) {
+    padding-right: 25px;
+  }
+
+  & div.name {
+    font-weight: 500;
+  }
+}
+
+.app-section.without-total-price .info-item:first-of-type:before { content: 'НМЦ'; }
+.app-section.without-total-price-reason .info-item:first-of-type:before { content: 'Причина отсутствия НМЦ'; }
+.app-section.properties .info-item:first-of-type:before { content: 'Свойства'; }
+.app-section.suppliers-visibility .info-item:first-of-type:before { content: 'Отображение наименований и участников'; }
+.app-section.applics-visibility .info-item:first-of-type:before { content: 'Отображение цен участников'; }
+.app-section.best-price-type .info-item:first-of-type:before { content: 'Ограничение на подачу цен участников'; }
+
+.app-section.is-emergency .info-item:first-of-type:before { content: 'Аварийная закупка'; }
+.app-section.procedure-title .info-item:first-of-type:before { content: 'Наименование процедуры'; }
+.app-section.procedure-type .info-item:first-of-type:before { content: 'Тип процедуры'; }
+.app-section.registry-number .info-item:first-of-type:before { content: 'Номер извещения'; }
+.app-section.date-published .info-item:first-of-type:before { content: 'Дата публикации'; }
+.app-section.total-views .info-item:first-of-type:before { content: 'Количество просмотров процедуры'; }
+.app-section.contact-person .info-item:first-of-type:before { content: 'Ф.И.О. контактного лица'; }
+.app-section.contact-email .info-item:first-of-type:before { content: 'Адрес электронной почты'; }
+.app-section.contact-phone .info-item:first-of-type:before { content: 'Номер телефона контактного лица'; }
+
+.app-section.organizator-name .info-item:first-of-type:before { content: 'Наименование организатора'; }
+.app-section.organizator-type .info-item:first-of-type:before { content: 'Тип организатора'; }
+.app-section.organizator-ur-address .info-item:first-of-type:before { content: 'Юридический адрес'; }
+.app-section.organizator-post-address .info-item:first-of-type:before { content: 'Почтовый адрес'; }
+.app-section.organizator-place-address .info-item:first-of-type:before { content: 'Место рассмотрения предложений'; }
+
+.app-section .info-item:first-of-type:before {
+  display: block;
+  margin-bottom: 10px;
+  color: uxg($theme, color-font-ghost);
+  font-weight: 400;
+}
+
+.procedure-info-title {
+  font-weight: bold;
+  font-size: 22px;
+  line-height: 28px;
+
+  &-dateend {
+    flex-basis: 350px;
+  }
+}
+
+.procedure-info-subtitle {
+  color: #000;
+  font-weight: bold;
+  font-size: 17px;
+  line-height: 21px;
+}
+
+.procedure-info-uppercase {
+  font-weight: bold;
+  font-size: 11px;
+  line-height: 14px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.3);
+  margin-bottom: 12px;
+}
+
+.procedure-info-row {
+  margin-bottom: 20px;
+}
+
+:host {
+  ::ng-deep {
+    .uxg-datatable {
+      min-height: auto !important;
+    }
+    .uxg-datatable-body-col {
+      white-space: initial !important;
+      background: #fff !important;
+      height: auto !important;
+      border-bottom: none !important;
+    }
+    .procedure-info-value {
+      font-weight: 500;
+      color: #000;
+    }
+  }
+  p {
+    margin-top: 5px;
+  }
+  @media (max-width: 1600px) {
+    .procedure-info-empty-aside {
+      display: none;
+    }
+    .app-col-aside {
+      margin-top: 30px;
+    }
+  }
+}

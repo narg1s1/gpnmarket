@@ -1,0 +1,121 @@
+<ng-container *ngIf="featureService.authorize('requestDashboard')">
+  <div class="app-accordion">
+    <div class="app-accordion-title">
+      <h3>Страницы согласований</h3>
+    </div>
+    <div class="app-accordion-body">
+      <!-- Счетчик нормализации -->
+      <ng-container *ngIf="featureService.authorize('normalization')">
+        <div [class.app-ghost-color]="!request.dashboard.isNotMtrAvailable">
+          <div class="app-row app-section app-bold">
+            <div class="app-col">
+              <ng-container *ngIf="request.dashboard.isNotMtrAvailable; else statusLabelSpan">
+                <a routerLink="../element/{{request.elementMappingId}}">Нормализация позиций</a>
+              </ng-container>
+              <ng-template #statusLabelSpan>Нормализация позиций</ng-template>
+            </div>
+            <div class="app-col app-grow-0">
+              <div class="app-position-status">
+                <span>{{ request.dashboard.notMtrPositions }}</span>
+                <div class="app-position-status-icon">
+                  <uxg-icon shape="app-element" class="app-link-color" [style.marginBottom.px]="10"></uxg-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <!-- Счетчики статусов -->
+      <ng-container *ngFor="let statusCounter of statusCounters">
+        <div [class.app-ghost-color]="!request.dashboard[statusCounter.availabilityField]">
+          <div class="app-row app-section app-bold">
+            <div class="app-col">
+              <ng-container *ngIf="request.dashboard[statusCounter.availabilityField]; else statusLabelSpan">
+                <a routerLink="../{{ statusCounter.url }}">{{ statusCounter.label }}</a>
+              </ng-container>
+              <ng-template #statusLabelSpan>{{ statusCounter.label }}</ng-template>
+            </div>
+            <div class="app-col app-grow-0">
+              <div class="app-position-status">
+                <span>{{ request.dashboard[statusCounter.counterField] }}</span>
+                <div class="app-position-status-icon" [ngClass]="statusCounter.statuses[0]"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+</ng-container>
+<!-- Информация о заявке -->
+<div class="app-accordion request-info">
+  <div class="app-accordion-title" (click)="isInfoTabVisible = !isInfoTabVisible">
+    <h3>Общая инф. по заявке</h3>
+    <uxg-icon class="app-accordion-title-icon" shape="app-chevron"
+              [attr.dir]="isInfoTabVisible ? 'up':'down'"></uxg-icon>
+  </div>
+  <div class="app-accordion-body" *ngIf="isInfoTabVisible">
+    <div class="app-section">
+      <div class="app-ghost-color">Заявка №</div>
+      <div class="app-bold request-number">{{ request.number }}</div>
+    </div>
+    <div class="app-section">
+      <div class="app-ghost-color">Статус заявки</div>
+      <div class="request-status">{{ request.statusLabel }}</div>
+    </div>
+    <div class="app-section">
+      <div class="app-ghost-color">Заказчик</div>
+      <div class="contragent-name">{{ request.contragent.shortName }}</div>
+    </div>
+    <div class="app-section" *ngIf="request.responsibleUser">
+      <div class="app-ghost-color">Ответственный БО</div>
+      <div class="contragent-name">{{ request.responsibleUser.shortName }}</div>
+    </div>
+    <div class="app-section">
+      <div class="app-ghost-color">Контактное лицо (e-mail)</div>
+      <a target="_blank" class="contragent-contact" href="mailto:{{request.user.email }}">
+        {{ request.user.lastName }} {{ request.user.firstName }} {{ request.user.middleName }}
+      </a>
+    </div>
+    <div class="app-section" *ngIf="request.user.phone">
+      <div class="app-ghost-color">Телефон контактного лица</div>
+      <div class="contragent-phone">{{ request.user.phone | phone }}</div>
+    </div>
+    <div class="app-section" *ngIf="request.documents.length">
+      <div class="app-ghost-color">Документы заявки</div>
+      <app-document-simple-list [documents]="request.documents" [enableUpload]="false"
+                                [size]="'s'"></app-document-simple-list>
+    </div>
+    <div class="app-section" *ngIf="request.comment">
+      <div class="app-ghost-color">Комментарий</div>
+      {{ request.comment }}
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- Статистика -->
+<div class="app-accordion" *ngIf="!user.isCustomerApprover()">
+  <div class="app-accordion-title" (click)="isStatTabVisible = !isStatTabVisible">
+    <h3>Статистика</h3>
+    <uxg-icon class="app-accordion-title-icon" shape="app-chevron"
+              [attr.dir]="isStatTabVisible ? 'up':'down'"></uxg-icon>
+  </div>
+  <div class="app-accordion-body" *ngIf="isStatTabVisible">
+    <div class="app-section">
+      <app-request-pie-chart [positions]="positions"></app-request-pie-chart>
+    </div>
+  </div>
+</div>
+
+<div class="app-row" *ngIf="featureService.authorize('chat')">
+  <a routerLink="/im/{{ request.id }}">
+    <span class="app-secondary-color">
+      <uxg-icon shape="app-comment"></uxg-icon>
+      <span>Перейти к чату по заявке</span>
+    </span>
+  </a>
+</div>

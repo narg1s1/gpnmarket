@@ -1,0 +1,11 @@
+<input
+  class="app-control"
+  type="checkbox"
+  #checkbox
+  [disabled]="disabled"
+  [readonly]="readonly"
+  [ngModel]="value"
+  (input)="onChange && onChange(asHTMLInputElement($event.target).checked)"
+  [class.mixed]="isMixed"
+/>
+<div class="app-control-checkbox" (click)="check($event)"></div>

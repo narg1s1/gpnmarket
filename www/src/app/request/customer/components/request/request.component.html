@@ -1,0 +1,31 @@
+<ng-container *ngIf="(request$ | async) as request; else loading">
+  <app-request
+    #commonRequestComponent
+    [positions]="(positions$ | async) || []"
+    [request]="request"
+    [status]="status$ | async"
+    [pageSize]="pageSize"
+    [total]="totalCount$ | async"
+    [totalCountWithoutNotRelevantAndCanceled]="totalCountWithoutNotRelevantAndCanceled$ | async"
+    [positionsStatus]="positionsStatus$ | async"
+    (filter)="fetchFilters$.next($event)"
+    (publish)="publish(requestId)"
+    (addPosition)="store.dispatch([refresh(requestId)]); fetchFilters$.next({})"
+    (reject)="reject(requestId)"
+    (approve)="approve(requestId)"
+    (publishPositions)="publishPositions($event)"
+    (approvePositions)="approvePositions($event)"
+    (rejectPositions)="rejectPositions($event)"
+    (saveRequestName)="store.dispatch(saveRequestName($event))"
+    (attachDocuments)="store.dispatch(attachDocuments($event))"
+    (createTemplate)="store.dispatch(createTemplate($event.positions, $event.title, $event?.tag))"
+    (uploadFromTemplate)="uploadFromTemplate($event)"
+    (refreshAll)="store.dispatch([refresh(requestId)]); fetchFilters$.next({})"
+  ></app-request>
+</ng-container>
+
+<ng-template #loading>
+  <div class="text-center">
+    <span class="spinner spinner-md"></span>
+  </div>
+</ng-template>

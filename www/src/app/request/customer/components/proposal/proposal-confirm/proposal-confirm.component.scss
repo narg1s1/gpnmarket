@@ -1,0 +1,115 @@
+@import "../../../../../../assets/styles/helpers";
+@import "../../../../../../theme";
+
+.divider {
+  margin: 0;
+}
+
+.list-header-row {
+  padding-top: 10px;
+  padding-bottom: 15px;
+}
+
+.selected-counters span.counter {
+  margin-right: 10px;
+}
+
+.search {
+  width: col(1);
+  margin-left: 0.5em;
+}
+
+.scroll-area {
+  @include scrollbar($theme);
+
+  max-height: 300px;
+  overflow-x: auto;
+  overflow-y: scroll;
+  padding: 15px 5px 5px 22px;
+  margin: 0px -20px 0 -22px;
+}
+
+.app-table {
+  padding: 15px 5px 5px 22px;
+  margin: 0px -22px 0 -22px;
+
+  & .positions-list .app-row {
+    padding: 8px 0;
+
+    & > .app-col {
+      padding: 0 10px;
+      &:first-child { padding-left: 0; }
+      &:last-child { padding-right: 0; }
+    }
+  }
+}
+
+.supplier-block, .to-send-to-edit-block {
+  margin-bottom: 30px;
+
+  &:last-of-type {
+    margin-bottom: 5px;
+  }
+
+  & .short-name {
+    margin-bottom: 10px;
+  }
+}
+
+.select-list {
+
+  &-positions {
+    max-height: calc(70vh - 186px);
+  }
+
+  &-item {
+    box-sizing: content-box;
+
+    &-title {
+      line-height: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 300px;
+      min-width: 300px;
+    }
+
+    &-quantity {
+      flex-grow: .15; // 15% width
+      max-width: 100px;
+      min-width: 100px;
+      text-align: right;
+    }
+
+    &-total-price {
+      min-width: 120px;
+      text-align: right;
+    }
+
+    &-supplier-name {
+      min-width: 120px;
+      text-align: right;
+    }
+
+    &-icon {
+      min-width: 28px;
+
+      * {
+        vertical-align: sub;
+      }
+    }
+
+    &-footer {
+      padding: 10px 0;
+
+      & * {
+        padding: 0 10px;
+        font-size: 11px;
+        text-align: right;
+
+        &:first-child { padding-left: 0; }
+        &:last-child { padding-right: 0; }
+      }
+    }
+  }
+}

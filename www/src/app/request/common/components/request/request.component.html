@@ -1,0 +1,781 @@
+<ng-container uxgFilter>
+  <div class="app-row">
+    <div class="app-col-auto">
+      <h1>
+        {{ request.name }}
+        <ng-container *ngIf="!(status && status !== 'received'); else requestLoader">
+          <button *ngIf="canEditRequestName() && user.isCustomer()"
+                  [disabled]="request.templateData?.errorCount > 0"
+                  (click)="openRequestNameEditModal()"
+                  class="title-edit" uxgButton icon secondary>
+            <uxg-icon shape="app-pen" size="16"></uxg-icon>
+          </button>
+        </ng-container>
+
+        <ng-template #requestLoader>
+          <div class="title-loader">
+            <span class="spinner spinner-inline"></span>
+          </div>
+        </ng-template>
+      </h1>
+    </div>
+  </div>
+
+  <form *ngIf="form" [formGroup]="form">
+    <ng-container *ngIf="positionsStatus !== 'pristine'">
+    <div class="app-row" *ngIf="!noPositionsList">
+      <!-- Контролы управления позициями -->
+      <div class="app-col app-table app-no-border">
+        <div class="app-row app-align-items-center">
+          <!-- Царь-чекбокс -->
+          <ng-container *ngIf="showCheckbox(flatPositions) && !useAllPositions">
+            <div class="app-col app-col-auto">
+              <div class="app-row app-align-items-center">
+                <uxg-checkbox formControlName="checked"
+                              uxgSelectAllFor="positions"
+                              [disabled]="request.templateData?.errorCount > 0"
+                              [isMixed]="isUncheckedPositionsExist"
+                              *ngFor="let form of [form]"></uxg-checkbox>
+                <uxg-popover #popover>
+                  <button uxgButton uxgPopoverTrigger link icon [hidden]="request.templateData?.errorCount > 0">
+                    <uxg-icon shape="app-triangle down"></uxg-icon>
+                  </button>
+                  <div *uxgPopoverContent>
+                    <div>
+                      <button uxgButton clear (click)="select('all'); popover.hide()">Все</button>
+                    </div>
+                    <div>
+                      <button uxgButton clear (click)="select('none'); popover.hide()">Ни одного</button>
+                    </div>
+                    <div>
+                      <button uxgButton clear (click)="select('groups'); popover.hide()">Группы</button>
+                    </div>
+                    <div>
+                      <button uxgButton clear (click)="select('positions'); popover.hide()">Вне групп</button>
+                    </div>
+                  </div>
+                </uxg-popover>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Отправить в работу -->
+          <div class="app-col app-col-auto"
+               *ngIf="featureService.available('publishRequest', user.roles) && everyPositionHasStatus(flatPositions, [PositionStatus.DRAFT])">
+            <button uxgButton clear link
+                    [disabled]="checkedPositions.length === 0"
+                    (click)="onPublishPositions()">
+              <uxg-icon shape="app-on-approve"></uxg-icon>
+              <span>Отправить в работу</span>
+            </button>
+          </div>
+
+          <!-- Отмена позиции заказчиком -->
+          <div class="app-col app-col-auto" *ngIf="featureService.authorize('customerCancelPosition')">
+            <button uxgButton clear link
+                    [disabled]="checkedPositions.length === 0 || !everyPositionIsNotDraftEntity() || someOfPositionsAreInProcedure()"
+                    (click)="cancelPositionModal.open()">
+              <uxg-icon shape="app-trash"></uxg-icon>
+              Отменить
+            </button>
+          </div>
+
+          <ng-container
+            *ngIf="someOfPositionsHasStatus(flatPositions, [PositionStatus.ON_CUSTOMER_APPROVAL, PositionStatus.PROOF_OF_NEED])">
+            <!-- Отклонить -->
+            <div class="app-col app-col-auto" *ngIf="featureService.available('approveRequest', user.roles)">
+              <button uxgButton clear link
+                      [disabled]="checkedPositions.length === 0 ||
+                      !everyPositionHasStatus(checkedPositions, [PositionStatus.ON_CUSTOMER_APPROVAL, PositionStatus.PROOF_OF_NEED])"
+                      (click)="rejectPositionModal.open()">
+                <uxg-icon shape="app-cross"></uxg-icon>
+                <span>Отклонить</span>
+              </button>
+            </div>
+
+            <!-- Согласовать -->
+            <div class="app-col app-col-auto" *ngIf="featureService.available('approveRequest', user.roles)">
+              <button uxgButton clear link
+                      [disabled]="checkedPositions.length === 0 ||
+                    !everyPositionHasStatus(checkedPositions, [PositionStatus.ON_CUSTOMER_APPROVAL, PositionStatus.PROOF_OF_NEED])"
+                      (click)="onApprovePositions()">
+                <uxg-icon shape="app-check"></uxg-icon>
+                <span>Согласовать</span>
+              </button>
+            </div>
+          </ng-container>
+
+          <!-- Кебаб-меню -->
+          <div class="app-col app-basis-auto">
+            <uxg-popover #more *ngIf="!user.isCustomerApprover() && !user.isBackOffice()">
+              <button uxgButton uxgPopoverTrigger clear link>
+                <uxg-icon shape="app-kebab"></uxg-icon>
+              </button>
+
+              <div *uxgPopoverContent (click)="more.hide()">
+                <ng-container *ngIf="user.isCustomer()">
+                  <!-- Отправить в работу -->
+                  <div class="app-col app-col-auto"
+                       *ngIf="featureService.available('publishRequest', user.roles) &&
+                     !everyPositionHasStatus(flatPositions, [PositionStatus.DRAFT])">
+                    <button uxgButton clear
+                            [disabled]="checkedPositions.length === 0 || !everyPositionHasStatus(checkedPositions, [PositionStatus.DRAFT])"
+                            (click)="onPublishPositions()">
+                      Отправить в работу
+                    </button>
+                  </div>
+
+                  <!-- Загрузить документы в выбранные позиции -->
+                  <div class="app-col app-col-auto" *ngIf="featureService.authorize('uploadPositionDocuments')">
+                    <button uxgButton clear [disabled]="checkedPositions.length === 0"
+                            (click)="openFileUploadToPositionsModal()">Загрузить документы
+                    </button>
+                  </div>
+
+                  <ng-container
+                    *ngIf="!someOfPositionsHasStatus(flatPositions, [PositionStatus.ON_CUSTOMER_APPROVAL, PositionStatus.PROOF_OF_NEED])">
+                    <!-- Отклонить -->
+                    <div class="app-col app-col-auto" *ngIf="featureService.available('approveRequest', user.roles)">
+                      <button uxgButton clear disabled>
+                        <span>Отклонить</span>
+                      </button>
+                    </div>
+
+                    <!-- Согласовать -->
+                    <div class="app-col app-col-auto" *ngIf="featureService.available('approveRequest', user.roles)">
+                      <button uxgButton clear disabled>
+                        <span>Согласовать</span>
+                      </button>
+                    </div>
+                  </ng-container>
+
+                </ng-container>
+              </div>
+            </uxg-popover>
+          </div>
+
+          <div class="app-row app-col app-col-auto">
+            <div class="app-col info-text" *ngIf="request.templateData?.errorCount > 0">
+              <span>
+                Успешно обработано позиций из шаблонов: {{ request.templateData?.successCount || 0 }}
+              </span>
+              <br>
+              <span>
+                Кол-во позиций с ошибками в шаблонах: {{ request.templateData?.errorCount || 0 }}
+              </span>
+            </div>
+
+            <ng-container *ngIf="request.templateData?.errorCount > 0">
+              <div class="app-col">
+                <button uxgButton primary iconText (click)="proceedRequestPositionsFromExcel()">
+                  <uxg-icon shape="app-check"></uxg-icon>
+                  <span>Принять</span>
+                </button>
+              </div>
+              &nbsp;
+              <div class="app-col">
+                <button uxgButton secondary iconText (click)="preventRejectModal.open()">
+                  <uxg-icon shape="app-cross"></uxg-icon>
+                  <span>Отклонить</span>
+                </button>
+              </div>
+            </ng-container>
+
+            <div class="app-col new-position-button">
+              <uxg-popover #more [openOnHover]="true">
+                <button uxgButton secondary iconText
+                        uxgPopoverTrigger
+                        *ngIf="request.status !== 'COMPLETED' && request.status !== 'NOT_RELEVANT' && featureService.authorize('addPosition')"
+                        [disabled]="request.isOlderTwoWeeks || request.templateData?.errorCount > 0" (click)="addPositionModal.open();">
+                  <uxg-icon shape="app-plus"></uxg-icon>
+                  <span>Новая позиция</span>
+                </button>
+
+                <ng-container *ngIf="request.isOlderTwoWeeks">
+                  <div *uxgPopoverContent (click)="more.hide()">
+                    <div>Заявке больше двух недель.</div>
+                    <div>Добавление новых позиций недоступно.</div>
+                  </div>
+                </ng-container>
+              </uxg-popover>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="app-col app-col-aside"></div>
+    </div>
+    </ng-container>
+
+    <div class="app-row" *ngIf="showPositionSelectionBlock()">
+      <div class="app-col app-row selection-block">
+        <div class="app-col-auto selected-info app-ellipsis" [style.padding-left.px]="useAllPositions ? 20 : (checkedPositions.length ? 60 : 5)">
+          <ng-container *ngIf="!useAllPositions; else selectedAllRef">
+            <span [style.display]="!checkedPositions.length ? 'none':'block'">Выбраны все позиции ({{ checkedPositions.length }}) на странице.</span>
+          </ng-container>
+
+          <ng-template #selectedAllRef>
+            Выбраны все позиции ({{ totalCountWithoutNotRelevantAndCanceled }}) в заявке «{{ request.name }}»
+          </ng-template>
+        </div>
+
+        <div class="app-col app-ellipsis">
+          <a class="app-link app-bold" (click)="useAllPositions = !useAllPositions">
+            <ng-container *ngIf="!useAllPositions; else cancelRef">
+              Выбрать все позиции ({{ totalCountWithoutNotRelevantAndCanceled }}) в заявке «{{ request.name }}»
+            </ng-container>
+
+            <ng-template #cancelRef>
+              Отменить выбор
+            </ng-template>
+          </a>
+        </div>
+      </div>
+
+      <div class="app-col app-col-aside"></div>
+    </div>
+
+    <div class="app-row">
+      <ng-container *ngIf="positionsStatus === 'received'; else positionListLoader">
+        <ng-container *ngIf="noPositionsList; else regularRequestPositions">
+          <div class="app-col request-area">
+            <div class="no-positions">
+              <ng-container *ngIf="user.isCustomer()">
+                <h2 class="text-center" [style.opacity]="0.1">
+                  <uxg-icon class="clock-icon" shape="app-waiting-big" [size]="165"></uxg-icon>
+                  <br/>
+                  Заявка находится в обработке <br/> бэк-офиса, скоро здесь появятся <br/> позиции
+                </h2>
+              </ng-container>
+
+              <ng-container *ngIf="user.isBackOffice()">
+                <h2 class="text-center" [style.opacity]="0.1">
+                  <uxg-icon class="add-position-icon" shape="app-add-position" [size]="270"></uxg-icon>
+                  <br/>
+                  К заявке пока не добавлено <br/> ни одной позиции
+                </h2>
+
+                <div class="add-position-button">
+                  <uxg-popover #more [openOnHover]="true">
+                    <button uxgButton primary iconText
+                            uxgPopoverTrigger
+                            *ngIf="featureService.authorize('addPosition')"
+                            [disabled]="request.isOlderTwoWeeks || request.templateData?.errorCount > 0" (click)="addPositionModal.open()">
+                      <uxg-icon shape="app-plus"></uxg-icon>
+                      <span>Новая позиция</span>
+                    </button>
+
+                    <ng-container *ngIf="request.isOlderTwoWeeks">
+                      <div *uxgPopoverContent (click)="more.hide()">
+                        <div>Заявке больше двух недель.</div>
+                        <div>Добавление новых позиций недоступно.</div>
+                      </div>
+                    </ng-container>
+                  </uxg-popover>
+
+<!--                  todo Возможность назначения всей заявки временно деактивирована (isprocessor-609, isprocessor-678) -->
+<!--                  <button uxgButton secondary-->
+<!--                          *ngIf="request.status !== 'COMPLETED' && request.status !== 'NOT_RELEVANT' &&-->
+<!--                             user.hasPermission(permissionType.POSITIONS_DISTRIBUTION_BETWEEN_BACKOFFICE_BUYERS)"-->
+<!--                          (click)="addResponsibleRequestModal.open()">-->
+<!--                    <span>Назначить заявку</span>-->
+<!--                  </button>-->
+
+                </div>
+              </ng-container>
+            </div>
+
+            <ng-container *ngIf="request.documents?.length">
+              <div class="app-row">
+                <div class="app-col" [style.padding.px]="20">
+                  <hr class="divider">
+
+                  <small class="app-uppercase app-ghost-color app-bold">Документы прикреплены при создании</small>
+                  <app-document-simple-list [gridable]="true" [enableUpload]="false" [documents]="request.documents">
+                  </app-document-simple-list>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </ng-container>
+
+        <!-- Список позиций -->
+        <ng-template #regularRequestPositions>
+          <div class="app-col app-table"
+               [class.disabled]="(status && status !== 'received') || positionsStatus && positionsStatus !=='received'">
+            <ng-container *ngIf="positions.length === 0; else positionsList">
+              <h2 class="text-center" [style.opacity]="0.1">
+                <uxg-icon shape="app-info" size="270"></uxg-icon>
+                <br/>
+                {{ filterForm ?
+                (filterForm.pristine ? 'К заявке пока не добавлено \r\nни одной позиции' : 'Позиции не найдены') :
+                'К заявке пока не добавлено \r\nни одной позиции' }}
+              </h2>
+            </ng-container>
+
+            <ng-template #positionsList>
+              <ng-container *ngFor="let formGroup of formPositions.controls">
+                <!-- Позиция -->
+                <ng-container *ngIf="asPosition(formGroup.get('position').value) as position">
+                  <a appUploadFile hoverClass="upload-area-hover"
+                     (dropFile)="onDragAndDropDocumentsToPosition(position.id, $event)"
+                     [href]="getPositionUrl(position)"
+                     (click)="navigateToPosition(position, $event)"
+                     class="app-row app-link-no-color"
+                     [ngClass]="{'disabled' : position.inQueue || position.status === 'NOT_RELEVANT' || position.status === 'CANCELED'}">
+                    <div *ngTemplateOutlet="positionItem; context: { position: position, formGroup: formGroup }"></div>
+                  </a>
+                </ng-container>
+
+                <!-- Группа -->
+                <ng-container *ngIf="asGroup(formGroup.get('position').value) as group">
+                  <div class="app-row app-link-no-color app-row-group">
+                    <div *ngTemplateOutlet="groupItem; context:{ group: group, formGroup: formGroup }"></div>
+                  </div>
+                </ng-container>
+              </ng-container>
+            </ng-template>
+          </div>
+        </ng-template>
+      </ng-container>
+
+      <ng-template #positionListLoader>
+        <div class="app-col position-list-loader">
+          <span class="spinner spinner-inline"></span>
+        </div>
+      </ng-template>
+
+      <!-- Правая колонка -->
+      <div class="app-col app-col-aside">
+        <app-request-aside-info [positions]="flatPositions" [request]="request"></app-request-aside-info>
+      </div>
+    </div>
+  </form>
+
+  <!-- Шаблон позиции -->
+  <ng-template #positionItem let-position="position" let-formGroup="formGroup">
+    <ng-container *ngIf="showCheckbox(flatPositions)">
+      <div [class.app-col]="!useAllPositions" class="app-grow-0" [formGroup]="formGroup">
+        <uxg-checkbox formControlName="checked"
+                      [disabled]="request.templateData?.errorCount > 0"
+                      [style.display]="useAllPositions ? 'none':'block'"></uxg-checkbox>
+      </div>
+    </ng-container>
+
+    <div class="app-col app-bold item-title app-ellipsis">
+      <a [href]="getPositionUrl(position)" (click)="navigateToPosition(position, $event)"
+         class="app-link-no-color position-link app-ellipsis">
+        {{ position.name }}
+      </a>
+    </div>
+
+    <div class="app-col item-quantity app-ellipsis">
+      <span class="quantity">{{ position.quantity }} </span>
+      <span class="app-ghost-color">{{ position.measureUnit | lowercase }}</span>
+    </div>
+
+    <div class="app-col item-date app-ellipsis">
+      <ng-container *ngIf="position.isDeliveryDateAsap; else deliveryDate">Как можно скорее</ng-container>
+      <ng-template #deliveryDate>{{ position.deliveryDate | date : 'dd.MM.yyyy' }}</ng-template>
+    </div>
+
+    <ng-container *ngIf="!user.isCustomerApprover(); else positionSumm">
+      <div class="app-col item-status app-ellipsis">
+        <app-position-status *ngIf="!position.inQueue" [label]="PositionStatusesLabels[position.status]" [status]="position.status">
+        </app-position-status>
+        <!-- Если позиция находится в очереди на смену статуса, показываем информацию об этом -->
+        <app-position-status *ngIf="position.inQueue" label="В обработке" [status]="PositionStatus.NOT_RELEVANT">
+        </app-position-status>
+      </div>
+
+      <div class="app-col item-responsible app-ellipsis">
+        <ng-container *ngIf="(user.isBackOffice()) && position.responsibleUser as user">
+          {{ position.responsibleUser.shortName }}
+        </ng-container>
+      </div>
+    </ng-container>
+
+    <ng-template #positionSumm>
+      <div class="app-col item-sum app-ellipsis">
+        <span class="app-bold">{{(position?.startPrice || 0) | number:'1.0-2'}} </span>
+        <span class="app-ghost-color app-bold">{{getCurrencySymbol('RUB', "narrow")}}</span>
+      </div>
+    </ng-template>
+
+    <div class="app-col item-attribute-icon">
+      <ng-container *ngIf="!user.isCustomerApprover()">
+        <uxg-popover #more [openOnHover]="true" *ngIf="position.isInspectionControlRequired">
+          <uxg-icon uxgPopoverTrigger shape="app-inspector" class="app-ghost-color"></uxg-icon>
+
+          <div *uxgPopoverContent="popoverDir.bottomRight" (click)="more.hide()">
+            <div>Инспекционный контроль</div>
+          </div>
+        </uxg-popover>
+        <uxg-icon shape="app-element" [class]="position.mtrPositionId ? 'app-ghost-color' : 'app-link-color'"></uxg-icon>
+      </ng-container>
+
+      <ng-container *ngIf="user.isCustomerApprover()">
+        <ng-container *ngIf="position.status === PositionStatus.CANCELED">
+          <uxg-icon shape="app-cross" class="app-error-color"></uxg-icon>
+        </ng-container>
+        <ng-container *ngIf="position.status !== PositionStatus.CANCELED && position.status !== PositionStatus.PROOF_OF_NEED">
+          <uxg-icon shape="app-check" class="app-success-color"></uxg-icon>
+        </ng-container>
+      </ng-container>
+    </div>
+
+  </ng-template>
+
+  <!-- Шаблон группы -->
+  <ng-template #groupItem let-group="group" let-formGroup="formGroup">
+    <div [class.app-col]="!useAllPositions" class="app-grow-0" [formGroup]="formGroup">
+      <uxg-checkbox formControlName="checked"
+                    [isMixed]="isUncheckedPositionsInGroupExist(formGroup)"
+                    [disabled]="request.templateData?.errorCount > 0"
+                    uxgSelectAllFor="positions"
+                    [style.display]="useAllPositions ? 'none':'block'"></uxg-checkbox>
+    </div>
+
+    <div class="app-col" *ngIf="formGroup.get('folded') as folded">
+      <div class="app-row">
+        <div class="app-col item-title app-ellipsis">
+          <span class="app-secondary-color">Группа: </span>
+          <b>{{ group.name || "Без имени" }} </b>
+          <span class="app-ghost-color">({{group.positionsTotalCount}})</span>
+        </div>
+        <!-- @TODO Implement -->
+        <!--div class="app-col" [style.max-width.px]="460">
+          2 как можно скорее | 01.01.2020 — ...
+        </div-->
+        <div class="app-col app-row app-grow-0">
+          <uxg-icon class="app-accordion-title-icon" shape="app-chevron" [attr.dir]="folded.value ? 'down' : 'up'"
+                    (click)="folded.setValue(!folded.value); $event.preventDefault(); $event.stopPropagation();"></uxg-icon>
+        </div>
+      </div>
+
+      <!-- Позиции группы -->
+      <div class="positions" *ngIf="!folded.value">
+        <ng-container *ngFor="let childformGroup of asFormArray(formGroup.get('positions')).controls">
+          <div class="group-position-item"
+               appUploadFile hoverClass="upload-area-hover"
+               (dropFile)="onDragAndDropDocumentsToPosition(childformGroup.get('position').value.id, $event)">
+            <div class="app-row">
+              <ng-container *ngTemplateOutlet="positionItem; context:{
+                position: childformGroup.get('position').value,
+                formGroup: childformGroup
+            }"></ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </ng-template>
+
+  <uxg-filter *ngIf="featureService.authorize('filterPositions') && filterForm"
+    [formGroup]="filterForm" [count]="total" [initiallyHidden]="true" (filter)="filter.emit({filters: $event})">
+    <uxg-filter-section label="Наименование" *ngIf="filterForm.get('positionNameOrNumber')">
+      <input uxgInput type="text" formControlName="positionNameOrNumber" placeholder="Наименование позиции" />
+    </uxg-filter-section>
+
+    <uxg-filter-section label="Статус" *ngIf="filterForm.get('positionStatuses')">
+      <uxg-filter-checkbox-list
+        formControlName="positionStatuses"
+        [items$]="positionStatuses$"
+        [limit]="(positionStatuses$ | async)?.length > 7 ? 7 : 0">
+        <ng-template let-formGroup>
+          <ng-container *ngIf="formGroup.get('item').value as item">
+            <uxg-checkbox #statusCheckbox [formControl]="formGroup.get('checked')" class="app-control"></uxg-checkbox>
+            <label class="app-col" (click)="statusCheckbox.check($event)">&nbsp; {{ PositionStatusesLabels[item.status] }}</label>
+            <div class="app-col app-col-auto">
+              <div class="app-position-status">
+                <span class="app-ghost-color">{{item.count}}</span>
+                <div class="app-position-status-icon {{item.status}}"></div>
+              </div>
+            </div>
+          </ng-container>
+        </ng-template>
+      </uxg-filter-checkbox-list>
+    </uxg-filter-section>
+
+    <uxg-filter-section label="Ответственный" *ngIf="filterForm.get('responsibleUserIds') && featureService.authorize('filterRequestsByResponsibleUser')">
+      <uxg-filter-checkbox-list
+        formControlName="responsibleUserIds"
+        searchPlaceholder="Ответственный"
+        [foldedSearch]="true"
+        [items$]="responsibleUsers$"
+        [limit]="5"
+        (search)="responsibleUsersSearch$.next($event)">
+      </uxg-filter-checkbox-list>
+    </uxg-filter-section>
+
+    <uxg-filter-section *ngIf="filterForm.get('onlyWithoutResponsibleUser') && featureService.authorize('filterPositionsByOnlyWithoutResponsibleUser')"
+      label="Неназначенные позиции">
+      <div class="app-row app-align-items-center">
+        <label class="app-col" (click)="onlyWithoutResponsibleUserRef.switch($event)">Только неназначенные позиции</label>
+        <uxg-switcher class="app-col-auto" #onlyWithoutResponsibleUserRef formControlName="onlyWithoutResponsibleUser"></uxg-switcher>
+      </div>
+    </uxg-filter-section>
+  </uxg-filter>
+
+  <br/>
+  <app-pagination [total]="total" [pageSize]="pageSize" [pages$]="pages$" (change)="onPageIndexChanged($event)"></app-pagination>
+
+
+  <!-- Модальное окно выбора типа процедуры -->
+  <uxg-modal #procedureCreationTypeModal size="s">
+    <h2>Выберите тип процедуры</h2>
+
+    <ng-container *ngIf="procedureCreationTypeModal.state">
+
+      <uxg-dropdown lg class="procedure-type-select"
+        [(ngModel)]="procedureType"
+        [placeholder]="getProcedureTypeLabel(procedureType)"
+        [disabled]="procedureTypeList.length === 0">
+        <div uxgDropdownItem *ngFor="let type of procedureTypeList; let i = index"
+             [class.app-ghost-color]="i !== 0"
+             [value]="type"
+             [disabled]="i !== 0">
+          {{ getProcedureTypeLabel(type) }}
+        </div>
+      </uxg-dropdown>
+
+      <ng-template uxgModalFooter>
+        <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+        <button type="button" uxgButton primary lg
+                (click)="procedureModalPayload = {action: 'create'}; filterProcedureCreationPositions.emit(); procedureCreationTypeModal.close()">
+          Выбрать
+        </button>
+      </ng-template>
+    </ng-container>
+  </uxg-modal>
+
+
+  <!-- Из процедуры -->
+  <uxg-modal size="l" [staticBackdrop]="true" [(state)]="procedureModalPayload">
+    <h2>Создание новой процедуры</h2>
+    <app-request-procedure-form
+      *ngIf="procedureModalPayload"
+      [request]="request"
+      [positions]="procedureCreationPositionsFlat"
+      [action]="procedureModalPayload.action"
+      [procedure]="procedureModalPayload.procedure"
+      [procedureSource]="procedureSource"
+      [isWithoutStartPrice]="isWithoutStartPrice"
+      (filterPositions)="filterProcedureCreationPositions.emit($event)"
+      (complete)="procedureModalPayload = null; changeStatus.emit();"
+      (cancel)="procedureModalPayload = null"
+    ></app-request-procedure-form>
+  </uxg-modal>
+
+  <app-request-add-position-modal
+    #addPositionModal
+    [request]="request"
+    [onDrafted]="onDrafted"
+    [isShowDocumentsBlock]="true"
+    (success)="addPosition.emit($event)"
+    (uploadFromTemplate)="uploadFromTemplate.emit($event)"
+    (cancel)="addPositionModal.close()"
+  ></app-request-add-position-modal>
+
+  <!-- Модальное окно для назначения ответственного позциям -->
+  <uxg-modal #addResponsiblePositionModal size="s">
+    <h2>Назначить позиции <span class="app-font-normal app-ghost-color">({{ checkedPositions?.length }})</span></h2>
+    <div *ngIf="addResponsiblePositionModal.state">
+      <app-select-responsible-form
+        [contragentId]="request.contragentId"
+        [positions]="checkedPositions"
+        (setResponsibleUser)="addResponsiblePositions.emit({ positions: checkedPositions, user: $event, useAllPositions: useAllPositions, filters: filterForm?.value })"
+        (close)="addResponsiblePositionModal.close()"
+      ></app-select-responsible-form>
+    </div>
+  </uxg-modal>
+
+  <!-- Модальное окно для назначения ответственного по заявке -->
+  <uxg-modal #addResponsibleRequestModal size="s">
+    <h2>Назначить всю заявку</h2>
+    <div *ngIf="addResponsibleRequestModal.state">
+      <app-select-responsible-form
+        [contragentId]="request.contragentId"
+        [isRequest]="true"
+        (setResponsibleUser)="addResponsibleRequest.emit($event)"
+        (close)="addResponsibleRequestModal.close()"
+      ></app-select-responsible-form>
+    </div>
+  </uxg-modal>
+
+  <!-- Модальное окно для отмены позиции -->
+  <uxg-modal #cancelPositionModal size="s">
+    <h2>Отменить позиции <span class="app-font-normal app-ghost-color">({{ checkedPositions?.length }})</span></h2>
+    <div class="app-section app-secondary-color">Будьте внимательны, отменить операцию будет невозможно</div>
+    <app-position-cancel [positions]="checkedPositions"
+                         [requestId]="request.id"
+                         [useAllPositions]="useAllPositions"
+                         [activeFilters]="filterForm?.value"
+                         (complete)="filter.emit({})"
+                         (close)="cancelPositionModal.close()"></app-position-cancel>
+  </uxg-modal>
+
+  <!-- Модальное окно для отклонения позиции -->
+  <uxg-modal #rejectPositionModal size="s">
+    <ng-container *ngIf="rejectPositionModal.state">
+      <form [formGroup]="positionRejectForm" (ngSubmit)="submitPositionReject()">
+        <h2>Комментарий по отклонению</h2>
+        <div class="app-section app-secondary-color">
+          <span *ngIf="user.isCustomerApprover(); else rejectDescriptionForBackoffice">
+            Пожалуйста, укажите причину отклонения. Комментарий будет добавлен в историю по позиции.
+          </span>
+
+          <ng-template #rejectDescriptionForBackoffice>
+            Если возможно, сообщите пожалуйста причину отклонения сотруднику бэк-офиса.
+            Комментарий будет добавлен в общий чат по заявке. Оставлять комментарий не обязательно.
+          </ng-template>
+        </div>
+
+        <div class="input-wrapper">
+          <div class="app-ghost-color" [style.margin-bottom.px]="3">Комментарий</div>
+          <textarea #comment
+                    [style.height.px]="100"
+                    uxgInput
+                    formControlName="comment"
+                    placeholder="Введите текст комментария..."></textarea>
+        </div>
+
+        <br>
+
+        <app-document-upload-list
+          *ngIf="user.isCustomerApprover()"
+          (fileSelected)="positionRejectForm.get('documents').setValue($event.files)"
+          [documents]="positionRejectForm.get('documents').value">
+        </app-document-upload-list>
+
+        <ng-template uxgModalFooter>
+          <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+          <button uxgButton primary lg
+                  (click)="submitPositionReject()"
+                  [disabled]="positionRejectForm.invalid">
+            Отклонить
+          </button>
+        </ng-template>
+      </form>
+    </ng-container>
+  </uxg-modal>
+
+  <!-- Модальное окно для смены статуса группы позиций -->
+  <uxg-modal #changeStatusModal size="s">
+    <h2>Сменить статус позиций <span class="app-font-normal app-ghost-color">({{ useAllPositions ? total : checkedPositions?.length }})</span></h2>
+    <ng-container *ngIf="changeStatusModal.state">
+      <app-positions-status-change
+        #positionsStatusChange
+        [positions]="checkedPositions"
+        [requestId]="request.id"
+        [activeFilters]="filterForm?.value"
+        [status]="checkedPositions[0]?.status"
+        [useAllPositions]="useAllPositions"
+        (changeStatus)="changeStatus.emit(); changeStatusModal.close()">
+      </app-positions-status-change>
+      <ng-template uxgModalFooter>
+        <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+        <button type="button" uxgButton primary lg
+                [disabled]="!positionsStatusChange.valid() || positionsStatusChange.loading"
+                (click)="positionsStatusChange.onChangeBtn()">
+          Сменить
+        </button>
+      </ng-template>
+    </ng-container>
+  </uxg-modal>
+
+  <uxg-modal size="s" #addGroupModal>
+    <h2>Создать группу <span class="app-font-normal app-ghost-color">({{ checkedPositions?.length }})</span></h2>
+    <ng-container *ngIf="addGroupModal.state">
+      <app-request-group-form
+        [request]="request"
+        [positions]="checkedPositions"
+        [useAllPositions]="useAllPositions"
+        [activeFilters]="filterForm?.value"
+        (success)="addGroup.emit($event); resetSelectedPositions()"
+        (close)="addGroupModal.close()"
+      ></app-request-group-form>
+    </ng-container>
+  </uxg-modal>
+
+  <uxg-modal #moveGroupModal size="s">
+    <h2>Переместить позиции <span class="app-ghost-color">({{ checkedPositions.length }})</span></h2>
+    <app-request-move-group-modal
+      *ngIf="moveGroupModal.state"
+      [request]="request"
+      [groups]="groups"
+      [positions]="checkedPositions"
+      [useAllPositions]="useAllPositions"
+      [activeFilters]="filterForm?.value"
+      (success)="addGroup.emit($event); resetSelectedPositions()"
+      (close)="moveGroupModal.close()"
+    ></app-request-move-group-modal>
+  </uxg-modal>
+
+  <uxg-modal #editRequestNameModal size="l">
+    <ng-container *ngIf="editRequestNameModal.state">
+      <h2>Изменить наименование</h2>
+      <div class="app-section app-secondary-color">
+        Вы можете изменить название для текущей заявки. После изменения, старое наименование не сохраняется.
+        Наименование заявки изменится во всех разделах.
+      </div>
+
+      <form appFormValidation [formGroup]="requestNameForm" (ngSubmit)="onSaveRequestName()">
+        <div class="app-control-wrap">
+          <input #requestName uxgInput lg formControlName="requestName"/>
+          <label class="app-control-label" (click)="requestName.focus()">Наименование заявки</label>
+          <div class="app-control-error" *ngIf="requestNameForm.get('requestName').errors as e">
+            <span *ngIf="e.empty">Обязательное поле</span>
+          </div>
+        </div>
+
+        <ng-template uxgModalFooter>
+          <button uxgButton secondary lg uxgModalClose (click)="editRequestNameModal.close()">Отмена</button>
+          <button uxgButton primary lg (click)="onSaveRequestName()">Сохранить</button>
+        </ng-template>
+      </form>
+
+    </ng-container>
+  </uxg-modal>
+
+  <!-- Модальное окно прикрепления документа к позициям -->
+  <uxg-modal #addDocumentsModal size="l">
+    <h2>Загрузить документы для выбранных позиций <span class="app-ghost-color">({{ useAllPositions ? total : checkedPositions.length }})</span>
+    </h2>
+
+    <div class="app-section app-secondary-color">
+      Загруженные документы будут прикреплены ко всем выбранным в завке позициям.
+      Отдельно к позиции документы можно загружать на вкладке «Документы» на странице позиции.
+    </div>
+    <br>
+
+    <app-document-upload-list
+      *ngIf="addDocumentsModal.state"
+      [dragAndDropAvailable]="true"
+      (fileSelected)="form?.get('documents').setValue($event.files); invalidUploadDocument = false">
+    </app-document-upload-list>
+
+    <ng-template uxgModalFooter>
+      <div class="doc-error-message" *ngIf="invalidUploadDocument">Пожалуйста, выберите документ</div>
+
+      <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+      <button uxgButton primary lg
+              (click)="onAttachDocumentsToPositions()">
+        Загрузить
+      </button>
+    </ng-template>
+  </uxg-modal>
+
+  <!-- Модальное окно при отклонении заявки -->
+  <uxg-modal #preventRejectModal size="s">
+    <h2>Заявка будет удалена</h2>
+    <div class="app-section app-secondary-color">
+      Восстановить не получится. Вы уверены?
+    </div>
+    <ng-template uxgModalFooter>
+      <button uxgButton secondary lg uxgModalClose (click)="preventRejectModal.close()">Отмена</button>
+      <button uxgButton primary lg (click)="deleteRequestPositionsFromExcel(); preventRejectModal.close()">Удалить</button>
+    </ng-template>
+  </uxg-modal>
+</ng-container>

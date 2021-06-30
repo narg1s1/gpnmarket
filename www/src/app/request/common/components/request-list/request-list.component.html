@@ -1,0 +1,434 @@
+<ng-container uxgFilter>
+<!-- tabs -->
+<div class="app-row">
+  <div class="app-col">
+
+    <div class="alert alert-app-level alert-info ng-star-inserted" *ngIf="!hideNeedUpdate">
+      <div class="alert-items">
+        <div class="alert-item">
+          <span class="alert-text">Список заявок был изменен</span>
+          <div class="alert-actions">
+            <button uxgButton outline class="alert-action" (click)="hideNeedUpdate = true; refresh.emit()">Обновить список</button>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="close" (click)="hideNeedUpdate = true"><uxg-icon shape="app-cross"></uxg-icon></button>
+    </div>
+
+    <div class="app-row app-justify-content-end" *ngIf="user.isBackOffice()">
+      <div class="app-col-auto">
+        <button uxgButton clear link class="app-link"
+          [disabled]="isExcelInQueue || !requests?.length"
+          (click)="openDownloadRequestsModal()">
+          Создать выгрузку в Excel
+          <uxg-icon shape="app-loader" size="24" *ngIf="isExcelInQueue"></uxg-icon>
+          <uxg-icon shape="app-download" *ngIf="!isExcelInQueue"></uxg-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="app-row app-align-items-center">
+      <uxg-tabs class="app-col">
+        <uxg-tab-title #allProgressTab [active]="true" (click)="clickOnTab(null)">Все ({{totalCount()}})</uxg-tab-title>
+        <uxg-tab-title #inProgressTab
+                       (click)="clickOnTab(RequestStatus.IN_PROGRESS)"
+                       [disabled]="statusCounters?.inProgressRequestsCount === 0">
+          В обработке <span class="counter">({{statusCounters?.inProgressRequestsCount}})</span>
+        </uxg-tab-title>
+
+        <uxg-tab-title #newTab
+                       (click)="clickOnTab(RequestStatus.NEW)"
+                       [disabled]="statusCounters?.newRequestsCount === 0">
+          Новые <span class="counter">({{statusCounters?.newRequestsCount}})</span>
+        </uxg-tab-title>
+
+        <uxg-tab-title #draftTab
+                       (click)="clickOnTab(RequestStatus.DRAFT)"
+                       *ngIf="feature.authorize('publishRequest')"
+                       [disabled]="statusCounters?.draftRequestsCount === 0">
+          Черновики <span class="counter">({{statusCounters?.draftRequestsCount}})</span>
+        </uxg-tab-title>
+
+        <uxg-tab-title #onApprovalTab
+                       (click)="clickOnTab(RequestStatus.ON_CUSTOMER_APPROVAL)"
+                       [disabled]="statusCounters?.onCustomerApprovalRequestsCount === 0">
+          На согласовании <span class="counter">({{statusCounters?.onCustomerApprovalRequestsCount}})</span>
+        </uxg-tab-title>
+
+        <uxg-tab-title #completedTab
+                       (click)="clickOnTab(RequestStatus.COMPLETED)"
+                       [disabled]="statusCounters?.completedRequestsCount === 0">
+          Завершенные <span class="counter">({{statusCounters?.completedRequestsCount}})</span>
+        </uxg-tab-title>
+      </uxg-tabs>
+
+      <button uxgButton secondary iconText *ngIf="canCreateRequest()" (click)="addRequest.emit()">
+        <uxg-icon shape="app-plus"></uxg-icon>
+        <span>Новая заявка</span>
+      </button>
+      <uxg-filter-button></uxg-filter-button>
+    </div>
+  </div>
+  <div class="app-col-aside detachable"></div>
+</div>
+
+
+<!-- headers -->
+<div class="app-row">
+  <div class="app-col">
+    <div class="app-table app-no-border">
+      <div class="app-row app-uppercase app-ghost-color app-bold">
+        <small class="app-col sorter app-grow-0 number"
+               [class.active-sort]="sortingColumn === 'number'"
+               [ngClass]="{'asc' : sortDirection === 'ASC', 'desc' : sortDirection === 'DESC'}"
+               (click)="sortBy('number')">
+          <span>Номер</span>
+          <uxg-icon shape="app-sort-arrows"></uxg-icon>
+        </small>
+
+        <small class="app-col sorter app-grow-0 published"
+               [class.active-sort]="sortingColumn === 'published'"
+               [ngClass]="{'asc' : sortDirection === 'ASC', 'desc' : sortDirection === 'DESC'}"
+               (click)="sortBy('published')">
+          <span>Опублик.</span>
+          <uxg-icon shape="app-sort-arrows"></uxg-icon>
+        </small>
+
+        <small *ngIf="feature.authorize('backofficeRequest')" class="app-col customer">Заказчик</small>
+
+        <!--        <small *ngIf="newTab.active" class="app-col published">Опубликована</small>-->
+        <!--        <small *ngIf="completedTab.active" class="app-col completed">Завершена</small>-->
+
+        <small class="app-col sorter name"
+               [class.active-sort]="sortingColumn === 'name'"
+               [ngClass]="{'asc' : sortDirection === 'ASC', 'desc' : sortDirection === 'DESC'}"
+               (click)="sortBy('name')">
+          <span>Наименование</span>
+          <uxg-icon shape="app-sort-arrows"></uxg-icon>
+        </small>
+
+        <small class="app-col delivery-date">Сроки поставки</small>
+
+        <small *ngIf="inProgressTab.active && feature.authorize('backofficeRequest')" class="app-col app-grow-0 tasks">Задач</small>
+
+        <small *ngIf="inProgressTab.active"
+               class="app-col sorter app-grow-0 pie"
+               [class.active-sort]="sortingColumn === 'finishedPositions'"
+               [ngClass]="{'asc' : sortDirection === 'ASC', 'desc' : sortDirection === 'DESC'}"
+               (click)="sortBy('finishedPositions')">
+          <span>Завершено поз.</span>
+          <uxg-icon shape="app-sort-arrows"></uxg-icon>
+        </small>
+
+        <small *ngIf="!inProgressTab.active"
+               class="app-col sorter app-grow-0 positions"
+               [class.active-sort]="sortingColumn === 'positions'"
+               [ngClass]="{'asc' : sortDirection === 'ASC', 'desc' : sortDirection === 'DESC'}"
+               (click)="sortBy('positions')">
+          <span>Позиций</span>
+          <uxg-icon shape="app-sort-arrows"></uxg-icon>
+        </small>
+
+      </div>
+    </div>
+  </div>
+  <div class="app-col-aside detachable">
+  </div>
+</div>
+
+<!-- requests -->
+<div class="app-row">
+  <div class="app-col table-col">
+    <div class="app-table" [class.disabled]="status !== 'received'">
+      <a class="app-row app-link-no-color"
+        [routerLink]="request.request.id"
+        [class.disabled]="request.request?.inQueue"
+        *ngFor="let request of requests">
+        <div class="app-col app-grow-0 number app-bold">{{ request.request.number | number:'1.0-2' }}</div>
+
+        <div class="app-col app-grow-0 published app-ghost-color">
+          {{ request.request.publishedDate | date:'dd.MM.yyyy' }}
+        </div>
+
+        <div *ngIf="feature.authorize('backofficeRequest')"
+             title="{{ request.request.contragent?.shortName }}"
+             class="app-col customer app-ellipsis">
+          {{ request.request.contragent?.shortName }}
+        </div>
+
+        <!--        <div *ngIf="newTab.active" class="app-col published"></div>-->
+        <!--        <div *ngIf="completedTab.active" class="app-col completed">Завершена</div>-->
+
+        <div class="app-col name app-ellipsis">{{ request.request.name }}</div>
+
+        <div class="app-col delivery-date app-ellipsis">
+          <ng-container *ngIf="request.requestData.positionsCount === 0; else deliveryDates">
+            <span>—</span>
+          </ng-container>
+
+          <ng-template #deliveryDates>
+            <ng-container *ngIf="request.requestData.asapDeliveryDatePositionsCount !== request.requestData.positionsCount; else allPositionsAsap">
+              <span *ngIf="request.requestData.minDeliveryDate"
+                    title="{{ getDeliveryDate(
+                            (request.requestData.minDeliveryDate | date:'dd.MM.yyyy'),
+                            (request.requestData.maxDeliveryDate | date:'dd.MM.yyyy') ) }}">
+                {{ getDeliveryDate(
+                  (request.requestData.minDeliveryDate | date:'dd.MM.yyyy'),
+                  (request.requestData.maxDeliveryDate | date:'dd.MM.yyyy')
+                ) }}
+              </span>
+
+              <span *ngIf="request.requestData.minDeliveryDate && request.requestData.asapDeliveryDatePositionsCount"
+                    title="Как можно быстрее: {{ request.requestData.asapDeliveryDatePositionsCount }} поз.">
+               Как можно быстрее: {{ request.requestData.asapDeliveryDatePositionsCount }} поз.
+              </span>
+            </ng-container>
+
+            <ng-template #allPositionsAsap>
+              <span>Все как можно быстрее</span>
+            </ng-template>
+          </ng-template>
+
+        </div>
+
+        <div *ngIf="inProgressTab.active && feature.authorize('backofficeRequest')" class="app-col app-grow-0 tasks">{{request.requestData.tasksCount}}</div>
+
+        <div *ngIf="inProgressTab.active" class="app-col app-grow-0 app-row pie">
+          <svg width="18" height="18" class="chart">
+            <circle r="9" cx="9" cy="9" class="pie"/>
+            <circle r="9" cx="9" cy="9" class="pie" [attr.stroke-dashoffset]="calcPieChart(request)"/>
+          </svg>
+          <div>
+            <span [class.app-ghost-color]="request.requestData.completedPositionsCount === 0">
+              {{ request.requestData.completedPositionsCount}} из
+            </span>
+            <span>{{ request.requestData.positionsCount }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="!inProgressTab.active" class="app-col app-grow-0 positions">{{ request.requestData.positionsCount}}</div>
+      </a>
+    </div>
+    <br/>
+
+    <app-pagination [total]="tabTotal" [pageSize]="pageSize" [pages$]="pages$" (change)="filter.emit({page: $event})"></app-pagination>
+
+  </div>
+
+  <uxg-filter [formGroup]="form" [count]="total" (filter)="emitFilter($event)">
+    <uxg-filter-section label="Заявка">
+      <input uxgInput type="text" formControlName="requestNameOrNumber" placeholder="Номер или наименование заявки" />
+    </uxg-filter-section>
+
+    <uxg-filter-section label="Есть вопросы на согласовании" *ngIf="form.get('onlyOpenAgreements')">
+      <div class="app-row app-align-items-center">
+        <label class="app-col" (click)="onlyOpenTasksRef.switch($event)">Есть открытые согласования</label>
+        <uxg-switcher class="app-col-auto" #onlyOpenTasksRef formControlName="onlyOpenAgreements"></uxg-switcher>
+      </div>
+    </uxg-filter-section>
+
+    <uxg-filter-section
+      *ngIf="form.get('onlyWithoutResponsibleUser') && feature.authorize('filterRequestsByOnlyWithoutResponsibleUser')"
+      label="Есть неназначенные позиции">
+      <div class="app-row app-align-items-center">
+        <label class="app-col" (click)="onlyWithoutResponsibleUserRef.switch($event)">Есть неназначенные позиции</label>
+        <uxg-switcher class="app-col-auto" #onlyWithoutResponsibleUserRef formControlName="onlyWithoutResponsibleUser"></uxg-switcher>
+      </div>
+    </uxg-filter-section>
+
+    <uxg-filter-section label="Заказчик" *ngIf="form.get('customers')">
+      <uxg-filter-checkbox-list
+        formControlName="customers"
+        searchPlaceholder="Заказчик"
+        [foldedSearch]="true"
+        [items$]="customers$"
+        [limit]="5"
+        (search)="customersSearch$.next($event)">
+      </uxg-filter-checkbox-list>
+    </uxg-filter-section>
+
+    <uxg-filter-section label="Создал заявку" *ngIf="form.get('userIds')">
+      <uxg-filter-checkbox-list
+        formControlName="userIds"
+        searchPlaceholder="Заказчик"
+        [foldedSearch]="true"
+        [items$]="users$"
+        [limit]="5"
+        (search)="usersSearch$.next($event)">
+      </uxg-filter-checkbox-list>
+    </uxg-filter-section>
+
+    <uxg-filter-section label="Статус" *ngIf="form.get('positionStatuses')">
+      <uxg-filter-checkbox-list
+        formControlName="positionStatuses"
+        [items$]="positionStatuses$"
+        [limit]="(positionStatuses$ | async)?.length > 7 ? 7 : 0"
+      >
+        <ng-template let-formGroup>
+          <ng-container *ngIf="formGroup.get('item').value as item">
+            <uxg-checkbox #statusCheckbox [formControl]="formGroup.get('checked')" class="app-control"></uxg-checkbox>
+            <label class="app-col" (click)="statusCheckbox.check($event)">&nbsp; {{PositionStatusesLabels[item.status]}}</label>
+            <div class="app-col app-col-auto">
+              <div class="app-position-status">
+                <span class="app-ghost-color">{{item.count}}</span>
+                <div class="app-position-status-icon {{item.status}}"></div>
+              </div>
+            </div>
+          </ng-container>
+        </ng-template>
+      </uxg-filter-checkbox-list>
+    </uxg-filter-section>
+
+
+    <uxg-filter-section label="Даты поставки" *ngIf="form.get('shipmentDateFrom') && form.get('shipmentDateTo')">
+      <div class="app-row">
+        <div class="app-col" [style.padding-right.px]="15">
+          <div class="app-control-wrap" [style.padding]="0">
+            <input #shipmentDateFrom uxgInput uxgDatepicker placeholder="Дата с" class="delivery-date" formControlName="shipmentDateFrom">
+            <label class="app-control-icon" (click)="shipmentDateFrom.focus()">
+              <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+            </label>
+          </div>
+        </div>
+
+        <div class="app-col">
+          <div class="app-control-wrap" [style.padding]="0">
+            <input #shipmentDateTo uxgInput uxgDatepicker placeholder="Дата по" class="delivery-date" formControlName="shipmentDateTo">
+            <label class="app-control-icon" (click)="shipmentDateTo.focus()">
+              <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+            </label>
+          </div>
+        </div>
+      </div>
+    </uxg-filter-section>
+  </uxg-filter>
+</div>
+
+
+<!-- Модальное окно со списком заявок для выгрузки -->
+<uxg-modal #downloadRequestsModal size="l" (stateChange)="resetSelectedRequests()">
+  <h2>Выбор заявок для выгрузки в Excel</h2>
+
+  <div class="app-row app-secondary-color app-section">
+    <span>
+      Выберите необходимые заявки, по которым вы хотите создать выгрузку в Excel. <br>
+      Для выгрузки доступны только последние <b>500</b> заявок.
+    </span>
+  </div>
+
+  <form [formGroup]="requestsForm">
+    <select-items-with-search
+      #requestsSelectList
+      class="select-list select-list-requests"
+      formControlName="requestIds"
+      placeholder="Наименование заявки"
+      [liveUpdate]="true"
+      [filterFn]="filterRequests"
+      [customFilterForm]="customFilterForm"
+      [trackBy]="trackByRequestId"
+      [items]="downloadRequestsList">
+
+      <ng-template let-formGroup="formGroup" let-request="item">
+        <ng-container *ngIf="toRequestItem(request) as request">
+          <div class="app-row select-list-item" [formGroup]="formGroup">
+            <div class="app-col app-grow-0">
+              <uxg-checkbox formControlName="checked"></uxg-checkbox>
+            </div>
+
+            <div class="app-col app-bold select-list-item-request-number"><b>{{ request.request.number }}</b></div>
+
+            <div class="app-col app-col-auto select-list-item-request-customer">{{ request.request.contragent.shortName }}</div>
+
+            <div class="app-col app-col-auto app-ellipsis select-list-item-request-name" [title]="request.request.name">{{ request.request.name }}</div>
+
+            <div class="app-col select-list-item-request-date">
+              <ng-container *ngIf="request.requestData.positionsCount === 0; else deliveryDates">
+                <span>—</span>
+              </ng-container>
+
+              <ng-template #deliveryDates>
+                <ng-container *ngIf="request.requestData.asapDeliveryDatePositionsCount !== request.requestData.positionsCount; else allPositionsAsap">
+                  <span *ngIf="request.requestData.minDeliveryDate && request.requestData.asapDeliveryDatePositionsCount"
+                        title="как можно скорее">
+                   как можно скорее |
+                  </span>
+
+                  <span *ngIf="request.requestData.minDeliveryDate"
+                        title="{{ getDeliveryDate((request.requestData.minDeliveryDate | date:'dd.MM.yyyy'), (request.requestData.maxDeliveryDate | date:'dd.MM.yyyy')) }}">
+                    {{ getDeliveryDate((request.requestData.minDeliveryDate | date:'dd.MM.yyyy'), (request.requestData.maxDeliveryDate | date:'dd.MM.yyyy')) }}
+                  </span>
+                </ng-container>
+
+                <ng-template #allPositionsAsap>
+                  <span>Все как можно скорее</span>
+                </ng-template>
+              </ng-template>
+            </div>
+          </div>
+        </ng-container>
+      </ng-template>
+
+      <ng-template #footerContentTpl>
+        <div class="app-row select-list-item-footer app-uppercase app-ghost-color app-bold">
+          <div class="app-col-auto checkbox-space app-grow-0"></div>
+          <div class="app-col app-bold select-list-item-request-number">Номер</div>
+          <div class="app-col app-col-auto select-list-item-request-customer">Заказчик</div>
+          <div class="app-col app-col-auto select-list-item-request-name">Наименование</div>
+          <div class="app-col select-list-item-request-date">Сроки поставки</div>
+        </div>
+      </ng-template>
+
+      <ng-template #customFilterFields>
+        <div class="app-col-auto">
+          <span class="app-ghost-color">Дата создания:  </span>
+        </div>
+
+        <div class="app-col-2 input-date-from">
+          <form [formGroup]="customFilterForm">
+            <div class="app-control-wrap">
+              <input uxgInput uxgDatepicker
+                     [disable]="[limitedRange]"
+                     formControlName="createdDateFrom"
+                     #dateFromRef
+                     dateFormat="d.m.Y">
+
+              <label class="app-control-label" (click)="dateFromRef.focus()">Дата с</label>
+
+              <label class="app-control-icon" (click)="dateFromRef.focus()">
+                <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+              </label>
+            </div>
+          </form>
+        </div>
+
+        <div class="app-col-2 input-date-to">
+          <form [formGroup]="customFilterForm">
+            <div class="app-control-wrap">
+              <input uxgInput uxgDatepicker
+                     [disable]="[limitedRange]"
+                     formControlName="createdDateTo"
+                     #dateTillRef
+                     dateFormat="d.m.Y">
+
+              <label class="app-control-label" (click)="dateTillRef.focus()">Дата по</label>
+
+              <label class="app-control-icon" (click)="dateTillRef.focus()">
+                <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+              </label>
+            </div>
+          </form>
+        </div>
+      </ng-template>
+    </select-items-with-search>
+
+    <ng-template uxgModalFooter>
+      <button uxgButton secondary lg type="button" (click)="downloadRequestsModal.close()">Отмена</button>
+      <button
+        uxgButton primary lg
+        [disabled]="!requestsForm.get('requestIds').value || !requestsForm.get('requestIds').value?.length"
+        (click)="onDownloadRequests(); downloadRequestsModal.close()">Выгрузить</button>
+    </ng-template>
+  </form>
+</uxg-modal>
+
+</ng-container>

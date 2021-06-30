@@ -1,0 +1,228 @@
+<div class="app-row">
+  <!-- Контролы управления позициями -->
+  <div class="app-col app-table app-no-border">
+    <div class="app-row app-align-items-center">
+
+      <!-- Царь-чекбокс -->
+      <div class="app-col app-col-auto" [hidden]="useAllPositions">
+        <div class="app-row app-align-items-center">
+          <uxg-checkbox [(ngModel)]="mainCheckbox"
+                        (ngModelChange)="selectAllPositions($event); mainCheckboxChanged.emit($event)"
+                        [disabled]="!(positions$ | async)?.length || (allPositionsOnPageAreDisabled$ | async)"
+                        [isMixed]="(checkedPositions$ | async)?.length && (uncheckedPositions$ | async)?.length"></uxg-checkbox>
+          <uxg-popover #popover *ngIf="(positions$ | async)?.length && !(allPositionsOnPageAreDisabled$ | async)">
+            <button uxgButton uxgPopoverTrigger link icon>
+              <uxg-icon shape="app-triangle down"></uxg-icon>
+            </button>
+            <div *uxgPopoverContent>
+              <div>
+                <button uxgButton clear (click)="selectPositions('all');  mainCheckboxChanged.emit($event); useAllPositionsChanged.emit(true); popover.hide()">Все позиции</button>
+              </div>
+              <div>
+                <button uxgButton clear (click)="selectPositions('none'); popover.hide()">Ни одного</button>
+              </div>
+              <div>
+                <button uxgButton clear (click)="selectPositions('groups'); popover.hide()">Группы</button>
+              </div>
+              <div>
+                <button uxgButton clear (click)="selectPositions('positions'); popover.hide()">Вне групп</button>
+              </div>
+            </div>
+          </uxg-popover>
+        </div>
+      </div>
+
+      <!-- Отправить позиции на согласование -->
+      <!-- @TODO раскомментить если нужно согласование
+        <ng-container *ngIf="featureService.authorize('sentToApprove') && (draftPositions$ | async) as draftPositions">
+          <div class="app-col app-col-auto" *ngIf="draftPositions?.length && (checkedPositions$ | async) as checkedPositions">
+            <button uxgButton clear link
+                    [disabled]="!checkedPositions.length || !draftPositions.length"
+                    (click)="onApprove(checkedPositions)">
+              <uxg-icon shape="app-on-approve" size="16" class="is-solid"></uxg-icon>
+              <span>На согласование</span>
+            </button>
+          </div>
+        </ng-container>
+      -->
+
+      <!-- Добавить в группу -->
+      <div class="app-col app-col-auto" *ngIf="featureService.authorize('addRequestGroup')">
+        <uxg-popover #createGroupPopover [openOnHover]="true">
+          <button uxgButton clear link
+                  [disabled]="!(checkedPositions$ | async)?.length || !(allCheckedPositionsInTheSameStatus$ | async)"
+                  (click)="showAddGroupModal.emit()">
+            <uxg-icon shape="app-group" size="16" class="is-solid"></uxg-icon>
+            <span>Создать группу</span>
+          </button>
+          <ng-container *ngIf="!(allCheckedPositionsInTheSameStatus$ | async)">
+            <div *uxgPopoverContent>
+              Все выбранные позиции должны находится в одном статусе
+            </div>
+          </ng-container>
+        </uxg-popover>
+      </div>
+
+      <!-- Переместить в группу -->
+      <div class="app-col app-col-auto" *ngIf="featureService.authorize('moveRequestGroup')">
+        <button uxgButton clear link [disabled]="!(availableGroups$ | async) || !(checkedPositions$ | async)?.length"
+                (click)="showMoveGroupModal.emit()">
+          <uxg-icon shape="app-move" size="16" class="is-solid"></uxg-icon>
+          <span>Переместить</span>
+        </button>
+      </div>
+
+      <!-- Групповая смена статуса -->
+      <div class="app-col app-col-auto" *ngIf="featureService.authorize('changePositionStatus')">
+        <uxg-popover #status [openOnHover]="true">
+          <button uxgButton uxgPopoverTrigger clear link
+                  [disabled]="!(checkedPositions$ | async)?.length || !(isCanChangeStatus$ | async)"
+                  (click)="showChangeStatusModal.emit()">
+            <uxg-icon shape="app-circle-arrow"></uxg-icon>
+            <span>Сменить статус</span>
+          </button>
+          <div *uxgPopoverContent>
+            <div>Вы можете изменить статус нескольких позиций сразу,</div>
+            <div>если все позиции находятся в одном статусе.</div>
+          </div>
+        </uxg-popover>
+      </div>
+
+      <!-- Кебаб меню -->
+      <div class="app-col app-col-auto">
+        <uxg-popover #more *ngIf="!user.isCustomerApprover()">
+          <button uxgButton uxgPopoverTrigger clear link>
+            <uxg-icon shape="app-kebab"></uxg-icon>
+          </button>
+
+          <div *uxgPopoverContent (click)="more.hide()">
+            <ng-container *ngIf="user.isBackOffice()">
+
+              <!-- Загрузить документы в выбранные позиции -->
+              <div *ngIf="featureService.authorize('uploadPositionDocuments')">
+                <button uxgButton clear [disabled]="!(checkedPositions$ | async).length"
+                        (click)="showUploadFileModal.emit()">Загрузить документы
+                </button>
+              </div>
+
+              <!-- Назначить ответственного -->
+              <div *ngIf="user.hasPermission(PermissionType.POSITIONS_DISTRIBUTION_BETWEEN_BACKOFFICE_BUYERS)">
+                <button uxgButton clear [disabled]="!(checkedPositions$ | async).length ||
+                                                     ((hasPositionWithProcedure$ | async) && !isCheckedPositionsInTheSameProcedure(checkedPositions$ | async))"
+                        (click)="showAddResponsiblePositionModal.emit()">Назначить позиции
+                </button>
+              </div>
+
+              <div *ngIf="featureService.authorize('backofficeCancelPosition')">
+                <button uxgButton
+                  clear
+                  [disabled]="!(checkedPositions$ | async).length || (someOfPositionsAreInProcedure$ | async)"
+                  (click)="showCancelPositionModal.emit()">Отменить
+                </button>
+              </div>
+
+              <!-- Расформировать группу -->
+              <div *ngIf="featureService.authorize('disbandPositionsGroup')">
+                <button uxgButton clear [disabled]="!((checkedGroups$ | async).length === 1)"
+                        (click)="showDisbandGroupModal.emit()">Расформировать
+                </button>
+              </div>
+
+              <!-- Вернуть в работу -->
+              <div *ngIf="allPositionsIsTCPP$ | async">
+                <button uxgButton clear  (click)="showReturnToWorkModal.emit()">
+                  Вернуть в работу
+                </button>
+              </div>
+
+              <div>
+                <button uxgButton clear (click)="toggleGroups(true)">Свернуть группы</button>
+              </div>
+
+              <div>
+                <button uxgButton clear (click)="toggleGroups(false)">Развернуть группы</button>
+              </div>
+            </ng-container>
+          </div>
+        </uxg-popover>
+      </div>
+
+      <ng-container *ngIf="(checkedPositions$ | async) as checkedPositions">
+        <div class="app-col app-col-auto" *ngIf="checkedPositions?.length && isCheckedPositionsInTheSameProcedure(checkedPositions)">
+          <button
+            uxgButton
+            link
+            class="position-buttons-new"
+            *ngIf="checkedPositions[0].procedureUuid"
+            [routerLink]="['/procedures', checkedPositions[0].procedureUuid, 'info']"
+            [queryParams]="{source: checkedPositions[0].procedureSource}">
+            <uxg-icon shape="app-to-procedure" size="16"></uxg-icon>
+            <span>К процедуре</span>
+          </button>
+        </div>
+        <div class="app-col app-col-auto" *ngIf="checkedPositions.length && isCheckedPositionsInTheSameTCPGroup(checkedPositions)">
+          <button
+            uxgButton
+            link
+            class="position-buttons-new"
+            *ngIf="!checkedPositions[0].procedureUuid && checkedPositions[0].tcpGroupId"
+            [routerLink]="['/procedures', checkedPositions[0].tcpGroupId, 'technical-commercial-proposals']"
+            [queryParams]="{source: 'TECHNICAL_COMMERCIAL_PROPOSAL'}">
+            <uxg-icon shape="app-to-procedure" size="16"></uxg-icon>
+            <span>К предложениям поставщиков</span>
+          </button>
+        </div>
+        <div class="app-col app-col-auto" *ngIf="checkedPositions.length === 1">
+          <button
+            uxgButton
+            link
+            class="position-buttons-new"
+            [routerLink]="['/im', checkedPositions[0].requestId]"
+            [queryParams]="{positionId: checkedPositions[0].id}">
+            <uxg-icon shape="app-comment" size="16" class="app-ghost-color"></uxg-icon>
+            <span>К чату</span>
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="app-col app-col-aside app-table app-no-border" [style.max-width.px]="550">
+    <div class="app-row">
+      <div class="app-col">
+        <button uxgButton secondary
+                *ngIf="featureService.authorize('addPosition')"
+                (click)="showAddPositionModal.emit()">
+          <span>Новая позиция</span>
+        </button>
+      </div>
+      <div class="app-col">
+        <uxg-filter-button [uxgFilter]="uxgFilter"></uxg-filter-button>
+      </div>
+      <div class="app-col">
+        <uxg-popover #procedurePopover [openOnHover]="true" class="popover-item">
+          <button uxgButton primary iconText
+                  *ngIf="featureService.authorize('createProcedure')"
+                  uxgPopoverTrigger
+                  [disabled]="isCreateProcedureDisabled()"
+                  (click)="showProcedureCreationModal.emit()">
+            <uxg-icon shape="app-plus"></uxg-icon>
+            <span>Создать процедуру</span>
+          </button>
+          <ng-container *ngIf="useAllPositions && (totalCountWithoutNotRelevantAndCanceled$ | async)  > appConfig.procedure.maxPositionsForCreateProcedure else otherTooltip">
+            <div *uxgPopoverContent (click)="procedurePopover.hide()">
+              <div>Выбрано более {{ appConfig.procedure.maxPositionsForCreateProcedure }} позиций. Создание процедуры невозможно.</div>
+            </div>
+          </ng-container>
+          <ng-template #otherTooltip>
+            <ng-container *ngIf="(!useAllPositions && (!(allPositionsIsNew$ | async)) || isFilteredPositionsInStatusNotNew() || isProcedureFiltersActivated())">
+              <div *uxgPopoverContent (click)="procedurePopover.hide()">
+                Не все выбранные позиции в статусе "Новая"
+              </div>
+            </ng-container>
+          </ng-template>
+        </uxg-popover>
+      </div>
+    </div>
+  </div>
+</div>

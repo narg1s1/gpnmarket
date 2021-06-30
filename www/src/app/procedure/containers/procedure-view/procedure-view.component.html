@@ -1,0 +1,52 @@
+<ng-container *ngIf="(procedure$ | async) as procedure; else loader">
+
+  <app-title
+    [titlePage]="'Процедура №'+procedure.procedureId+' «'+procedure.procedureTitle+'»'"
+  ></app-title>
+
+  <app-procedure-tabs
+    [procedure]="procedure"
+    [activeTab]="'info'"
+  ></app-procedure-tabs>
+
+  <app-procedure-info
+    [procedure]="procedure"
+    (bargain)="procedureModalPayload = { action: 'bargain', procedure: procedure }"
+    (prolong)="prolongModalPayload = procedure"
+    (refresh)="refreshProcedures()">
+  </app-procedure-info>
+
+
+  <!-- modals -->
+  <uxg-modal size="l" [staticBackdrop]="true" [(state)]="procedureModalPayload" [ngSwitch]="procedureModalPayload?.action">
+    <h2 *ngSwitchCase="'bargain'">Уторговывание процедуры №{{procedureModalPayload?.procedure.procedureId}}</h2>
+    <h2 *ngSwitchCase="'prolong'">Продление процедуры №{{procedureModalPayload?.procedure.procedureId}}</h2>
+
+    <app-request-procedure-form
+      *ngIf="procedureModalPayload"
+      [positions]="positions"
+      [action]="procedureModalPayload.action"
+      [procedure]="procedureModalPayload.procedure"
+      [procedureSource]="sourceFromUrl"
+      (cancel)="procedureModalPayload = null"
+      (complete)="refreshProcedures(); procedureModalPayload = null"
+    ></app-request-procedure-form>
+  </uxg-modal>
+
+  <uxg-modal [(state)]="prolongModalPayload">
+    <h2>Продление процедуры №{{prolongModalPayload?.procedureId}}</h2>
+    <app-procedure-prolongate
+      *ngIf="prolongModalPayload"
+      [dateEndRegistration]="prolongModalPayload.dateEndRegistration.date"
+      [dateSummingUp]="prolongModalPayload.dateSummingUp.date"
+      [procedureId]="prolongModalPayload.procedureId"
+      [requestId]="prolongModalPayload.requestId"
+      (close)="prolongModalPayload = null"
+      (complete)="refreshProcedures(); prolongModalPayload = null"
+    ></app-procedure-prolongate>
+  </uxg-modal>
+</ng-container>
+
+<ng-template #loader>
+  <span class="spinner spinner-md"></span>
+</ng-template>

@@ -1,0 +1,16 @@
+<div class="app-row app-align-items-center">
+  <div class="app-col-auto">
+    <ul class="list-inline rating-list">
+      <li *ngFor="let star of stars"
+          (click)="setRating(star)"
+          [ngClass]="{'selected': (star <= rateValue)}">
+        <uxg-icon shape="app-rating-star"></uxg-icon>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="app-row clr-justify-content-end">
+  <button uxgButton secondary lg type="button" (click)="close.emit()">Отмена</button>
+  <button uxgButton primary lg [disabled]="!rateValue" (click)="onSendRating(); close.emit()">Оценить</button>
+</div>

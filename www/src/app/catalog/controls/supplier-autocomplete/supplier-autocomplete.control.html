@@ -1,0 +1,19 @@
+<input
+  type="text"
+  [placeholder]="placeholder"
+  [disabled]="isDisabled"
+  [ngModel]="inputValue"
+  (input)="onInput.next($event.target.value)"/>
+
+<ng-container *ngIf="(contragents$ | async) as contragents">
+  <uxg-dropdown (select)="select($event)" *ngIf="contragents.length > 0 && isOpen">
+    <div uxgDropdownItem *ngFor="let contragent of contragents;" [value]="contragent">
+      {{contragent.shortName}}
+    </div>
+  </uxg-dropdown>
+</ng-container>
+
+<label class="label" *ngFor="let contragent of value;">
+  {{contragent.shortName}}
+  <uxg-icon *ngIf="multiple && !isDisabled" shape="app-cross" (click)="delete(contragent)"></uxg-icon>
+</label>

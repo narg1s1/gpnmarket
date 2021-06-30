@@ -1,0 +1,8 @@
+@function uxg($theme: (), $prop: "") {
+  @if map_has_key($theme, $prop) {
+    @return map_get($theme, $prop);
+  } @else {
+    @error "Prop `#{$prop}` not defined";
+    @return "";
+  }
+}

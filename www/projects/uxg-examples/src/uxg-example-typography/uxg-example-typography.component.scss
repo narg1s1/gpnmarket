@@ -1,0 +1,38 @@
+@import "projects/uxg-examples/src/dark-theme";
+
+.border { border: 1px uxg($theme, color-divider) dashed; }
+
+.headers {
+  h1, h2, h3, h4 {
+    &:after {
+      font-size: uxg($theme, font-size-s);
+      color: uxg($theme, color-font-ghost);
+      margin-left: 1em;
+      font-weight: normal;
+    }
+  }
+
+  h1:after { content: " #{uxg($theme, font-size-xxl)}"; }
+  h2:after { content: " #{uxg($theme, font-size-xl)}"; }
+  h3:after { content: " #{uxg($theme, font-size-l)}"; }
+  h4:after { content: " #{uxg($theme, font-size-m)}"; }
+}
+
+#layout-with-aside {
+  .app-col, .app-col-aside, .app-main {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:after {
+      margin-left: 1em;
+      color: uxg($theme, color-font-ghost);
+    }
+  }
+
+
+  .app-col:after {content: "100%"}
+  .app-col-aside:after {content: "#{uxg($theme, aside-width)}"}
+  .app-main:after {content: "max-width (for this theme): #{uxg($theme, content-width)}"}
+}

@@ -1,0 +1,244 @@
+<form [formGroup]="form">
+  <div [class.app-card]="!cartView">
+    <h2 *ngIf="!cartView">Новый ценовой запрос</h2>
+    <p class="app-secondary-color">
+      Пожалуйста, заполните обязательные поля ниже и укажите дополнительные условия по необходимости. После создания ценовой запрос можно увидеть в моих
+      ценовых запросах в процессе, или на площадке ЭТП ГПБ.
+    </p>
+    <br>
+    <h3>Обязательные поля для создания запроса</h3>
+    <div class="section">
+      <div class="app-row app-align-items-center">
+        <div class="app-col">
+          <div class="app-control-wrap">
+            <input #name uxgInput lg type="text" formControlName="name"/>
+            <label class="app-control-label" (click)="name.focus()">Наименование ценового запроса</label>
+          </div>
+        </div>
+        <div class="app-col app-secondary-color">
+          Данное наименование будет отображаться в списке и поможет легко отличить один ценовой запрос от другого
+        </div>
+      </div>
+
+      <div class="app-row">
+        <div class="app-col">
+          <uxg-dropdown-input
+            lg
+            strictMode
+            formControlName="regions"
+            placeholder="Регион"
+            (input)="onOkatoInput.next($event.target.value)"
+            [displayByFn]="getRegionName"
+          >
+            <ng-container *ngFor="let suggestion of regions$ | async">
+              <div uxgDropdownItem [value]="suggestion" [attr.title]="suggestion.name">{{ suggestion.name }}</div>
+            </ng-container>
+
+            <ng-template #errors>
+              <div class="app-control-error" *ngIf="form.get('regions').errors as e">
+                <span *ngIf="e.required">Обязательное поле</span>
+                <span *ngIf="e.notFromList">Выберите регион из списка</span>
+              </div>
+            </ng-template>
+          </uxg-dropdown-input>
+        </div>
+        <div class="app-col">
+          <div class="app-control-wrap">
+            <input #deliveryAddress uxgInput lg type="text" formControlName="deliveryAddress"/>
+            <label class="app-control-label" (click)="deliveryAddress.focus()">Адрес поставки</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-row">
+        <div class="app-col app-row">
+
+          <!-- dateResponse -->
+          <div class="app-col" *ngIf="form.get('dateResponse') as dateResponseControl">
+            <div class="app-control-wrap">
+              <input
+                #dateResponse
+                uxgInput lg uxgDatepicker
+                dateFormat="d.m.Y H:i"
+                formControlName="dateResponse"
+                [enableTime]="true"
+                [disable]="[isDateResponseInvalid]"
+              />
+              <label class="app-control-label" (click)="dateResponse.focus()">Дата ответа</label>
+              <label class="app-control-icon" (click)="dateResponse.focus()">
+                <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+              </label>
+              <div class="app-control-error" *ngIf="dateResponseControl.errors as e">
+                <span *ngIf="e.required">Обязательное поле</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- dateDelivery -->
+          <div class="app-col">
+            <div class="app-control-wrap">
+              <input #dateDelivery uxgInput lg uxgDatepicker formControlName="dateDelivery" appDateIsAfter="dateResponse" dateFormat="d.m.Y"/>
+              <label class="app-control-label" (click)="dateDelivery.focus()">Дата поставки</label>
+              <label class="app-control-icon" (click)="dateDelivery.focus()">
+                <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+              </label>
+              <div class="app-control-error" *ngIf="form.get('dateDelivery').errors as e">
+                <span *ngIf="e.required">Обязательное поле</span>
+                <span *ngIf="e.expired">Раньше даты ответа</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="app-col">
+          <uxg-dropdown-input strictMode formControlName="deliveryConditions" placeholder="Условия оплаты и доставки" lg>
+            <div uxgDropdownItem *ngFor="let term of paymentTermsLabels" [value]="term[0]">{{ term[1] }}</div>
+            <ng-template #errors>
+              <div class="app-control-error" *ngIf="form.get('deliveryConditions').errors as e">
+                <span *ngIf="e.required">Обязательное поле</span>
+                <span *ngIf="e.notFromList">Выберите условия оплаты из списка</span>
+              </div>
+            </ng-template>
+          </uxg-dropdown-input>
+        </div>
+      </div>
+    </div>
+
+    <h3>Дополнительные условия запроса</h3>
+    <div class="section app-row">
+      <div class="app-col">
+        <div class="app-row">
+          <div class="app-col">
+            <p class="app-row app-align-items-center">
+              <uxg-checkbox class="app-control" #isForAuthorizedDealer formControlName="isForAuthorizedDealer" disabled></uxg-checkbox>
+              <label (click)="isForAuthorizedDealer.check($event)">Официальный дилер</label>
+            </p>
+            <p class="app-row app-align-items-center">
+              <uxg-checkbox class="app-control" #isRussianProduction formControlName="isRussianProduction"></uxg-checkbox>
+              <label (click)="isRussianProduction.check($event)">Российское производство</label>
+            </p>
+          </div>
+          <div class="app-col">
+            <p class="app-row app-align-items-center">
+              <uxg-checkbox class="app-control" #isForSmallBusiness formControlName="isForSmallBusiness"></uxg-checkbox>
+              <label (click)="isForSmallBusiness.check($event)">Малый бизнес</label>
+            </p>
+            <p class="app-row app-align-items-center">
+              <uxg-checkbox class="app-control" #isForProducer formControlName="isForProducer"></uxg-checkbox>
+              <label (click)="isForProducer.check($event)">Производитель</label>
+            </p>
+          </div>
+          <div class="app-col type">
+            <p class="app-row" *ngFor="let type of typeLabels">
+              <uxg-radio-item class="app-control" #radio1 name="radio" [value]="type[0]" formControlName="type"></uxg-radio-item>
+              <label (click)="radio1.select($event)"> &nbsp; {{type[1]}}</label>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br>
+
+    <ng-container *ngIf="!cartView">
+      <hr>
+      <br>
+      <h3>Позиции запроса</h3>
+      <div class="section">
+        <ng-container *ngFor="let position of formPositions.controls; index as i" formArrayName="positions">
+          <div formGroupName="{{i}}">
+            <div class="app-row">
+              <div class="app-col">
+                <p class="app-bold">Позиция {{i + 1}}</p>
+              </div>
+              <div class="app-col delete">
+                <button uxgButton icon class="app-secondary-color" type="button" (click)="formPositions.removeAt(i)" *ngIf="formPositions.length > 1">
+                  <uxg-icon shape="app-trash" size="12"></uxg-icon>
+                </button>
+              </div>
+            </div>
+            <div class="app-row">
+              <div class="app-col">
+                <div class="app-control-wrap">
+                  <input #positionName uxgInput lg type="text" formControlName="name"/>
+                  <label class="app-control-label" (click)="positionName.focus()">Наименование позиции</label>
+                  <div class="app-control-error" *ngIf="position.get('name').errors as e">
+                    <span *ngIf="e.required">Обязательное поле</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="app-row">
+              <div class="app-col">
+                <div class="app-control-wrap">
+                  <input #quantity uxgInput lg type="number" formControlName="quantity"/>
+                  <label class="app-control-label" (click)="quantity.focus()">Количество</label>
+                  <div class="app-control-error" *ngIf="position.get('quantity').errors as e">
+                    <span *ngIf="e.required">Обязательное поле</span>
+                  </div>
+                </div>
+              </div>
+              <div class="app-col">
+                <uxg-dropdown-input appSuggestions strictMode class="measure-units" formControlName="okei" placeholder="Единицы измерения"
+                                    [$]="okeiList$" [searchFn]="okeiService.searchOkei" [lg]="true" #sug="appSuggestions"
+                                    [displayByFn]="getOkeiName"
+                >
+                  <ng-container *ngIf="(sug.suggestions$ | async) as okeiSuggestions">
+                    <div uxgDropdownItem
+                         *ngFor="let suggestion of okeiSuggestions"
+                         [value]="suggestion"
+                         [attr.title]="suggestion.name | lowercase"
+                    >{{suggestion.symbol | lowercase }} <span class="app-ghost-color">- {{suggestion.name | lowercase}}</span></div>
+                  </ng-container>
+                  <ng-template #errors>
+                    <div class="app-control-error" *ngIf="position.get('okei').errors as e">
+                      <span *ngIf="e.required">Обязательное поле</span>
+                      <span *ngIf="e.notFromList">Выберите значение из списка</span>
+                    </div>
+                  </ng-template>
+                </uxg-dropdown-input>
+              </div>
+
+              <div class="app-col">
+                <uxg-dropdown-input
+                  strictMode
+                  formControlName="okpd2"
+                  placeholder="OКПД2"
+                  (input)="onOkpd2Input.next($event.target.value)"
+                  [displayByFn]="getOkpd2Name"
+                  lg>
+                  <ng-container *ngFor="let suggestion of okpd2List$ | async">
+                    <div uxgDropdownItem [value]="suggestion" [attr.title]="suggestion.name">{{ suggestion.name }}</div>
+                  </ng-container>
+                </uxg-dropdown-input>
+              </div>
+
+              <div class="app-col">
+                <div class="app-control-wrap">
+                  <input #price uxgInput lg type="text" formControlName="maxPrice"/>
+                  <label class="app-control-label" (click)="price.focus()">Макс. цена без НДС</label>
+                  <div class="app-control-error" *ngIf="position.get('maxPrice').errors as e">
+                    <span *ngIf="e.required">Обязательное поле</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        <div>
+          <button uxgButton secondary type="button" (click)="pushPosition()">Добавить позиции</button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+  <div class="app-row app-justify-content-end actions">
+    <span *ngIf="(status$ | async) === 'fetching'" class="spinner spinner-inline"></span>
+    <button *ngIf="cartView" uxgButton secondary lg type="button" (click)="close.emit()">Отмена</button>
+    <ng-container *ngIf="(orderPositions$ | async); else manualPriceOrder">
+      <button uxgButton primary lg (click)="submit()" [disabled]="(status$ | async) === 'fetching' || form.invalid">Создать</button>
+    </ng-container>
+    <ng-template #manualPriceOrder>
+      <button uxgButton primary lg (click)="submit()" [disabled]="form.invalid">Создать</button>
+    </ng-template>
+  </div>
+</form>
+

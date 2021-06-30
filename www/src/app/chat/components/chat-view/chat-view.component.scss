@@ -1,0 +1,51 @@
+@import "src/theme";
+
+.im {
+  background: #fff;
+
+  & > .app-col {
+    height: calc(100vh - 64px);
+    overflow: auto;
+    @include scrollbar($theme);
+  }
+
+  &-list {
+    max-width: 230px;
+    padding: 24px 16px;
+
+    &.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    ul { list-style: none }
+
+    li a, li.search {
+      border-radius: uxg($theme, card-border-radius);
+      background: uxg($theme, color-bg);
+      padding: 7px;
+      color: uxg($theme, color-font-primary);
+      display: flex;
+      align-items: center;
+
+      & small {
+        background: uxg($theme, color-primary);
+        border-radius: uxg($theme, counter-border-radius);
+        color: uxg($theme, color-bg);
+        text-align: center;
+        padding: 2px 5px;
+        min-width: 20px;
+      }
+
+      &.active {
+        background: uxg($theme, color-primary);
+        color: uxg($theme, color-bg);
+      }
+
+    }
+
+    li:not(:last-child) {
+      margin-bottom: 12px;
+    }
+  }
+}

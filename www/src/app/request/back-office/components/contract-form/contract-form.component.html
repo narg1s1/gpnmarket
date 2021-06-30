@@ -1,0 +1,64 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="app-row">
+    <div class="app-col">
+      <small class="app-control-label app-secondary-color">Поставщик</small>
+      <uxg-dropdown lg formControlName="contragentId">
+        <div uxgDropdownItem *ngFor="let supplierWithPos of suppliers" [value]="supplierWithPos.supplier.id">
+          {{ supplierWithPos.supplier.shortName }}
+        </div>
+      </uxg-dropdown>
+    </div>
+  </div>
+  <br/>
+  <br/>
+  <div class="app-col app-secondary-color">
+    Выберите все необходимые позиции или группы позиций в заявке, по которым вы хотите создать новый договор.
+  </div>
+  <br/>
+  <select-items-with-search
+    class="select-list select-list-positions"
+    formControlName="positions"
+    placeholder="Наименование позиции или группы"
+    (filter)="filterPositions.emit($event)"
+    [trackBy]="trackById"
+    [items]="positions$ | async"
+  >
+    <ng-template let-formGroup="formGroup" let-position="item">
+      <div class="app-row select-list-item" [formGroup]="formGroup" [class.app-ghost-color]="formGroup.disabled">
+        <div class="app-col app-grow-0">
+          <uxg-checkbox formControlName="checked"></uxg-checkbox>
+        </div>
+
+        <div class="app-col app-bold select-list-item-title">{{ position.name }}</div>
+
+        <div class="app-col app-col-auto select-list-item-quantity">
+          <span>{{ position.quantity }} </span>
+          <span class="app-ghost-color">{{ position.measureUnit | lowercase }}</span>
+        </div>
+
+        <div class="app-col app-col-auto select-list-item-date">
+          <ng-container *ngIf="position.isDeliveryDateAsap; else deliveryDate">Как можно скорее</ng-container>
+          <ng-template #deliveryDate>{{ position.deliveryDate | date : 'dd.MM.yyyy' }}</ng-template>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #footerContentTpl>
+      <div class="app-row select-list-item-footer app-uppercase app-ghost-color app-bold">
+        <div class="app-col app-grow-0"></div>
+        <div class="app-col app-bold select-list-item-title"></div>
+        <div class="app-col app-col-auto select-list-item-quantity">Кол-во</div>
+        <div class="app-col app-col-auto select-list-item-date">Дата поставки</div>
+      </div>
+    </ng-template>
+  </select-items-with-search>
+  <br/>
+  <br/>
+  <div class="app-row app-justify-content-end app-align-items-center">
+    <uxg-switcher formControlName="useAllPositions" label="Добавить все позиции" labelAlign="right"></uxg-switcher>
+    <div class="app-col"></div>
+    <button uxgButton secondary lg (click)="close.emit()">Отмена</button>
+    <button uxgButton primary lg [disabled]="form.invalid">Добавить</button>
+  </div>
+</form>
+

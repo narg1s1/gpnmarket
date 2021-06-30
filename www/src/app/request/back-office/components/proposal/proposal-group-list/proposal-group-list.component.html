@@ -1,0 +1,182 @@
+<ng-container uxgFilter>
+<div class="app-row">
+  <div class="app-col app-table app-no-border">
+    <div class="app-row app-align-items-center">
+      <div>
+        <span class="app-secondary-color">показать: </span>
+        <uxg-popover>
+          <button uxgButton uxgPopoverTrigger link clear><span><b>по предложениям</b></span></button>
+          <div *uxgPopoverContent>
+            <div><button uxgButton clear>по предложениям</button></div>
+          </div>
+        </uxg-popover>
+      </div>
+      <div class="app-col"></div>
+      <div class="app-col-auto">
+        <!-- Фильтр -->
+        <uxg-filter-button></uxg-filter-button>
+
+        <!-- Создать процедуру  -->
+        <uxg-popover #procedurePopover [openOnHover]="true" class="popover-item">
+          <button uxgButton secondary iconText
+                  [disabled]="!allowCreate"
+                  (click)="procedureModalPayload = {action: 'create'}; filterAvailablePositions.emit();"
+                  *ngIf="featureService.authorize('createProcedure')">
+            <uxg-icon shape="app-plus"></uxg-icon>
+            <span>{{sourceLabel[source]}} из процедуры</span>
+          </button>
+
+          <ng-container *ngIf="!allowCreate">
+            <div *uxgPopoverContent (click)="procedurePopover.hide()">
+              <div>Нет доступных для выбора позиций {{sourceLabel[source]}}</div>
+              <div>Создание процедуры недоступно.</div>
+            </div>
+          </ng-container>
+        </uxg-popover>
+
+        <!-- Новая группа  -->
+        <uxg-popover #groupFormPopover [openOnHover]="true" class="popover-item">
+          <button uxgButton secondary iconText
+                  [disabled]="!allowCreate"
+                  (click)="openForm()"
+                  *ngIf="featureService.authorize('createProposalsGroup')">
+            <uxg-icon shape="app-plus"></uxg-icon>
+            <span>Новое {{sourceLabel[source]}}</span>
+          </button>
+
+          <ng-container *ngIf="!allowCreate">
+            <div *uxgPopoverContent (click)="groupFormPopover.hide()">
+              <div>Нет доступных для выбора позиций {{sourceLabel[source]}}</div>
+              <div>Создание {{sourceLabel[source]}} недоступно.</div>
+            </div>
+          </ng-container>
+        </uxg-popover>
+
+        <!-- Из шаблона  -->
+        <uxg-popover #templateFormPopup [openOnHover]="true" class="popover-item">
+          <button uxgButton primary iconText
+                  [disabled]="!allowCreate"
+                  (click)="formTemplate.reset(); uploadTemplateModal.open();"
+                  *ngIf="featureService.authorize('createProposalsFromTemplate')">
+            <uxg-icon shape="app-plus"></uxg-icon>
+            <span>{{sourceLabel[source]}} из шаблона</span>
+          </button>
+
+          <ng-container *ngIf="!allowCreate">
+            <div *uxgPopoverContent (click)="templateFormPopup.hide()">
+              <div>Нет доступных для выбора позиций {{sourceLabel[source]}}</div>
+              <div>Создание {{sourceLabel[source]}} из шаблона недоступно.</div>
+            </div>
+          </ng-container>
+        </uxg-popover>
+      </div>
+    </div>
+  </div>
+  <div class="app-col-aside detachable"></div>
+</div>
+<div class="app-row">
+  <div class="app-col proposal-group-list">
+    <app-proposal-group
+      *ngFor="let group of groups"
+      [group]="group"
+      (edit)="openForm(group)"
+    ></app-proposal-group>
+  </div>
+
+  <uxg-filter [formGroup]="form" [count]="groups?.length" (filter)="emitFilter($event)">
+    <uxg-filter-section label="Наименование позиции">
+      <input uxgInput type="text" formControlName="requestPositionName" placeholder="Наименование позиции или его часть" />
+    </uxg-filter-section>
+
+    <uxg-filter-section label="Дата создания">
+      <div class="app-row">
+        <div class="app-col" [style.padding-right.px]="15">
+          <div class="app-control-wrap" [style.padding]="0">
+            <input #createdDateFrom uxgInput uxgDatepicker placeholder="Дата с" formControlName="createdDateFrom">
+            <label class="app-control-icon" (click)="createdDateFrom.focus()">
+              <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+            </label>
+          </div>
+        </div>
+
+        <div class="app-col">
+          <div class="app-control-wrap" [style.padding]="0">
+            <input #createdDateTo uxgInput uxgDatepicker placeholder="Дата по" formControlName="createdDateTo">
+            <label class="app-control-icon" (click)="createdDateTo.focus()">
+              <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+            </label>
+          </div>
+        </div>
+      </div>
+    </uxg-filter-section>
+  </uxg-filter>
+</div>
+</ng-container>
+
+<uxg-modal #groupFormModal size="l">
+  <h2 *ngIf="!editedGroup">Создать новое {{sourceLabel[source]}}</h2>
+  <h2 *ngIf="editedGroup">Редактирование {{sourceLabel[source]}}</h2>
+  <app-common-proposal-group-form
+    *ngIf="groupFormModal.state"
+    [group]="editedGroup"
+    [availablePositions]="availablePositions"
+    (complete)="groupFormModal.close(); editedGroup = null;"
+    [requestId]="request.id"
+    [sourceLabel]="sourceLabel[source]"
+    (create)="createGroup.emit($event)"
+    (filterAvailablePositions)="filterAvailablePositions.emit({positionNameOrNumber: $event, filters: {isOnlyNotInTcpGroup: true}})"
+  ></app-common-proposal-group-form>
+</uxg-modal>
+
+<uxg-modal #uploadTemplateModal size="l" (stateChange)="$event && (files = [])">
+    <h2 class="modal-title"><b>Загрузить {{sourceLabel[source]}} из шаблона</b></h2>
+    <div class="app-secondary-color template">
+      Вы можете создать {{sourceLabel[source]}} списком, если заполните шаблон xls таблицы (<a class="app-link" (click)="downloadTemplate.emit()"><b>скачать
+      шаблон</b></a>) и загрузите файл в систему. Если указать несколько поставщиков, то будет создано несколько {{sourceLabel[source]}}.
+    </div>
+
+    <form appFormValidation [formGroup]="formTemplate">
+      <ng-container *ngIf="uploadTemplateModal.state">
+        <div class="app-control-wrap">
+          <input #name uxgInput lg formControlName="groupName">
+          <label class="app-control-label" (click)="name.focus()">Наименование {{sourceLabel[source]}}</label>
+          <div class="app-control-error" *ngIf="formTemplate.get('groupName').errors as e">
+            <span *ngIf="e.required">Обязательное поле</span>
+          </div>
+        </div>
+
+        <div class="dragAndDropArea">
+          <app-template-upload
+            [invalid]="formTemplate.get('files').dirty && formTemplate.get('files').invalid"
+            (fileSelected)="selectFiles($event)"></app-template-upload>
+        </div>
+      </ng-container>
+
+      <div class="app-modal-footer">
+        <div class="doc-error-message" *ngIf="formTemplate.get('files').dirty && formTemplate.get('files').invalid">Пожалуйста, загрузите необходимый шаблон</div>
+
+        <button type="button" uxgButton secondary lg uxgModalClose>Отмена</button>
+        <button uxgButton primary lg (click)="submit()">Загрузить</button>
+      </div>
+    </form>
+</uxg-modal>
+
+<!-- Из процедуры -->
+<uxg-modal size="l" [staticBackdrop]="true" [(state)]="procedureModalPayload" [ngSwitch]="procedureModalPayload?.action">
+  <h2 *ngSwitchCase="'create'">Создание новой процедуры</h2>
+  <h2 *ngSwitchCase="'bargain'">Уторговывание процедуры №{{procedureModalPayload?.procedure.procedureId}}</h2>
+  <h2 *ngSwitchCase="'prolong'">Продление процедуры №{{procedureModalPayload?.procedure.procedureId}}</h2>
+  <app-request-procedure-form
+    *ngIf="procedureModalPayload"
+    [request]="request"
+    [positions]="availablePositions"
+    [action]="procedureModalPayload.action"
+    [procedure]="procedureModalPayload.procedure"
+    [procedureSource]="source"
+    [contragents]="contragentsWithTp"
+    (positionsSelected)="procedurePositionsSelected.emit($event)"
+    (filterPositions)="filterAvailablePositions.emit({positionNameOrNumber: $event})"
+    (complete)="newProcedure.emit(); procedureModalPayload = null; filterAvailablePositions.emit();"
+    (cancel)="procedureModalPayload = null"
+  ></app-request-procedure-form>
+</uxg-modal>

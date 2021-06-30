@@ -1,0 +1,152 @@
+@import "../uxg";
+
+@mixin controls-input($theme) {
+.app-control {
+  @at-root {
+    textarea#{&}, input#{&} {
+      background: uxg($theme, color-control-input-bg);
+      border: 1px solid uxg($theme, color-control-secondary);
+      border-radius: uxg($theme, control-border-radius);
+      cursor: text;
+      color: uxg($theme, color-font-primary);
+      display: block;
+      height: uxg($theme, control-height);
+      padding: 10px;
+      width: 100%;
+      transition: border 250ms;
+
+      &-large {
+        height: uxg($theme, control-height-l);
+      }
+
+      &:not(.invalid):not(.app-dropdown-handler):focus {
+        border-color: uxg($theme, color-control-primary);
+      }
+
+      & ~ .app-control-error {
+        animation: app-control-error-show 250ms;
+        bottom: 0;
+        display: none;
+        padding: 2px 0;
+        position: absolute;
+        transform-origin: top;
+      }
+
+      &.warning, &.invalid {
+        & ~ .app-control-error,
+        & ~ .app-control-icon-error > * { display: block; }
+      }
+
+      &.warning {
+        border-color: uxg($theme, color-control-warning);
+
+        & ~ .app-control-error, & ~ .app-control-icon-error {
+          color: uxg($theme, color-control-warning);
+        }
+      }
+
+      &.invalid {
+        border-color: uxg($theme, color-control-invalid);
+
+        & ~ .app-control-error, & ~ .app-control-icon-error {
+          color: uxg($theme, color-control-invalid);
+        }
+      }
+
+      &:disabled {
+        color: uxg($theme, color-font-ghost);
+        cursor: default;
+      }
+    }
+
+    $selectors: (
+      '&:focus, &.app-control-label-shown',
+      '&:-webkit-autofill'
+    );
+    @each $selector in $selectors {
+      #{$selector} {
+        & + .app-control-label {
+          color: uxg($theme, color-font-secondary);
+          cursor: default;
+          top: 0;
+          transform: scale(0.785);
+        }
+      }
+    }
+
+    & ~ &-label {
+      color: uxg($theme, color-font-ghost);
+      cursor: text;
+      top: 50%;
+      border: 1px transparent solid;
+      line-height: uxg($theme, font-size-m) * 1.286;
+      letter-spacing: -0.1px;
+      position: absolute;
+      transform: translate(10px, -50%);
+      transform-origin: bottom left;
+      transition: transform, color, top;
+      transition-duration: 300ms;
+
+      &:after {
+        content: "";
+        display: inline-block;
+        height: 100%;
+        vertical-align: middle;
+      }
+
+      &.required:after {
+        content: "*" !important;
+        color: uxg($theme, color-control-invalid);
+        font-weight: bolder;
+      }
+    }
+
+    textarea.app-control ~ &-label {
+      top: 40px;
+    }
+
+    & ~ &-icon {
+      align-items: center;
+      color: uxg($theme, color-font-ghost);
+      display: flex;
+      margin: 0 10px;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+
+      &-error {
+        @extend .app-control-icon;
+
+        & > * {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &-wrap {
+    position: relative;
+    padding: 1.5em 0;
+  }
+
+  &-error > * {
+    display: block;
+    font-size: uxg($theme, font-size-s);
+    font-weight: bold;
+  }
+}
+}
+
+@keyframes app-control-error-show {
+  0% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+

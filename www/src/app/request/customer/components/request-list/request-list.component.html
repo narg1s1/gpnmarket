@@ -1,0 +1,45 @@
+<app-request-list
+  [requests]="requests$ | async"
+  [total]="totalCount$ | async"
+  [tabTotal]="tabTotalCount$ | async"
+  [status]="status$ | async"
+  [statusCounters]="statusCounters$ | async"
+  [filters]="fetchFilters$ | async"
+  [pageSize]="pageSize"
+  [availableFilters$]="availableFilters$"
+  [form]="form"
+  (filter)="fetchFilters$.next($event)"
+  (addRequest)="newRequestModal.open()"
+  (refresh)="fetchFilters$.next({})"
+></app-request-list>
+
+<uxg-modal size="l" #newRequestModal>
+  <h2>Создать новую заявку</h2>
+  <div class="app-row app-align-items-center">
+    <div class="app-col">
+      <uxg-tabs>
+        <uxg-tab-title #template [active]="true">Загрузить из шаблона</uxg-tab-title>
+        <uxg-tab-title #freeForm>Произвольная заявка</uxg-tab-title>
+      </uxg-tabs>
+    </div>
+    <a [routerLink]="'/requests/customer/create'">
+      <span>Заполнить вручную</span><uxg-icon shape="app-arrow right"></uxg-icon>
+    </a>
+  </div>
+  <ng-container *ngIf="newRequestModal?.state">
+
+    <app-add-from-excel
+      *uxgTab="template"
+      [isLoading]="(status$ | async) === 'updating'"
+      [templateUrl]="'assets/RequestTemplate.xlsx'"
+      [isNew]="true"
+      [buttonLabel]="'Сохранить черновик'"
+      (create)="store.dispatch(addRequestFromExcel($event, false))"
+      (publish)="store.dispatch(addRequestFromExcel($event, true))"
+      (cancel)="newRequestModal.close()"
+    ></app-add-from-excel>
+
+    <app-request-form-free *uxgTab="freeForm" (cancel)="newRequestModal.close()">
+    </app-request-form-free>
+  </ng-container>
+</uxg-modal>

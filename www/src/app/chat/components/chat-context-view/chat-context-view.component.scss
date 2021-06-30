@@ -1,0 +1,141 @@
+@import "src/theme";
+@import "src/assets/styles/statuses";
+@import "src/assets/styles/helpers";
+
+.im {
+  & > .app-col {
+    @include scrollbar($theme);
+    height: calc(100vh - 64px);
+    overflow: auto;
+  }
+
+  &-list {
+    background: uxg($theme, color-bg);
+    max-width: 320px;
+    padding: 24px 16px;
+
+    ul {
+      list-style: none;
+    }
+
+    & > ul {
+      li a, li.search {
+        border-radius: uxg($theme, card-border-radius);
+        background: uxg($theme, color-default);
+        margin: 0 -12px;
+        padding: 12px;
+        color: uxg($theme, color-font-primary);
+        display: flex;
+        align-items: center;
+
+        & small {
+          background: uxg($theme, color-primary);
+          border-radius: uxg($theme, counter-border-radius);
+          color: uxg($theme, color-bg);
+          text-align: center;
+          padding: 2px 5px;
+          min-width: 20px;
+        }
+
+        @each $status, $color in $statuses {
+          &.#{$status} {
+            border-left: uxg($theme, card-border-radius) $color solid;
+
+            &.active {
+              background: $color;
+            }
+          }
+        }
+
+        &.active {
+          background: uxg($theme, color-primary);
+          color: uxg($theme, color-bg);
+
+          small {
+            background: none;
+          }
+        }
+      }
+
+      & > li:first-child {
+        margin-top: 24px;
+      }
+
+      li {
+        margin-top: 4px;
+      }
+    }
+  }
+
+  &-info {
+    padding: 24px 16px;
+  }
+
+  &-messages {
+    @include scrollbar($theme);
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    padding: 0 16px;
+
+
+    &-item {
+      align-self: flex-start;
+      background: uxg($theme, color-secondary);
+      border-radius: uxg($theme, card-border-radius);
+      border-bottom-left-radius: 0;
+      margin: 5px 0;
+      max-width: 400px;
+      min-width: 200px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-end;
+
+      &-own {
+        background: uxg($theme, color-list-hover);
+      }
+
+      &:not(&-own) {
+      }
+
+      @media (max-width: col(5) - 1) {
+        &-own {
+          border-radius: uxg($theme, card-border-radius);
+          border-bottom-right-radius: 0;
+          align-self: flex-end;
+        }
+      }
+
+      &-body {
+        overflow: hidden;
+      }
+
+      &-text {
+        margin-right: .5em;
+      }
+
+      &-attachment {
+        margin: .5em 0;
+        cursor: pointer;
+
+        span {
+          margin-left: .5em;
+        }
+      }
+    }
+  }
+
+  &-textarea {
+    margin: 10px 16px;
+    position: relative;
+  }
+}
+
+
+.no-wrap {
+  flex-wrap: nowrap
+}
+
+.divider {
+  margin: 0;
+}

@@ -1,0 +1,67 @@
+@import "src/theme";
+
+.app-table {
+  &.tp-card {
+    margin-bottom: 24px;
+  }
+}
+
+.tp-header {
+  display: flex;
+  align-items: center;
+}
+
+.status {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.icon-status {
+  max-width: 18px;
+}
+.section {
+  padding-top: 5px;
+}
+
+.position-list {
+  padding-bottom: 15px;
+
+  & > .app-col:not(:last-child) {
+    padding-right: 15px;
+  }
+}
+
+.extendable-block hr {
+  border: none;
+  border-top: 1px uxg($theme, color-border) dotted;
+  margin: 14px 0;
+}
+
+h3, p.sent-label {
+  margin: 0;
+}
+
+.action-bar {
+  justify-content: flex-end;
+}
+
+.fixedWidth {
+  min-width: 135px;
+}
+
+.tp-comment {
+  padding: 15px 0;
+}
+
+.comment-datetime {
+  font-size: 11px;
+
+  & .date {
+    padding-right: 5px;
+  }
+
+  & .date, & .time {
+    display: inline-block;
+  }
+}

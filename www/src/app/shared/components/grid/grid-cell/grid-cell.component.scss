@@ -1,0 +1,26 @@
+:host {
+  .favorite-star {
+    &:not(.is-customer):hover {
+      color: #F0C332 !important;
+    }
+  }
+  .increase-rub :hover {
+    color: #ED9254 !important;
+  }
+  .native-radio {
+    width: 20px;
+    height: 20px;
+  }
+  .analog {
+    display: inline-block;
+    color: #ED9254;
+    vertical-align: top;
+  }
+  .manufacturing-name {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 10px;
+  }
+}

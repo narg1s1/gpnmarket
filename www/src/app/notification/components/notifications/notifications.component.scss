@@ -1,0 +1,45 @@
+@import "src/theme";
+@import "src/assets/styles/statuses";
+
+.app-notification {
+  &.loading {
+    transition: opacity 250ms;
+    opacity: 0.4;
+  }
+
+  &-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: uxg($theme, counter-border-radius);
+    position: relative;
+
+    @each $status, $color in $statuses {
+      &.#{$status} { background-color: $color }
+    }
+
+    &:after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border-radius: 0;
+    }
+
+    &-top, &-bottom {
+      @extend .app-notification-icon;
+      height: 10px;
+      &:after { content: none; }
+    }
+
+    &-top { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+    &-bottom { border-top-left-radius: 0; border-top-right-radius: 0; }
+  }
+}
+
+.content > *:not(:last-child){
+  margin-bottom: 7px;
+}

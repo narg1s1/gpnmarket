@@ -1,0 +1,34 @@
+@import "projects/uxg/src/styles/index";
+
+$theme: map_merge($theme,(
+  /**
+   Цвета заливки
+   Фоны, бордеры. Не контролы
+  */
+  color-primary: #5066FF,
+  color-border: #C8CAFF,
+  color-background: #F4F6FB,
+
+  /**
+    Контролы
+    Кнопки, инпуты, т. д.
+   */
+  color-control-primary: #5066FF,
+  color-control-primary-hover: #1E47FF,
+  color-control-invalid: #eb5757,
+  color-control-warning: #ed9254,
+
+  /**
+    Цвета типографики
+    Цвета иконок на этих же переменных
+   */
+  color-font-brand: #5066FF,
+  color-font-link: #5066FF,
+  color-font-link-hover: #1E47FF,
+  color-font-success: #69C57F,
+  color-font-warning: #ed9254,
+  color-font-alert: #f35c6c,
+
+  card-border-radius: 4px,
+  counter-border-radius: 2px,
+));

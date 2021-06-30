@@ -1,0 +1,39 @@
+.modal-section {
+  &-header {
+    margin: 16px 0 9px 0;
+  }
+}
+
+.modal-info {
+  margin: 24px -32px 0;
+  padding: 16px 32px;
+  background: #F4F6FB;
+
+  h2 {
+    font-weight: 500;
+    margin: 0;
+  }
+}
+
+.app-col-6 {
+  flex-basis: 50%;
+}
+
+.proposal-increase-container {
+  padding-top: 20px;
+}
+
+.proposal-item-uppercase {
+  margin: 0 0 10px 0;
+  font-weight: bold;
+  font-size: 11px;
+  line-height: 14px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.proposal-item-label,
+.proposal-item-radio {
+  display: inline-block;
+}
+

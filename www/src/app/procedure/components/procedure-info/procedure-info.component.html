@@ -1,0 +1,479 @@
+<ng-container *ngIf="procedure">
+  <div class="app-row">
+    <div class="app-col app-table app-no-border">
+      <div class="app-row app-align-items-center">
+        <div>
+          <span class="app-secondary-color">доступ к процедуре:
+            <b>{{ procedure.privateAccessContragents.length === 0 ? 'открытая процедура' : 'для ограниченного круга участников' }}</b>
+          </span>
+        </div>
+
+        <div class="app-col"></div>
+
+        <ng-container class="action-bar" *ngIf="!canceled()">
+          <div [style.margin-right.px]="10">
+            <!-- Ссылка на процедуру и кнопка Уторговать  -->
+            <a *ngIf="finished()" [href]="resultLink" target="_blank" class="app-bold">Показать на ЭТП ГПБ</a>
+            <a *ngIf="!finished()" [href]="link" target="_blank" class="app-bold">Показать на ЭТП ГПБ</a>
+          </div>
+          <uxg-popover #prolongPopover [openOnHover]="true" [style.margin-left.rem]="0.5">
+            <button uxgButton secondary
+                    uxgPopoverTrigger
+                    [disabled]="prolongButtonIsDisabled() || !featureService.authorize('prolongProcedure')" (click)="prolong.emit()">
+              Продлить
+            </button>
+
+            <ng-container *ngIf="prolongButtonIsDisabled()">
+              <div *uxgPopoverContent="'app-popover-content-bottom-right'" (click)="prolongPopover.hide()">
+                <div *ngIf="procedureIsFinished(); else otherProlongError" style="text-align: left">
+                  Период подведения итогов по этой процедуре завершен. <br>
+                  При необходимости объявите новую процедуру.
+                </div>
+
+                <ng-template #otherProlongError>
+                  <div *ngIf="procedureIsRetrade() && !this.procedureService.dateEndRegistrationFinished(procedure)" style="text-align: left">
+                    По процедуре объявлено уторговывание. <br>
+                    Продление невозможно.
+                  </div>
+
+                  <div *ngIf="procedureIsRetrade() && this.procedureService.dateEndRegistrationFinished(procedure) && !this.procedureService.dateSummingUpFinished(procedure)" style="text-align: left">
+                    По процедуре проведено уторговывание результатов. <br>
+                    Продление невозможно.
+                  </div>
+                </ng-template>
+              </div>
+            </ng-container>
+          </uxg-popover>
+
+          <uxg-popover #bargainPopover [openOnHover]="true" [style.margin-left.rem]="0.5">
+            <button uxgButton secondary
+                    uxgPopoverTrigger
+                    [disabled]="retradeButtonIsDisabled() || !featureService.authorize('retradeProcedure')" (click)="bargain.emit()">
+              Уторговать
+            </button>
+
+            <ng-container *ngIf="retradeButtonIsDisabled()">
+              <div *uxgPopoverContent="'app-popover-content-bottom-right'" (click)="bargainPopover.hide()">
+                <div *ngIf="procedureIsFinished(); else otherRetradeError" style="text-align: left">
+                  Период подведения итогов по этой процедуре завершен. <br>
+                  Уторговывание недоступно.
+                </div>
+
+                <ng-template #otherRetradeError>
+                  <div *ngIf="procedure.offersImported && !canRetradeProcedure(); else notFinished" style="text-align: left">
+                    Получено менее 2 предложений от поставщиков. <br>
+                    Уторговывание недоступно.
+                  </div>
+
+                  <ng-template #notFinished>
+                    <div style="text-align: left">
+                      Идёт приём предложений от поставщиков. <br>
+                      Уторговывание недоступно.
+                    </div>
+                  </ng-template>
+                </ng-template>
+              </div>
+            </ng-container>
+          </uxg-popover>
+
+          <uxg-popover #assignPopover [openOnHover]="true" [style.margin-left.rem]="0.5" *ngIf="!userInfo.isBackofficeBuyer()">
+            <button uxgButton
+                    secondary
+                    icon
+                    [disabled]="!procedureService.isProcedureMayBeAssigned(procedure)"
+                    (click)="addResponsiblePositionModal.open()">
+              <uxg-icon shape="app-assign" [class.app-ghost-color]="!procedureService.isProcedureMayBeAssigned(procedure)"></uxg-icon>
+            </button>
+            <ng-container *ngIf="!procedureService.isProcedureMayBeAssigned(procedure)">
+              <div *uxgPopoverContent="'app-popover-content-bottom-right'" (click)="assignPopover.hide()">
+                Операция не доступна. Назначение ответственного через раздел Позиции.
+              </div>
+            </ng-container>
+            <ng-container *ngIf="procedureService.isProcedureMayBeAssigned(procedure)">
+              <div *uxgPopoverContent="'app-popover-content-bottom-right'" (click)="assignPopover.hide()">
+                Назначение ответственного по позициям процедуры.
+              </div>
+            </ng-container>
+          </uxg-popover>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="app-col app-col-aside procedure-info-empty-aside"></div>
+  </div>
+
+  <div class="app-row">
+    <div class="app-col">
+      <!-- Сведения о процедуре -->
+      <div class="app-card">
+        <uxg-accordion [isOpened]="true" [isShowBorder]="true">
+          <div title>
+            <div class="app-row app-align-items-center">
+              <h3 class="app-col app-grow-1 procedure-info-title">Сведения о процедуре</h3>
+              <div class="app-col app-grow-0 procedure-info-title-dateend" *ngIf="!finished() && !canceled()">
+                Завершение приёма заявок: {{ dateEndRegistration }}
+              </div>
+              <div class="app-col-auto app-grow-0 status">
+                <ng-container *ngIf="canceled()">
+                  <span class="app-error-color pr-20">
+                    <uxg-icon shape="app-cross"></uxg-icon>
+                    <b>Отменена</b>
+                  </span>
+                </ng-container>
+                <ng-container *ngIf="!finished() && !canceled()">
+                  <span class="app-ghost-color pr-20">
+                    <uxg-icon shape="app-waiting"></uxg-icon>
+                    <b>Идет процедура</b>
+                  </span>
+                </ng-container>
+                <ng-container *ngIf="finished() && procedure?.offersImported && !canceled()">
+                  <span class="app-success-color pr-20">
+                    <uxg-icon shape="app-check"></uxg-icon>
+                    Завершена {{ procedure.dateEndRegistration.date | date :'shortDate' }}
+                  </span>
+                </ng-container>
+                <ng-container *ngIf="finished() && !procedure?.offersImported && !canceled()">
+                  <span class="app-ghost-color pr-20">
+                    <uxg-icon shape="app-waiting"></uxg-icon>
+                    <b>Ожидание выгрузки результатов</b>
+                  </span>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+          <div body>
+            <uxg-accordion [isOpened]="true">
+              <div title>
+                <h5 class="procedure-info-subtitle">Общие сведения</h5>
+              </div>
+              <div body>
+                <div class="app-row procedure-info-row">
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Наименование</div>
+                    <span class="procedure-info-value">{{ procedure.procedureTitle | nodata }}</span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">№ извещения</div>
+                    <span class="procedure-info-value">{{ procedure.registryNumber | nodata }}</span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">№ процедуры</div>
+                    <span class="procedure-info-value">{{ procedure.procedureId  | nodata}}</span>
+                  </div>
+                </div>
+                <div class="app-row procedure-info-row">
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Валюта</div>
+                    <span class="procedure-info-value">{{ procedure.currency | nodata }}</span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Способ закупки</div>
+                    <span class="procedure-info-value">{{ procedure.procedureType | nodata }}</span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Аварийная закупка</div>
+                    <span class="procedure-info-value">{{ procedure.isEmergency ? 'Да' : 'Нет'}}</span>
+                  </div>
+                </div>
+                <div class="app-row procedure-info-row">
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Требование к отсутствию участников в реестре недобросовестных поставщиков</div>
+                    <span class="procedure-info-value">{{ procedure.dishonestSuppliersForbidden ? 'Да' : 'Нет' }}</span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Дата публикации</div>
+                    <span class="procedure-info-value">{{ datePublished }}</span>
+                  </div>
+                  <div class="app-col"></div>
+                </div>
+              </div>
+            </uxg-accordion>
+
+            <hr>
+
+            <uxg-accordion [isOpened]="true">
+              <div title>
+                <h5 class="procedure-info-subtitle">Этапы закупочной процедуры</h5>
+              </div>
+              <div body>
+                <div class="app-row procedure-info-row">
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Дата и время начала срока <br> подачи заявок</div>
+                    <span class="procedure-info-value">{{ dateStartRegistration }}</span>
+                    &nbsp;
+                    <span class="app-ghost-color">[GMT {{ timezone }}]</span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Дата и время окончания срока <br> подачи заявок</div>
+                    <span class="procedure-info-value">{{ dateEndRegistration }}</span>
+                    &nbsp;
+                    <span class="app-ghost-color">[GMT {{ timezone }}]</span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Дата рассмотрения предложений <br> участников и подведения итогов</div>
+                    <span class="procedure-info-value">{{ dateSummingUp }}</span>
+                  </div>
+                </div>
+              </div>
+            </uxg-accordion>
+
+            <hr>
+
+            <uxg-accordion [isOpened]="true">
+              <div title>
+                <h5 class="procedure-info-subtitle">Доступ к процедуре</h5>
+              </div>
+              <div body>
+                <div class="app-row procedure-info-row">
+                  <div class="app-col">
+                    <span class="procedure-info-value">{{ procedure.privateAccessContragents.length === 0 ? 'Открытая процедура' : 'Для ограниченного круга участников' }}</span>
+                  </div>
+                </div>
+              </div>
+            </uxg-accordion>
+
+            <hr *ngIf="procedure.procedureDocuments.length">
+
+            <uxg-accordion [isOpened]="true" *ngIf="procedure.procedureDocuments.length">
+              <div title>
+                <h5 class="procedure-info-subtitle">Документы процедуры</h5>
+              </div>
+              <div body>
+                <div class="app-row">
+                  <div class="app-col">
+                      <app-document-simple-list [gridable]="true" [enableUpload]="false" [uploadedDateHidden]="true" [documents]="procedure.procedureDocuments">
+                      </app-document-simple-list>
+                  </div>
+                </div>
+              </div>
+            </uxg-accordion>
+          </div>
+        </uxg-accordion>
+      </div>
+
+      <div class="app-card">
+        <uxg-accordion [isOpened]="true" [isShowBorder]="true">
+          <div title>
+            <h3 class="procedure-info-title">Лот 1</h3>
+          </div>
+          <div body>
+            <uxg-accordion [isOpened]="true">
+              <div title>
+                <h5 class="procedure-info-subtitle">Предмет договора</h5>
+              </div>
+              <div body>
+                <div class="app-row procedure-info-row">
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Предмет договора</div>
+                    <span class="procedure-info-value">{{ procedure.contractSubject | nodata }}</span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Начальная цена</div>
+                    <span class="procedure-info-value">{{ (procedure.startPrice || 0) | number:'1.0-2'}}</span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Начальная цена без НДС</div>
+                    <span class="procedure-info-value">{{ procedure.startPriceWithoutVat | nodata }}</span>
+                  </div>
+                </div>
+                <div class="app-row procedure-info-row">
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Ставка НДС</div>
+                    <span class="procedure-info-value">{{ procedure.vatPercent | nodata }}%</span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Валюта</div>
+                    <span class="procedure-info-value">{{ procedure.currency | nodata }}</span>
+                  </div>
+                  <div class="app-col"></div>
+                </div>
+              </div>
+            </uxg-accordion>
+
+            <hr>
+
+            <uxg-accordion [isOpened]="true">
+              <div title>
+                <h5 class="procedure-info-subtitle">Условия договора</h5>
+              </div>
+              <div body>
+                <div class="app-row procedure-info-row">
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Условия доставки</div>
+                    <span class="procedure-info-value">{{ procedure.contractConditions?.term  | nodata }}</span>
+                    <br>
+                    <span class="app-ghost-color" *ngIf="procedure.contractConditions?.isAlternateTerm">
+                      Разрешён приём иных условий
+                    </span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Количество</div>
+                    <span class="procedure-info-value">{{ procedure.contractConditions?.quantity  | nodata }}</span>
+                    <br>
+                    <span class="app-ghost-color" *ngIf="procedure.contractConditions?.isAlternateQuantity">
+                      Разрешён приём иных условий
+                    </span>
+                  </div>
+                  <div class="app-col">
+                    <div class="procedure-info-uppercase">Базис поставки</div>
+                    <span class="procedure-info-value">{{ procedure.contractConditions?.address  | nodata }}</span>
+                    <br>
+                    <span class="app-ghost-color" *ngIf="procedure.contractConditions?.isAlternateAddress">
+                      Разрешён приём иных условий
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </uxg-accordion>
+
+            <hr>
+
+            <uxg-accordion [isOpened]="true">
+              <div title>
+                <h5 class="procedure-info-subtitle">Требования к участникам</h5>
+              </div>
+              <div body>
+                <p *ngIf="procedure.positionsAnalogs"><span class="procedure-info-value">Разрешается прием аналогов</span></p>
+                <!-- @TODO
+                <p *ngIf="procedure"><span class="procedure-info-value">Разрешается участие нерезидентов</span></p>
+                <p *ngIf="procedure"><span class="procedure-info-value">Установлено требование обеспечения заявки</span></p>
+                <p *ngIf="procedure"><span class="procedure-info-value">Установлено требование обеспечения гарантийных обязательств</span></p> -->
+              </div>
+            </uxg-accordion>
+
+            <hr *ngIf="procedure.privateAccessContragents.length > 0">
+
+            <uxg-accordion [isOpened]="true" *ngIf="procedure.privateAccessContragents.length > 0">
+              <div title><h5 class="procedure-info-subtitle">Контрагенты</h5></div>
+              <div body>
+                <uxg-data-table
+                  [columnHeaders]="contragentsColumnHeaders"
+                  [itemsData]="procedure.privateAccessContragents"
+                  [allowSelect]="false"
+                  [allowCustomizeColumns]="false"
+                  [saveSelectedInLocalStorage]="false"
+                  [isPaginationEnabled]="false"
+                  [showSizeChanger]="false"
+                  [offsetTopForStickyHeader]="0"
+                >
+                  <ng-template let-data="data">
+                    <span class="procedure-info-value">{{data.shortName}}</span>
+                  </ng-template>
+                  <ng-template let-data="data">
+                    {{data.email}}
+                  </ng-template>
+                  <ng-template let-data="data">
+                    {{data.phone}}
+                  </ng-template>
+                  <ng-template let-data="data">
+                    {{data.responsibleUser?.shortName}}
+                  </ng-template>
+                </uxg-data-table>
+              </div>
+            </uxg-accordion>
+
+            <hr *ngIf="getProcedurePositions().length">
+
+            <uxg-accordion [isOpened]="true" *ngIf="getProcedurePositions().length">
+              <div title><h5 class="procedure-info-subtitle">Позиции</h5></div>
+              <div body>
+                <uxg-data-table
+                  [columnHeaders]="positionsColumnHeaders"
+                  [itemsData]="getProcedurePositions()"
+                  [allowSelect]="false"
+                  [allowCustomizeColumns]="false"
+                  [saveSelectedInLocalStorage]="false"
+                  [isPaginationEnabled]="false"
+                  [showSizeChanger]="false"
+                  [offsetTopForStickyHeader]="0"
+                >
+                  <ng-template let-data="data">
+                    <span class="procedure-info-value">{{data.requestPosition?.name}}</span>
+                  </ng-template>
+                  <ng-template let-data="data">
+                    {{data.requestPosition?.quantity}} <span class="app-ghost-color">{{data.requestPosition?.measureUnit}}</span>
+                  </ng-template>
+                  <ng-template let-data="data">
+                    <span>
+                      {{data.requestPosition?.startPrice}}
+                      <span class="app-ghost-color" *ngIf="data.requestPosition?.startPrice">{{data.requestPosition?.currency}}</span>
+                    </span>
+                  </ng-template>
+                  <ng-template let-data="data">
+                    {{data.requestPosition?.deliveryDate?.date | date : "dd.MM.yyyy" }}
+                  </ng-template>
+                </uxg-data-table>
+              </div>
+            </uxg-accordion>
+
+            <hr *ngIf="procedure.procedureLotDocuments.length">
+
+            <uxg-accordion [isOpened]="true" *ngIf="procedure.procedureLotDocuments.length">
+              <div title>
+                <h5 class="procedure-info-subtitle">Документы лота</h5>
+              </div>
+              <div body>
+                <div class="app-row">
+                  <div class="app-col">
+                      <app-document-simple-list [gridable]="true" [enableUpload]="false" [uploadedDateHidden]="true" [documents]="procedure.procedureLotDocuments">
+                      </app-document-simple-list>
+                  </div>
+                </div>
+              </div>
+            </uxg-accordion>
+          </div>
+        </uxg-accordion>
+      </div>
+
+    </div>
+
+
+    <div class="app-col app-col-aside">
+      <h3 [style.margin-bottom.px]="15">Сведения об организаторе</h3>
+
+      <div class="app-section organizator-name">
+        <div class="info-item">{{ procedure.organizer?.shortName | nodata }}</div>
+      </div>
+
+      <div class="app-section organizator-type">
+        <div class="info-item">{{ procedure.organizer?.type | nodata }}</div>
+      </div>
+
+      <!-- Адреса совпадают http://youtrack.etpgpb.local/issue/isprocessor-907#focus=streamItem-109-258415.0-0 -->
+      <div class="app-section organizator-ur-address">
+        <div class="info-item">{{ procedure.organizer?.addresses[0]?.address | nodata }}</div>
+      </div>
+
+      <div class="app-section organizator-post-address">
+        <div class="info-item">{{ procedure.organizer?.addresses[0]?.address | nodata }}</div>
+      </div>
+
+      <div class="app-section organizator-place-address">
+        <div class="info-item">{{ procedure.reviewApplicsCity | nodata }}</div>
+      </div>
+
+      <div class="app-section contact-email">
+        <div class="info-item"><a href="mailto:{{procedure.contactEmail}}">{{ procedure?.contactEmail | nodata }}</a></div>
+      </div>
+
+      <div class="app-section contact-person">
+        <div class="info-item">{{ procedure?.contactPerson | nodata }}</div>
+      </div>
+
+      <ng-template #loader>
+        <span class="spinner spinner-inline"></span>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Модальное окно для назначения ответственного процедурам -->
+  <uxg-modal #addResponsiblePositionModal size="s">
+    <h2>Назначить позиции в процедуре</h2>
+    <div *ngIf="addResponsiblePositionModal.state">
+      <app-select-responsible-form
+        (setResponsibleUser)="changeResponsibleUser({ user: $event })"
+        (close)="addResponsiblePositionModal.close()"
+      ></app-select-responsible-form>
+    </div>
+  </uxg-modal>
+</ng-container>

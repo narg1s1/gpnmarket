@@ -1,0 +1,7 @@
+.app-section {
+  margin-bottom: 1.5em;
+}
+
+.app-section:first-child {
+  margin-top: 1.5em;
+}

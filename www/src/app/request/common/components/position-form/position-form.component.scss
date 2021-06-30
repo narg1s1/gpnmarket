@@ -1,0 +1,55 @@
+.app-col + .app-col { padding-left: 20px; }
+uxg-checkbox + label { margin-left: .5em; }
+textarea { height: 80px; }
+
+.input-label {
+  color: #666666;
+  cursor: default;
+  height: 18px;
+  display: table;
+  font-size: 11px;
+  line-height: 18px;
+  padding-top: 3px;
+}
+
+::ng-deep textarea[disabled].comments {
+  background: #e5e8ef;
+}
+
+.search-dropdown {
+  position: absolute;
+  z-index: 100;
+  height: auto;
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #d7d7d7;
+  background: white;
+  border-radius: 3px;
+  width: 617.5px; /* todo временное решение */
+}
+
+.search-item {
+  padding: 0 15px;
+}
+
+.search-item:hover {
+  background-color: #D4D9E2;
+  cursor: pointer;
+}
+
+.success ::ng-deep {
+  .app-control {
+    border-color: #0EA04B;
+  }
+
+  .app-control-icon-error > * {
+    display: block;
+    color: #0EA04B;
+  }
+}
+
+.popover-content {
+  & button {
+    margin-left: 50px;
+  }
+}

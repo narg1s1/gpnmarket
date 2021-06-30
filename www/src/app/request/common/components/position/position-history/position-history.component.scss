@@ -1,0 +1,118 @@
+@import "src/theme";
+@import "src/assets/styles/statuses";
+
+.activity-feed {
+  padding: 5px 10px 0 9px;
+  position: relative;
+
+  & div.activity-block {
+    border-left: 2px solid #B2D0FF;
+    padding: 0 0 20px 15px;
+    line-height: 1rem;
+
+    & div.position-status-change {
+      display: inline-flex;
+      line-height: 1.1rem;
+
+      & uxg-icon {
+        opacity: 0.3;
+      }
+    }
+
+    & div.timeline {
+      max-width: 130px;
+      opacity: 0.6;
+    }
+
+    & div.status-pie {
+      height: 24px;
+      position: absolute;
+      left: 0;
+      padding: 2px 0;
+      background-color: #fbfcfe;
+
+      & div[class*="position-new-status"] {
+        width: 20px;
+        height: 10px;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+      }
+
+      & div[class*="position-current-status"] {
+        width: 20px;
+        height: 10px;
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px;
+      }
+
+      @each $status, $color in $statuses {
+        & div[class*="status-#{$status}"] {
+          background-color: $color;
+        }
+      }
+
+      & div.white-circle {
+        width: 8px;
+        height: 8px;
+        background-color: #fbfcfe;
+        margin-left: 6px;
+        margin-top: -14px;
+        border-radius: uxg($theme, counter-border-radius);
+      }
+    }
+    &:last-of-type {
+      border-left: 2px solid transparent;
+    }
+
+    & span.activity-type,
+    & span.status-name,
+    & a.document-item {
+      display: block;
+      line-height: 1rem;
+    }
+
+    & div.position-winner-selected-item {
+      display: inline-flex;
+    }
+
+    & div.position-winner-name {
+      line-height: 1.6;
+    }
+
+    & div.position-winner-offer {
+      line-height: 1.6;
+      padding: 0 0 3px 5px;
+    }
+
+    & div.position-edit-item {
+      & .edit-info-item {
+        line-height: 1.2rem;
+        & .arrow {
+          padding: 0 5px;
+        }
+      }
+      & .edit-info-label {
+        padding-right: 10px;
+      }
+    }
+  }
+}
+
+.empty-history p {
+  margin-top: 15px;
+  color: #b9b9b9;
+  text-align: center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

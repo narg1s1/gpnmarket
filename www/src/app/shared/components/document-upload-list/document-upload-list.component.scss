@@ -1,0 +1,52 @@
+@import "src/theme";
+
+.btn.btn-link {
+  margin: 0;
+}
+
+.form-group {
+  margin: 0;
+}
+
+li.document-item {
+  display: flex;
+  align-items: center;
+  max-width: 250px;
+
+  &:not(:first-child) {
+    margin-top: 8px;
+  }
+
+  div {
+    margin: 5px 10px;
+  }
+
+  & app-file {
+    width: 100%;
+  }
+}
+
+.upload-area {
+  align-items: center;
+  background: uxg($theme, color-list-hover);
+  color: rgba(uxg($theme, color-control-primary), .3);
+  font-size: uxg($theme, font-size-l);
+  display: flex;
+  height: 100px;
+  justify-content: center;
+  border: 2px transparent solid;
+  transition: border 200ms, color 200ms;
+  border-radius: 4px;
+  margin-right: 20px;
+
+  &-hover {
+    border-color: uxg($theme, color-border);
+    color: rgba(uxg($theme, color-control-primary), 1);
+  }
+}
+
+small {
+  margin: 24px 0 17px 0;
+  display: block;
+}
+

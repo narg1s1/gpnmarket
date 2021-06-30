@@ -1,0 +1,9 @@
+<ng-container *ngIf="(position$ | async) as position">
+  <app-request-position
+    [requestId]="requestId"
+    [position]="position"
+    [documents]="documents$ | async"
+    (rejectPosition)="rejectPositions([$event.positionId], $event.comment, false)"
+    (approvePosition)="approvePositions([$event.id], false)"
+  ></app-request-position>
+</ng-container>

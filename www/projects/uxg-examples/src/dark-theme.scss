@@ -1,0 +1,24 @@
+@import "projects/uxg/src/styles/index";
+
+$theme: map_merge($theme,(
+  content-width: 1280px,
+  color-default: #222222,
+  color-primary: #2585f5,
+  color-soft: #333333, // 20% black
+  color-divider: #404040, // 13% black
+  color-secondary: #2e2e2e, // 11% black
+  color-stripe: #313233,
+  color-bg: #19191a,
+  color-border: #475566,
+  color-control-input-bg: #212121,
+  color-popover-bg: #444,
+
+  color-control-disabled: #1a1a1a, // 10% black
+  color-control-secondary: #3b3b3b,
+  color-control-secondary-hover: #454545,
+  //color-list-hover: #4e5052,
+  color-list-hover: #1c1d1f,
+  color-font-primary: #e6e6e6,
+  color-font-secondary: #999999, // 60% black
+  color-font-ghost: #666666, // 30% black
+));

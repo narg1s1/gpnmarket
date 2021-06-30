@@ -1,0 +1,80 @@
+@import "../uxg";
+
+@mixin controls-radio($theme) {
+.app-control[type=radio] {
+  display: none;
+
+  & + .app-control-radio {
+    background-color: uxg($theme, color-control-input-bg);
+    border: 1px uxg($theme, color-soft) solid;
+    border-radius: 50%;
+    box-sizing: border-box;
+    cursor: pointer;
+    height: 20px;
+    position: relative;
+    transition-delay: 150ms;
+    transition-duration: 150ms;
+    transition-property: background-color, border;
+    width: 20px;
+
+    & + label {
+      padding-left: .5em;
+    }
+
+    &:after {
+      border: 3px uxg($theme, color-control-input-bg) solid;
+      background: uxg($theme, color-control-primary);
+      border-radius: 50%;
+      content: "";
+      display: block;
+      height: 18px;
+      position: absolute;
+      transform: scale(0);
+      transition-delay: 0ms;
+      transition-duration: 100ms;
+      transition-property: transform;
+      width: 18px;
+    }
+
+    &:before {
+      border-radius: 50%;
+      content: "";
+      height: 40px;
+      left: -11px;
+      position: absolute;
+      top: -11px;
+      width: 40px;
+      transform: scale(0);
+      transition: 100ms transform;
+    }
+
+    &:hover:before {
+      background-color: rgba(uxg($theme, color-font-primary), 0.03);
+      transform: scale(1);
+    }
+  }
+
+  &:checked:not(:disabled) + .app-control-radio {
+    transition-delay: 0ms;
+
+    &:after {
+      transition-delay: 150ms;
+      transform: scale(1);
+    }
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    & + .app-control-radio {
+      background: uxg($theme, color-control-disabled);
+      border-color: uxg($theme, color-soft);
+      cursor: default;
+      transition: none;
+
+      &:before {
+        display: none;
+      }
+    }
+  }
+}
+}

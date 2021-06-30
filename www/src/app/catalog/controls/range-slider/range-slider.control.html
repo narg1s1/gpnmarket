@@ -1,0 +1,22 @@
+<nouislider
+  [connect]="true"
+  [step]="step"
+  [min]="min"
+  [max]="max"
+  [(ngModel)]="value"
+  (change)="onChange($event)"
+  [disabled]="isDisabled"
+></nouislider>
+<div class="app-row app-align-items-center">
+  <div class="app-col">
+    <input #minInput type="text" [ngModel]="value[0]" [disabled]="isDisabled"
+           (input)="writeValue([+minInput.value, +maxInput.value]); onChange(value)"
+           placeholder="от {{min}}"/>
+  </div>
+  <div class="app-col app-grow-0">-</div>
+  <div class="app-col">
+    <input #maxInput type="text" [ngModel]="value[1]" [disabled]="isDisabled"
+           (input)="writeValue([+minInput.value, +maxInput.value]); onChange(value)"
+           placeholder="до {{max}}"/>
+  </div>
+</div>

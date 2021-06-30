@@ -1,0 +1,32 @@
+.app-col {
+  &.photo {
+    max-width: 60px;
+
+    img {
+      max-width: 60px;
+      max-height: 60px;
+    }
+  }
+  &.name {
+    .position-description {
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+  &.measure {
+    max-width: 70px;
+  }
+  &.in-stock {
+    max-width: 70px;
+  }
+  &.quantity {
+    max-width: 100px;
+  }
+  &.action {
+    text-align: right;
+    max-width: 110px;
+
+    button {
+      min-width: 110px;
+    }
+  }
+}

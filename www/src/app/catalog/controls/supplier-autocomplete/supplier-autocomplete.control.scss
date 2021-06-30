@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  position: relative;
+}
+
+.dropdown {
+  position: absolute;
+}
+
+.dropdown,
+.dropdown-menu {
+  width: 100%;
+}
+
+label uxg-icon[shape="times"] {
+  cursor: pointer;
+}

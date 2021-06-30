@@ -1,0 +1,32 @@
+@import "../uxg";
+
+@mixin icon($theme) {
+  .app-icon {
+    display: inline-block;
+    vertical-align: middle;
+    align-self: center;
+    fill: currentColor;
+
+    & + * {
+      margin-left: .5em;
+    }
+
+    svg {
+      display: block;
+      &.has-solid .clr-i-solid {display: none;}
+    }
+    &.is-solid svg .clr-i-solid {display: block;}
+
+    &.right svg, &[dir=up] svg, &[shape$=" up"] svg {transform: rotate(0)}
+    &.right svg, &[dir=right] svg, &[shape$=" right"] svg {transform: rotate(90deg)}
+    &.right svg, &[dir=down] svg, &[shape$=" down"] svg {transform: rotate(180deg)}
+    &.right svg, &[dir=left] svg, &[shape$=" left"] svg {transform: rotate(270deg)}
+    &[flip=horizontal] svg {transform: scale(-1) rotateX(180deg)}
+    &[flip=vertical] svg {transform: scale(-1) rotateY(180deg)}
+
+  }
+
+  * + .app-icon {
+    margin-left: .5em;
+  }
+}

@@ -1,0 +1,55 @@
+@import 'src/theme';
+
+:host {
+  .selection-block {
+    background: uxg($theme, color-list-hover);
+    padding: 8px 0;
+
+    & .selected-info {
+      padding-right: 15px;
+      padding-left: 60px;
+      max-width: 700px;
+    }
+  }
+
+  .positions-name-link {
+    color: #000;
+    font-weight: bold;
+  }
+
+  .group-name-control {
+    margin: -1.5em 0;
+  }
+
+  .positions-excel-btn {
+    margin-top: -40px;
+  }
+
+  .positions-filter-section {
+    margin: 15px 0;
+  }
+  
+  .hr {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    margin: 10px 0px 10px 0px;
+  }
+}
+
+::ng-deep {
+  .uxg-datatable-modal-items {
+    height: 440px;
+  }
+  uxg-filter-section {
+    margin-top: 15px;
+  }
+  
+  uxg-modal {
+    .doc-error-message {
+      text-align: right;
+      font-weight: bold;
+      margin-right: 10px;
+      color: uxg($theme, color-control-invalid);
+      line-height: 40px;
+    }
+  }
+}

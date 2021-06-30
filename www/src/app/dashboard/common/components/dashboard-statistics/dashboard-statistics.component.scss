@@ -1,0 +1,121 @@
+@import "src/theme";
+
+.scrollable {
+  max-height: calc(70vh - 230px);
+  overflow-y: scroll;
+  padding: 0 15px;
+  margin: 0px -22px 0 -15px;
+  @include scrollbar($theme);
+}
+
+.divider {
+  margin: 0;
+}
+
+.select-list {
+  &-requests, &-positions, &-contragents { max-height: calc(70vh - 206px) }
+  .checkbox-space {
+    width: 18px;
+  }
+
+  &-item {
+
+    &-request {
+      &-number { flex-grow: 0.15; min-width: 60px; max-width: 100px; text-align: left; }
+      &-customer { flex-grow: .15; min-width: 190px; max-width: 190px; text-align: left; }
+      &-name { min-width: 200px; max-width: 200px; text-align: left; }
+      &-date { min-width: 120px; text-align: right; }
+    }
+
+    &-customer {
+      &-contragent { flex-grow: .15; min-width: 280px; text-align: left; }
+      &-kpp { flex-grow: .15; min-width: 150px; text-align: left; }
+      &-inn { min-width: 130px; text-align: left; }
+      &-group { min-width: 120px; text-align: right; }
+    }
+
+    &-user {
+      &-name { min-width: 220px; max-width: 220px;text-align: left; }
+      &-email { min-width: 240px; max-width: 240px; text-align: left; }
+      &-phone { min-width: 130px; max-width: 130px; text-align: left; }
+      &-group { text-align: right; }
+    }
+
+    &-applicant {
+      &-name { min-width: 220px; max-width: 220px; text-align: left; }
+      &-phone { min-width: 130px; max-width: 130px; text-align: left; }
+      &-group { text-align: right; }
+    }
+
+    &-footer {
+      padding: 10px 0;
+
+      & * {
+        padding: 0 10px;
+        font-size: 11px;
+        box-sizing: content-box;
+
+        &:first-child { padding-left: 0; }
+        &:last-child { padding-right: 0; }
+      }
+    }
+  }
+}
+
+.statistics-filter-section {
+  h3 {
+    line-height: 26px;
+  }
+
+  & .vertical-divider {
+    width: 1px;
+    height: 24px;
+    display: block;
+    background: uxg($theme, color-divider);
+    margin: 0 32px;
+  }
+}
+
+.statistics-section {
+  margin: 0 -20px;
+  padding: 16px 20px;
+  background: #F4F6FB;
+  box-sizing: content-box;
+
+  & h2 {
+    margin-top: 5px;
+    margin-bottom: 0;
+    font-weight: 500;
+  }
+}
+
+.statuses-and-sum-section {
+  & .header-row {
+    margin-bottom: 15px;
+  }
+
+  & .status-row {
+    margin-bottom: 20px;
+  }
+}
+
+.app-position-status {
+  float: right;
+  padding-right: 45px;
+}
+
+.sum-column {
+  text-align: right;
+}
+
+.status-row.disabled-row {
+  color: uxg($theme, color-font-ghost);
+
+  & .app-position-status-icon {
+    background-color: uxg($theme, color-control-disabled);
+  }
+}
+
+.status-col {
+  min-width: 150px;
+}

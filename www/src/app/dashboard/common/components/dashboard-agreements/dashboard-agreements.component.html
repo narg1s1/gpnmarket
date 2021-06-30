@@ -1,0 +1,31 @@
+<!--Мои задачи-->
+<ng-container *ngIf="view === 'tasks' && tasks">
+  <div class="stat-block" [ngClass]="{'no-tasks': tasks.length === 0}">
+    <app-tasks-bar
+      [totalCounter]="tasksTotalCount"
+      [tasksBar]="tasksBar">
+    </app-tasks-bar>
+  </div>
+  <ng-container *ngIf="tasks.length !== 0">
+    <app-agreements
+      [agreements]="tasks"
+      [dashboardView]="true">
+    </app-agreements>
+  </ng-container>
+</ng-container>
+
+<!--Согласования заказчика-->
+<ng-container *ngIf="view === 'agreements' && agreements">
+  <div class="stat-block" [ngClass]="{'no-tasks': agreements.length === 0}">
+    <app-tasks-bar
+      [totalCounter]="agreementsTotalCount"
+      [tasksBar]="agreementsBar"
+      [isTasks]="false"></app-tasks-bar>
+  </div>
+  <app-agreements
+    [agreements]="agreements"
+    [dashboardView]="true"
+    [agreementsView]="true"
+    (sendRating)="sendRating.emit($event)">
+  </app-agreements>
+</ng-container>

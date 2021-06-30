@@ -1,0 +1,170 @@
+<ng-container [formGroup]="form" *ngIf="value">
+  <p class="app-row app-align-items-center" *ngIf="form.get('bestPriceRequirements')">
+    <uxg-checkbox class="app-control" formControlName="bestPriceRequirements" #bestPriceRequirements></uxg-checkbox>
+    <label (click)="bestPriceRequirements.check($event)"> &nbsp; Запретить участникам обновлять цены по позициям без учета цен, уже поданных участником</label>
+  </p>
+  <p class="app-row app-align-items-center">
+    <uxg-checkbox class="app-control" formControlName="positionsRequiredAll" #positionsRequiredAll></uxg-checkbox>
+    <label (click)="positionsRequiredAll.check($event)"> &nbsp; Обязательная подача предложений на все позиции</label>
+  </p>
+
+  <p class="app-row app-align-items-center">
+    <uxg-checkbox class="app-control" formControlName="positionsAnalogs" #allowAnalogs></uxg-checkbox>
+    <label (click)="allowAnalogs.check($event)"> &nbsp; Разрешается прием аналогов</label>
+  </p>
+
+  <p class="app-row app-align-items-center">
+    <uxg-checkbox class="app-control" formControlName="positionsAllowAnalogsOnly" #allowAnalogsOnly></uxg-checkbox>
+    <label (click)="allowAnalogsOnly.check($event)"> &nbsp; Возможность подачи аналогов без основного предложения</label>
+  </p>
+
+  <p class="app-row app-align-items-center">
+    <uxg-checkbox class="app-control" formControlName="positionsEntireVolume" #entireVolume></uxg-checkbox>
+    <label (click)="entireVolume.check($event)"> &nbsp; Заявка подается на весь закупаемый объем</label>
+  </p>
+  <br/>
+
+  <div class="app-row">
+    <div class="app-col">
+      <b>Отображение наименований участников в таблице</b>
+      <p class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #suppliersVisibility1 value="Name" formControlName="positionsSuppliersVisibility"></uxg-radio-item>
+        <label (click)="suppliersVisibility1.select($event)">&nbsp;Участники и их наименования отображаются в таблице</label>
+      </p>
+      <p class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #suppliersVisibility2 value="NameHidden" formControlName="positionsSuppliersVisibility"></uxg-radio-item>
+        <label (click)="suppliersVisibility2.select($event)">&nbsp;Участники отображаются со скрытыми наименованиями</label>
+      </p>
+      <p class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #suppliersVisibility3 value="None" formControlName="positionsSuppliersVisibility"></uxg-radio-item>
+        <label (click)="suppliersVisibility3.select($event)">&nbsp;Участники не отображаются в таблице</label>
+      </p>
+    </div>
+    <div class="app-col">
+      <b>Ограничение на подачу цен участниками</b>
+      <p class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #priceRestrict1 value="LowerStartPrice" formControlName="positionsBestPriceType"></uxg-radio-item>
+        <label (click)="priceRestrict1.select($event)">&nbsp;Участники подают цену ниже начальной цены</label>
+      </p>
+      <p class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #priceRestrict2 value="LowerPriceBest" formControlName="positionsBestPriceType"></uxg-radio-item>
+        <label (click)="priceRestrict2.select($event)">&nbsp;Нет ограничений на цены участников</label>
+      </p>
+    </div>
+  </div>
+
+  <br/>
+
+  <div class="app-row">
+    <div class="app-col">
+      <b>Отображение цен участников в таблице</b>
+      <p class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #priceVisibility1 value="PriceAndRating" formControlName="positionsApplicsVisibility"></uxg-radio-item>
+        <label (click)="priceVisibility1.select($event)">&nbsp;Видны и цены, и рейтинг участников</label>
+      </p>
+      <p class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #priceVisibility2 value="OnlyPrice" formControlName="positionsApplicsVisibility"></uxg-radio-item>
+        <label (click)="priceVisibility2.select($event)">&nbsp;Видны только поданные цены</label>
+      </p>
+      <p class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #priceVisibility3 value="OnlyRating" formControlName="positionsApplicsVisibility"></uxg-radio-item>
+        <label (click)="priceVisibility3.select($event)">&nbsp;Виден только рейтинг цен</label>
+      </p>
+      <p class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #priceVisibility4 value="None" formControlName="positionsApplicsVisibility"></uxg-radio-item>
+        <label (click)="priceVisibility4.select($event)">&nbsp;Цены и рейтинг скрыты</label>
+      </p>
+    </div>
+    <div class="app-col">
+    </div>
+  </div>
+
+
+  <br/>  <br/>
+
+  <div class="app-row">
+    <div class="app-col">
+      <h3>Предмет договора</h3>
+      <br/>
+      <hr class="divider"/>
+      <br>
+
+      <div class="app-control-wrap app-col-12">
+        <input type="text" #contractSubjectControlRef uxgInput lg formControlName="contractSubject"/>
+        <label class="app-control-label" (click)="contractSubjectControlRef.focus()">Предмет договора</label>
+        <div class="app-control-error" *ngIf="form.get('contractSubject').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+
+      <div class="app-control-wrap app-col-3">
+        <input type="text" #startPriceControlRef uxgInput lg formControlName="startPrice"/>
+        <label class="app-control-label" (click)="startPriceControlRef.focus()">Начальная цена</label>
+        <div class="app-control-error" *ngIf="form.get('startPrice').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="app-row" formGroupName="contractConditions">
+    <div class="app-col">
+      <h3>Условия договора</h3>
+      <br/>
+      <hr class="divider"/>
+      <br>
+
+      <div class="app-control-wrap app-col-12">
+        <input type="text" #quantityControlRef uxgInput lg formControlName="quantity"/>
+        <label class="app-control-label" (click)="quantityControlRef.focus()">Количество поставляемого товара / объем выполняемых работ / оказываемых услуг</label>
+        <div class="app-control-error" *ngIf="form.get('contractConditions.quantity').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+
+      <div class="app-row app-align-items-center">
+        <uxg-checkbox class="app-control" formControlName="isAlternateQuantity" #isAlternateQuantity></uxg-checkbox>
+        <label (click)="isAlternateQuantity.check($event)"> &nbsp; Разрешить прием иных условий</label>
+      </div>
+
+
+      <br>
+
+
+      <div class="app-control-wrap app-col-6">
+        <input type="text" #termRef uxgInput lg formControlName="term"/>
+        <label class="app-control-label" (click)="termRef.focus()">Условия оплаты и поставки товаров</label>
+        <div class="app-control-error" *ngIf="form.get('contractConditions.term').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+
+      <div class="app-row app-align-items-center">
+        <uxg-checkbox class="app-control" formControlName="isAlternateTerm" #isAlternateTerm></uxg-checkbox>
+        <label (click)="isAlternateTerm.check($event)"> &nbsp; Разрешить приём иных условий</label>
+      </div>
+
+
+      <br>
+
+
+      <div class="app-control-wrap app-col-6">
+        <input type="text" #addressControlRef uxgInput lg formControlName="address"/>
+        <label class="app-control-label" (click)="addressControlRef.focus()">Место поставки товаров </label>
+        <div class="app-control-error" *ngIf="form.get('contractConditions.address').errors as e">
+          <span *ngIf="e.required">Обязательное поле</span>
+        </div>
+      </div>
+
+      <div class="app-row app-align-items-center">
+        <uxg-checkbox class="app-control" formControlName="isAlternateAddress" #isAlternateAddress></uxg-checkbox>
+        <label (click)="isAlternateAddress.check($event)"> &nbsp; Разрешить прием иных условий</label>
+      </div>
+
+      <br>
+
+    </div>
+  </div>
+</ng-container>

@@ -1,0 +1,26 @@
+@import "../uxg", "controls-checkbox", "controls-input", "controls-switcher", "controls-radio";
+
+@mixin controls($theme) {
+  @include controls-switcher($theme);
+  @include controls-input($theme);
+  @include controls-checkbox($theme);
+  @include controls-radio($theme);
+
+  .app-control,
+  .app-control ~ label,
+  .app-control label,
+  .app-control-checkbox {
+    box-sizing: border-box;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+
+  .app-control-checkbox {
+    user-select: none;
+  }
+
+  .app-control[disabled]:not([disabled=false]) ~ label, .app-control.readonly ~ label {
+    color: uxg($theme, color-font-ghost);
+    cursor: default;
+  }
+}

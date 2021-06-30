@@ -1,0 +1,114 @@
+<div class="procedure-requests-from-suppliers" *ngIf="(requestsFromSuppliers$ | async) as requests; else loading">
+
+  <div class="app-row">
+    <div class="app-col">
+      Всего запросов: {{ (totalRequests$ | async) }}
+    </div>
+    <div class="app-col app-col-aside" [style.text-align]="'right'">
+      <uxg-switcher label="Показать неотвеченные"
+        [ngModel]="notAnswered"
+        (ngModelChange)="requestsFiltersSubject$.next({filters: { notAnswered: $event }})"></uxg-switcher>
+    </div>
+  </div>
+
+  <br>
+
+  <ng-container *ngIf="requests?.length; else emptyRequestList">
+    <div class="app-card" *ngFor="let request of requests; trackBy: trackByFn">
+      <div class="app-row" [class.procedure-requests-from-suppliers-header]="!request.folded">
+        <div class="app-col" [style.align-self]="'center'">
+          <strong class="procedure-requests-from-suppliers-title">
+            Запрос № {{ request.etpRequestId }} «{{ request.procedureTitle }}»
+          </strong>
+        </div>
+        <div class="app-col app-col-aside" [style.text-align]="'right'">
+          <span class="status status-new" *ngIf="request.status === RequestFromSupplierStatuses.AWAITING">Новый</span>
+          <span class="status status-answered" *ngIf="request.status === RequestFromSupplierStatuses.ANSWERED">
+            <uxg-icon shape="app-check"></uxg-icon> Отвечено</span>
+          <span class="status status-canceled" *ngIf="request.status === RequestFromSupplierStatuses.CANCELED">
+            <uxg-icon shape="app-cross"></uxg-icon> Отклонено</span>
+          <button uxgButton icon link (click)="request.folded = !request.folded">
+            <uxg-icon shape="app-chevron" [attr.dir]="!request.folded ? 'up' : 'down'"></uxg-icon>
+          </button>
+        </div>
+      </div>
+
+      <ng-container *ngIf="!request.folded">
+        <br>
+
+        <!-- Блок вопроса -->
+        <div class="procedure-requests-from-suppliers-question">
+          <div class="app-row">
+            <div class="app-col procedure-requests-from-suppliers-label">ВОПРОС</div>
+            <div class="app-col app-col-aside procedure-requests-from-suppliers-label" [style.text-align]="'right'">{{ request.createdDate | date:'dd.MM.yyyy' }}</div>
+          </div>
+
+          <p>{{ request.question}}</p>
+
+          <app-document-upload-list
+            *ngIf="request.questionDocuments?.length"
+            [documents]="request.questionDocuments"
+            [hideUploadedListTitle]="true"
+            [uploadAvailable]="false"
+            [removable]="false"
+            [downloadable]="true"
+          ></app-document-upload-list>
+        </div>
+
+        <br>
+
+        <!-- Блок ответа -->
+        <div [class.procedure-requests-from-suppliers-answer]="request.status !== RequestFromSupplierStatuses.AWAITING">
+          <div class="app-row">
+            <div class="app-col procedure-requests-from-suppliers-label">ОТВЕТ</div>
+            <div class="app-col app-col-aside procedure-requests-from-suppliers-label" [style.text-align]="'right'">{{ request.answeredDate | date:'dd.MM.yyyy' }}</div>
+          </div>
+
+          <p>
+            <ng-container *ngIf="request.status !== RequestFromSupplierStatuses.AWAITING">
+              {{ request.answer}}
+            </ng-container>
+          </p>
+
+          <div class="app-row" *ngIf="request.status === RequestFromSupplierStatuses.AWAITING">
+            <div class="app-btn-group" [style.width.%]="100">
+              <input uxgInput type="text" [(ngModel)]="request.answer" placeholder="Введите свой ответ"/>
+              <button uxgButton primary (click)="sendAnswer(request)" [disabled]="isAnswerSending" [disabled]="!request.answer">
+                <uxg-icon shape="app-message" size="16" class="is-solid"></uxg-icon>
+              </button>
+            </div>
+          </div>
+
+          <app-document-upload-list
+            *ngIf="request.status === RequestFromSupplierStatuses.AWAITING || request.answerDocuments?.length"
+            [documents]="request.answerDocuments"
+            [uploadLabel]="'Прикрепить документ'"
+            [hideUploadedListTitle]="true"
+            (fileSelected)="onSelectDocument($event, request)"
+            [uploadAvailable]="request.status === RequestFromSupplierStatuses.AWAITING"
+            [removable]="request.status === RequestFromSupplierStatuses.AWAITING"
+            [downloadable]="request.status === RequestFromSupplierStatuses.ANSWERED"
+          ></app-document-upload-list>
+        </div>
+
+      </ng-container>
+
+    </div>
+
+    <br>
+
+    <!-- @TODO <app-pagination [total]="(totalRequests$ | async)" [pageSize]="2" [pages$]="pages$" (change)="onPageIndexChanged($event)"></app-pagination> -->
+  </ng-container>
+
+  <ng-template #emptyRequestList>
+    <span class="empty-list">Список запросов пуст</span>
+  </ng-template>
+</div>
+
+<ng-template #loading>
+  <div class="app-card">
+    <div class="text-center">
+      <span class="spinner spinner-md"></span>
+    </div>
+  </div>
+</ng-template>

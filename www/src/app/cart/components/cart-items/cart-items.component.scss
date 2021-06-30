@@ -1,0 +1,36 @@
+.app-table.app-no-border {
+  text-transform: uppercase;
+}
+
+.app-col {
+  &.photo {
+    max-width: 60px;
+
+    img {
+      max-width: 60px;
+      max-height: 60px;
+    }
+  }
+  &.name {
+    .position-description {
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+  &.measure {
+    max-width: 70px;
+  }
+  &.quantity {
+    max-width: 100px;
+  }
+  &.action {
+    text-align: right;
+    max-width: 50px;
+
+    .btn-delete {
+      color: #999;
+      margin: 0;
+      padding: 0 10px;
+      min-width: unset;
+    }
+  }
+}

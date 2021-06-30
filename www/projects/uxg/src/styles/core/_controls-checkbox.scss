@@ -1,0 +1,97 @@
+@import "../uxg";
+
+@mixin controls-checkbox($theme) {
+.app-control[type=checkbox] {
+  display: none;
+
+  & + .app-control-checkbox {
+    background-color: uxg($theme, color-control-input-bg);
+    border: 1px uxg($theme, color-soft) solid;
+    border-radius: 2px;
+    box-sizing: border-box;
+    cursor: pointer;
+    height: 18px;
+    position: relative;
+    transition-delay: 150ms;
+    transition-duration: 150ms;
+    transition-property: background-color, border;
+    width: 18px;
+
+    & + label {
+      padding-left: .5em;
+    }
+
+    &:after {
+      border-bottom: 2px uxg($theme, color-default) solid;
+      border-right: 2px uxg($theme, color-default) solid;
+      content: "";
+      display: block;
+      height: 12px;
+      left: -3px;
+      position: absolute;
+      top: -7px;
+      transform: rotate(45deg) scale(0);
+      transition-delay: 0ms;
+      transition-duration: 100ms;
+      transition-property: transform, width, height, left, top, border;
+      width: 6px;
+    }
+
+    &:before {
+      border-radius: 50%;
+      display: block;
+      content: "";
+      height: 40px;
+      left: -12px;
+      position: absolute;
+      top: -12px;
+      transition-delay: 150ms;
+      transition-duration: 150ms;
+      transition-property: top, left;
+      width: 40px;
+    }
+
+    &:hover:before {
+      background-color: rgba(uxg($theme, color-font-primary), 0.03);
+    }
+  }
+
+  &:checked + .app-control-checkbox {
+    border-color: uxg($theme, color-control-primary);
+    border-width: 9px;
+    transition-delay: 0ms;
+
+    &:after {
+      transition-delay: 150ms;
+      transform: rotate(45deg) scale(1);
+    }
+
+    &:before {
+      transition-delay: 0ms;
+      left: -20px;
+      top: -20px;
+    }
+  }
+
+  &.mixed:checked + .app-control-checkbox:after {
+    height: 10px;
+    left: -1px;
+    top: -5px;
+    transform: rotate(90deg) scale(1);
+    width: 2px;
+  }
+
+  &:disabled, &[readonly] {
+    cursor: not-allowed;
+    & + .app-control-checkbox {
+      border-color: uxg($theme, color-soft);
+      background: uxg($theme, color-control-disabled);
+      cursor: default;
+
+      &:before {
+        display: none;
+      }
+    }
+  }
+}
+}

@@ -1,0 +1,95 @@
+<ng-container *ngIf="(status$ | async) !== 'fetching'; else placeholder">
+
+  <ng-container *ngIf="proposalGroupId; else procedureTitle">
+    <app-title *ngIf="(offersApproveGroup$ | async) as group;"
+               [titlePage]="'Группа ' + group?.name"
+    ></app-title>
+  </ng-container>
+
+  <ng-template #procedureTitle>
+    <app-title *ngIf="(procedure$ | async) as procedure;"
+               [titlePage]="'Процедура №'+procedure.procedureId+' «'+procedure.procedureTitle+'»'"
+    ></app-title>
+  </ng-template>
+
+  <div>
+    <app-procedure-tabs *ngIf="(procedure$ | async) as procedure;"
+      [procedure]="procedure"
+      [activeTab]="'technical-commercial-proposals'"
+      [noContentPadding]="app.noContentPadding"
+      [proposalGroupId]="proposalGroupId"
+    ></app-procedure-tabs>
+
+    <ng-container *ngIf="(proposals$ | async) as proposals">
+      <app-procedure-proposal-view
+        #procedureProposalViewComponent
+        [positions]="positions$ | async"
+        [proposalsByPositions]="proposalsByPositions$ | async"
+        [proposals]="proposals"
+        [procedure]="procedure$ | async"
+        [status]="status$ | async"
+        [groupId]="groupId"
+        [proposalGroupId]="proposalGroupId"
+        [procedureUid]="procedureUid"
+        [source]="procedureSource"
+        [isCanApprove]="isCanApprove$ | async"
+        (publishProposals)="onPublishProposals($event)"
+        (downloadTemplate)="store.dispatch(downloadTemplate(groupId))"
+        (create)="createProposal($event)"
+        (edit)="editProposal($event)"
+        (saveProposalItem)="saveProposalItem($event.item, $event.proposal)"
+        (uploadTemplate)="store.dispatch(uploadTemplate(groupId, $event))"
+      ></app-procedure-proposal-view>
+    </ng-container>
+
+<!--  TODO: Пример нужных обработчиков. После привязки - удалить-->
+  <!--<ng-container *ngIf="(status$ | async) !== 'fetching' && (requestStatus$ | async) !== 'fetching'; else placeholder">-->
+<!--  <ng-container *ngIf="(request$ | async) as request">-->
+<!--    <ng-container *ngIf="(proposals$ | async) as proposals">-->
+<!--      <app-common-proposal-view-->
+<!--        [positions]="positions$ | async"-->
+<!--        [availablePositions]="availablePositions$ | async"-->
+<!--        [procedureCreationPositions]="procedureCreationPositions$ | async"-->
+<!--        [request]="request"-->
+<!--        [proposals]="proposals"-->
+<!--        [status]="status$ | async"-->
+<!--        [groupId]="groupId"-->
+<!--        [procedures]="procedures$ | async"-->
+<!--        [proposalsByPositions]="proposalsByPositions$ | async"-->
+<!--        [requestStatus]="requestStatus$ | async"-->
+<!--        [source]="procedureSource"-->
+<!--        [canRollback]="canRollback"-->
+<!--        (uploadTemplate)="store.dispatch(uploadTemplate(request.id, groupId, $event))"-->
+<!--        (downloadTemplate)="store.dispatch(downloadTemplate(request.id, groupId))"-->
+<!--        (rollback)="store.dispatch(rollback(request.id, groupId, $event))"-->
+<!--        (downloadAnalyticalReport)="store.dispatch(downloadAnalyticalReport(request.id, groupId))"-->
+<!--        (publishPositions)="store.dispatch(publishPositions(request.id, groupId, $event))"-->
+<!--        (saveProposalItem)="saveProposalItem($event.item, $event.proposal)"-->
+<!--        (updateProcedures)="store.dispatch(updateProcedures(request.id, groupId))"-->
+<!--        (filterProcedureCreationPositions)="store.dispatch(fetchProcedureCreationPositions(request.id, groupId, $event, { isOnlyNotInProcedure: true }))"-->
+<!--        (viewChange)="switchView($event)"-->
+<!--        (create)="store.dispatch(create(request.id, groupId, $event.proposal, $event.items))"-->
+<!--        (edit)="store.dispatch(edit(request.id, groupId, $event.proposal, $event.items))"-->
+<!--      ></app-common-proposal-view>-->
+<!--    </ng-container>-->
+<!--  </ng-container>-->
+<!--</ng-container>-->
+
+  </div>
+</ng-container>
+
+<ng-template #placeholder>
+  <div class="app-row app-layout">
+    <div class="app-col">
+      <div class="app-row">
+        <div class="app-col app-row">
+          <div class="placeholder-row" *ngFor="let i of [].constructor(2)" [style.height.px]="40" [style.width.px]="200"></div>
+        </div>
+        <div class="placeholder-row" [style.height.px]="40" [style.width.px]="80"></div>
+      </div>
+
+      <div class="placeholder" *ngFor="let i of [].constructor(10)" [style.height.px]="160"></div>
+    </div>
+    <div class="app-col-aside detachable"></div>
+  </div>
+</ng-template>

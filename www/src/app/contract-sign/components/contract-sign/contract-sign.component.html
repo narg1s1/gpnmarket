@@ -1,0 +1,74 @@
+<ng-container *ngIf="(contractSignInfo$ | async) as contractSignInfo; else loader">
+  <div class="app-section">
+    <span class="app-ghost-color">Запрос подписания компанией:</span> {{ contractSignInfo?.customer.shortName }}
+    <span class="app-ghost-color"> | </span>
+    <span class="app-ghost-color">Подписант:</span> {{ signerName }}
+  </div>
+
+  <div class="app-card" style="background: none">
+    <div class="app-row app-align-items-center">
+      <div class="app-col-3 app-row app-justify-content-end">
+        <uxg-icon shape="app-doc" size="270" [style.opacity]="0.1" [style.padding]="'50px 0'"></uxg-icon>
+      </div>
+
+      <div class="app-col-9">
+        <h2 class="app-ghost-color">{{
+          contract.status !== 'SIGNED_BY_SUPPLIER' ?
+            'Заказчик подписал согласованный им договор' :
+            'Договор подписан заказчиком и поставщиком'
+          }}</h2>
+
+        <app-contract-documents-list
+          [contract]="contract"
+          [onlyCurrentDocument]="true">
+        </app-contract-documents-list>
+
+        <div class="app-section">
+          <p>{{
+            contract.status !== 'SIGNED_BY_SUPPLIER' ?
+            'Пожалуйста, ознакомьтесь с договором и, если он вас устраивает, подпишите его со своей стороны с помощью электронной цифровой подписи.' :
+            'Договор уже подписан'
+            }}</p>
+        </div>
+
+        <div class="app-section" *ngIf="contract.status !== 'SIGNED_BY_SUPPLIER'">
+          <!-- <button uxgButton secondary lg>Отказаться от подписания</button> -->
+          <button uxgButton primary lg (click)="openSignDocumentModal()">Подписать ЭЦП</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</ng-container>
+
+<ng-template #loader>
+  <span class="spinner spinner-md"></span>
+</ng-template>
+
+
+<uxg-modal #certificatesListModal size="m" class="certificates-list-modal">
+  <h3>Выбор подписи ЭЦП</h3>
+  <br>
+
+  <form appFormValidation [formGroup]="certForm" (ngSubmit)="onSignDocument()">
+    <div class="app-section">
+      <div class="app-row app-secondary-color app-section">
+        Выберите Электронную цифровую подпись. <br>
+        Вы можете выбрать только одну подпись для одного документа
+      </div>
+
+      <ng-container *ngIf="certificatesListModal.state">
+        <app-digital-signature-list formControlName="certificate"></app-digital-signature-list>
+      </ng-container>
+
+      <ng-template uxgModalFooter>
+        <div class="app-row app-align-items-center app-justify-content-end">
+          <div *ngIf="signingStatus"><span class="spinner spinner-inline"></span></div>
+
+          <button class="app-col-auto" uxgButton secondary lg type="button" (click)="certificatesListModal.close()">Отмена</button>
+          <button uxgButton primary lg [disabled]="signingStatus" (click)="onSignDocument()">Подписать</button>
+        </div>
+      </ng-template>
+    </div>
+  </form>
+</uxg-modal>

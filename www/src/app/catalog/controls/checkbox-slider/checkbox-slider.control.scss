@@ -1,0 +1,39 @@
+label {
+  background: #e5e8ef;
+  border-radius: 7px;
+  cursor: pointer;
+  display: inline-block;
+  height: 14px;
+  position: relative;
+  transition: background-color 150ms;
+  width: 34px;
+
+  &:after {
+    background: #c3cad1;
+    border-radius: 50%;
+    content: "";
+    height: 20px;
+    left: -3px;
+    position: absolute;
+    top: -3px;
+    transition: left 150ms, background-color 150ms;
+    width: 20px;
+  }
+}
+
+input {
+  display: none;
+
+  &:checked + label {
+    background: #b2d0ff;
+
+    &:after {
+      background: #2585f5;
+      left: 17px;
+    }
+  }
+
+  &:disabled + label {
+    cursor: not-allowed;
+  }
+}

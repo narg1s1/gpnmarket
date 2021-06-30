@@ -1,0 +1,53 @@
+<form [formGroup]="form" [class.disabled]="disabled">
+  <div class="app-table app-no-border app-shrink-0">
+    <div class="app-row app-align-items-center">
+      <div class="app-col app-grow-0">
+        <uxg-checkbox formControlName="checked" uxgSelectAllFor="items" [mixedWithDisabled]="true"></uxg-checkbox>
+      </div>
+      <div class="app-col-auto app-grow-0">
+        <small><span class="app-secondary-color">Выбрано: </span><b>{{ checkedFormItems.length }}</b></small>
+      </div>
+      <ng-container *ngIf="filterFn || filter.observers.length">
+        <div class="app-col" [hidden]="isDisableFilter">
+          <div class="app-row app-align-items-center app-justify-content-end">
+            <ng-container *ngTemplateOutlet="customFilterFieldsRef"></ng-container>
+
+            <div class="app-col app-col-auto app-ghost-color">Фильтр: &nbsp; </div>
+            <div class="app-col-auto search" [class.wide]="!customFilterFieldsRef">
+              <input type="text" uxgInput formControlName="search" [placeholder]="placeholder"/>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <hr/>
+  <div class="app-table app-no-border scroll-area">
+    <ng-container *ngIf="items; else loading">
+      <ng-container *ngIf="items.length === 0; else list">
+        <p class="empty-list app-ghost-color">Список пуст</p>
+      </ng-container>
+
+      <ng-template #list>
+        <ng-container *ngFor="let formGroup of formItems?.controls; index as i">
+          <ng-container *ngIf="!formGroup.get('hidden').value && (!filterFn || filterFn(form.get('search').value, formGroup.get('item').value))">
+            <ng-container *ngTemplateOutlet="rowTplRef; context:{formGroup: formGroup, item: formGroup.get('item').value}">
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </ng-template>
+    </ng-container>
+
+    <ng-template #loading>
+      <div class="app-row app-align-items-center">
+        <div class="app-col">
+          <span class="spinner spinner-md"></span>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+
+  <hr/>
+  <ng-container *ngTemplateOutlet="footerTplRef"></ng-container>
+</form>

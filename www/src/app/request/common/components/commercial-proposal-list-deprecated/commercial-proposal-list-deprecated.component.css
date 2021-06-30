@@ -1,0 +1,108 @@
+.download {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+}
+
+.btn-link.btn {
+  margin: 0;
+}
+
+.offer {
+  font-size: 13px;
+}
+
+.offer-price {
+  word-break: break-all;
+}
+
+uxg-icon {
+  height: 20px;
+  width: 20px;
+  color: #0085FF;
+}
+
+span {
+  padding-left: 5px;
+}
+
+.clr-control-label {
+  font-weight: 400;
+  color: #4A4A4A;
+}
+
+.no-offers p {
+  margin-top: 15px;
+  color: #b9b9b9;
+  text-align: center;
+}
+
+.no-offers {
+  display: block;
+}
+
+.action-bar {
+  text-align: right;
+}
+
+.right-align-button {
+  display: block;
+  text-align: right;
+  padding: 15px 0;
+}
+
+.btn.btn-outline {
+  border-color: #0085FF;
+  color: #0085FF;
+}
+
+::ng-deep .offers-datagrid .label.label-success,
+::ng-deep .offers-datagrid a.label.label-success {
+  background: #F1F8E9;
+  color: #388e3c;
+  border: 1px solid #388e3c;
+  padding: 10px;
+  font-weight: bold;
+}
+::ng-deep .offers-datagrid .datagrid .datagrid-cell {
+  line-height: 1.6;
+}
+
+.cards {
+  margin-top: 10px;
+}
+
+.card-wrap {
+  margin-bottom: 24px;
+}
+
+.card {
+  height: 100%;
+}
+
+.card-header a {
+  max-width: calc(100% - 30px);
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.winner .card-header {
+  background: #FFE5C9;
+}
+
+.winner .card-header uxg-icon {
+  color: #E46C00;
+  float: right;
+}
+
+.winner .card-header a {
+  color: #E46C00;
+  transition: color 0.3s;
+}
+
+.winner .card-header a:hover {
+  color: #AA4500;
+  transition: color 0s;
+}

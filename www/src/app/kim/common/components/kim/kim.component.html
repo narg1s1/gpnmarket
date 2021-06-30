@@ -1,0 +1,37 @@
+<div #menu class="kim-menu">
+  <div class="app-layout">
+    <uxg-tabs>
+      <uxg-tab-title #catalogTab disabled [class.app-bold]="catalogTab.active">Все товары портала</uxg-tab-title>
+      <uxg-tab-title
+        #itemsDictionaryTab
+        routerLink="/kim/customer/items-dictionary" routerLinkActive
+        [active]="itemsDictionary.isActive"
+        [routerLinkActiveOptions]="{exact: true}"
+        [class.app-bold]="itemsDictionary.isActive"
+        #itemsDictionary="routerLinkActive"
+      >Поиск по справочнику</uxg-tab-title>
+      <uxg-tab-title
+        #priceOrderTab
+        routerLink="/kim/customer/price-orders" routerLinkActive
+        [active]="rlaPriceOrders.isActive"
+        [routerLinkActiveOptions]="{exact: true}"
+        [class.app-bold]="rlaPriceOrders.isActive"
+        #rlaPriceOrders="routerLinkActive"
+      >Мои ценовые запросы</uxg-tab-title>
+      <uxg-tab-title
+        #cartTab
+        routerLink="/kim/customer/cart" routerLinkActive
+        [active]="cart.isActive"
+        [routerLinkActiveOptions]="{exact: true}"
+        [class.app-bold]="cart.isActive"
+        #cart="routerLinkActive">
+        <div class="app-row app-align-items-center">
+          <uxg-icon shape="app-basket"></uxg-icon><span>Корзина торгового портала</span>
+          <small class="basket-counter" *ngIf="cartItemsLength$ | async as cnt">{{cnt}}</small>
+        </div>
+      </uxg-tab-title>
+    </uxg-tabs>
+  </div>
+</div>
+
+<router-outlet></router-outlet>

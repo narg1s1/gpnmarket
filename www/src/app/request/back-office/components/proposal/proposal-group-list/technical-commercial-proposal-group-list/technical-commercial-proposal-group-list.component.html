@@ -1,0 +1,16 @@
+<ng-container *ngIf="(groups$ | async) as groups">
+  <app-common-proposal-group-list
+    *ngIf="(request$ | async) as request"
+    [availablePositions]="availablePositions$ | async"
+    [groups]="groups"
+    [source]="procedureSource"
+    [request]="request"
+    [allowCreate]="allowCreate$ | async"
+    (filter)="filter$.next($event)"
+    (createGroup)="saveGroup($event)"
+    (newProcedure)="store.dispatch(updateProcedures(request)); updateGroups()"
+    (downloadTemplate)="store.dispatch(downloadTemplate(request))"
+    (uploadTemplate)="uploadTemplate($event.groupName, $event.files)"
+    (filterAvailablePositions)="store.dispatch(fetchAvailablePositions(request, $event))"
+  ></app-common-proposal-group-list>
+</ng-container>

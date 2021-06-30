@@ -1,0 +1,163 @@
+<div class="app-row">
+  <div class="app-col">
+    <div class="app-card" id="button">
+      <h2>Button constructor</h2>
+      <div class="app-table app-no-border" [style.margin]="'-20px -20px 0'">
+        <div class="app-row">
+          <div class="app-col app-row app-justify-content-between" style="flex-direction: column">
+            <div>
+              <h3>Example</h3>
+              <br/>
+              <div *ngIf="!group"><ng-container *ngTemplateOutlet="button"></ng-container></div>
+              <div *ngIf="group">
+                <div class="app-btn-group">
+                  <ng-container *ngFor="let i of [1,2,3]"><ng-container *ngTemplateOutlet="button"></ng-container></ng-container>
+                </div>
+              </div>
+            </div>
+            <uxg-code [cd]="{ code: true }" language="html" [code]="example"></uxg-code>
+          </div>
+          <div class="app-col-aside">
+            <h3>Settings</h3>
+            <div class="app-control-wrap">
+              <input #titleRef #label="ngModel" uxgInput lg type="text" required [(ngModel)]="title" />
+              <label class="app-control-label" (click)="titleRef.focus()">Button label</label>
+              <div class="app-control-error" *ngIf="label.errors as e">
+                <span *ngIf="e.required">Обязательное поле</span>
+              </div>
+            </div>
+
+            <uxg-dropdown [(ngModel)]="type"  placeholder="Type">
+              <div uxgDropdownItem [value]="item"
+                   *ngFor="let item of ['primary', 'secondary', 'outline', 'link', 'clear']">{{item}}</div>
+            </uxg-dropdown>
+            <br/>
+            <uxg-dropdown [(ngModel)]="subType" placeholder="Content type">
+              <div uxgDropdownItem [value]="item[0]"
+                   *ngFor="let item of [['','Text'], ['icon',['Icon']], ['iconText', ['Text + Icon']]]">{{item[1]}}</div>
+            </uxg-dropdown>
+            <br/>
+            <div class="app-row app-justify-content-between">
+              <label class="app-col app-row app-grow-0 app-basis-auto app-align-items-center">
+                <uxg-checkbox [(ngModel)]="buttonModel.lg"></uxg-checkbox>&nbsp;Large</label>
+              <label class="app-col app-row app-grow-0 app-basis-auto app-align-items-center">
+                <uxg-checkbox [(ngModel)]="buttonModel.disabled"></uxg-checkbox>&nbsp;Disabled</label>
+              <label class="app-col app-row app-grow-0 app-basis-auto app-align-items-center">
+                <uxg-checkbox [(ngModel)]="group"></uxg-checkbox>&nbsp;Grouped</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #button>
+      <button uxgButton [lg]="buttonModel.lg" [disabled]="buttonModel.disabled"
+              [primary]="type === 'primary'" [secondary]="type === 'secondary'"
+              [outline]="type === 'outline'" [link]="type === 'link'"
+              [clear]="type === 'clear'" [icon]="subType === 'icon'" [iconText]=" subType=== 'iconText'"
+      >
+        <uxg-icon *ngIf="subType" shape="app-trash" size="16" class="is-solid"></uxg-icon>
+        <span *ngIf="subType !== 'icon'">{{ title }}</span>
+      </button>
+    </ng-template>
+
+    <div class="app-card" id="switcher">
+      <h2>Swicher</h2>
+      <h3>Swicher control</h3>
+      <br/>
+      <uxg-switcher label="Swich me"></uxg-switcher>
+      <br/>
+      <uxg-code language="html">{{example1}}</uxg-code>
+
+      <br/>
+      <h3>Right label</h3>
+      <br/>
+      <uxg-switcher label="Swich me" labelAlign="right"></uxg-switcher>
+      <br/>
+      <uxg-code language="html">{{example2}}</uxg-code>
+    </div>
+
+    <div class="app-card" id="checkbox">
+      <h2>Checkbox</h2>
+      <h3>Simple</h3>
+      <br/>
+      <div class="app-row app-align-items-center">
+        <uxg-checkbox class="app-control" #controlCheckbox></uxg-checkbox>
+        <label (click)="controlCheckbox.check($event)">&nbsp;Check me</label>
+      </div>
+      <br/>
+      <div class="app-row app-align-items-center">
+        <uxg-checkbox [disabled]="true" class="app-control" #controlDisabledCheckbox></uxg-checkbox>
+        <label (click)="controlDisabledCheckbox.check($event)">&nbsp;You can't check me</label>
+      </div>
+      <br/>
+      <div class="app-row app-align-items-center">
+        <uxg-checkbox [disabled]="true" [ngModel]="true" class="app-control" #controlDisabledCheckbox></uxg-checkbox>
+        <label (click)="controlDisabledCheckbox.check($event)">&nbsp;You can't check me</label>
+      </div>
+      <br/>
+      <uxg-code language="html">{{example3}}</uxg-code>
+      <br/>
+      <h3>Tree</h3>
+      <br/>
+      <form [formGroup]="form">
+        <uxg-tree [tree]="[form]" [getChildrenFn]="getChildren">
+          <div class="indent" *uxgTreeNodeWrap></div>
+          <div class="app-row app-align-items-center" [formGroup]="formGroup" *uxgTreeNode="let formGroup">
+            <uxg-checkbox #c class="app-control" formControlName="checked" uxgSelectAllFor="list"></uxg-checkbox>
+            <label (click)="c.check($event)"> &nbsp; Check me</label>
+          </div>
+        </uxg-tree>
+      </form>
+      <br/>
+
+      <h3>Template</h3>
+      <uxg-code language="html">{{example4}}</uxg-code>
+      <br/>
+      <h3>Component</h3>
+      <uxg-code language="javascript">{{example4_1}}</uxg-code>
+    </div>
+
+    <div class="app-card" id="radio">
+      <h2>Radio</h2>
+      <div class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #radio1 name="radio" value="1" [(ngModel)]="radioValue" ></uxg-radio-item>
+        <label (click)="radio1.select($event)"> &nbsp; One</label>
+      </div>
+      <br/>
+      <div class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #radio2 name="radio" value="2" [(ngModel)]="radioValue"></uxg-radio-item>
+        <label (click)="radio2.select($event)"> &nbsp; Two</label>
+      </div>
+      <br/>
+      <div class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" #radio3 name="radio" value="3" [(ngModel)]="radioValue"></uxg-radio-item>
+        <label (click)="radio3.select($event)"> &nbsp; Three</label>
+      </div>
+      <br/>
+      <div class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" disabled name="radio" #radio4 value="4" [(ngModel)]="radioValue"></uxg-radio-item>
+        <label (click)="radio4.select($event)"> &nbsp; Disabled option</label>
+      </div>
+      <br/>
+      <div class="app-row app-align-items-center">
+        <uxg-radio-item class="app-control" disabled #radio5 name="radio" ngModel="5" value="5"></uxg-radio-item>
+        <label (click)="radio5.select($event)"> &nbsp; Disabled selected option</label>
+      </div>
+      <br/>
+      <h2>Sources</h2>
+      <uxg-code language="html">{{example5}}</uxg-code>
+
+    </div>
+  </div>
+
+  <div class="app-col-aside">
+    <div class="sticky" [style.padding-top.px]="17">
+      <h3>Navigation</h3>
+      <p><a routerLink="." fragment="button" uxgRouterLinkActive="app-bold">Button</a></p>
+      <p><a routerLink="." fragment="switcher" uxgRouterLinkActive="app-bold">Switcher</a></p>
+      <p><a routerLink="." fragment="checkbox" uxgRouterLinkActive="app-bold">Checkbox</a></p>
+      <p><a routerLink="." fragment="radio" uxgRouterLinkActive="app-bold">Radio</a></p>
+    </div>
+  </div>
+</div>

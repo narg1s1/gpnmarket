@@ -1,0 +1,20 @@
+<div class="app-row">
+  <div class="app-col">
+    <div class="pie-chart">
+      <canvas #chart></canvas>
+    </div>
+  </div>
+
+  <div class="app-col" *ngIf="showLabel">
+    <table class="label-table">
+      <tr *ngFor="let item of items" (mouseenter)="onItemMouseEnter(item)" (mouseleave)="onItemMouseLeave(item)">
+        <td [class.app-ghost-color]="item.count === 0" class="count-label">
+          {{ item.count | number:'1.0-2' }} <span class="app-ghost-color" >{{ measure }}</span>
+        </td>
+        <td>
+          <span [style.color]="item.color">{{ item.label }}</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

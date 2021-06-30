@@ -1,0 +1,48 @@
+<h2>Оформить заказ</h2>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="app-row">
+    <div class="clr-col-6">
+      <label>Наименование заявки <b class="required-star">*</b></label>
+      <input type="text" uxgInput lg formControlName="requestName" appFormControlInvalidClass="invalid"/>
+    </div>
+    <div class="clr-col-6">
+      <div class="app-row">
+        <div class="app-col"><label>Необходимый срок поставки <b class="required-star">*</b></label></div>
+      </div>
+      <div class="app-row app-align-items-center">
+        <div class="app-col app-grow-0">
+          <div style="position:relative">
+              <input uxgInput lg uxgDatepicker formControlName="deliveryDate" type="text" placeholder="Выберите дату"
+                appFormControlInvalidClass="invalid"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="app-row">
+    <div class="clr-col-6">
+      <label>Базис поставки (пункт, до которого требуется доставка) <b class="required-star">*</b></label>
+      <input type="text" uxgInput lg formControlName="deliveryBasis" appFormControlInvalidClass="invalid"/>
+    </div>
+
+    <div class="clr-col-6">
+      <label class="input-label">Условия оплаты <b class="required-star">*</b></label>
+      <uxg-dropdown lg placeholder="Условия оплаты" class="payment-terms" name="paymentTerms" id="paymentTerms" formControlName="paymentTerms" appFormControlInvalidClass="invalid">
+        <div uxgDropdownItem value="30 дней по факту поставки">30 дней по факту поставки</div>
+        <div uxgDropdownItem value="60 дней по факту поставки">60 дней по факту поставки</div>
+        <div uxgDropdownItem value="90 дней по факту поставки">90 дней по факту поставки</div>
+      </uxg-dropdown>
+    </div>
+  </div>
+
+  <div class="app-row app-justify-content-end">
+    <div class="app-row app-col app-col-auto app-align-items-center">
+      <span *ngIf="loadingState" class="spinner spinner-inline">Загрузка...</span>
+
+      <button uxgButton primary lg class="btn-submit"
+              [disabled]="form.invalid || isQuantityInvalid() || loadingState">Сделать заказ
+      </button>
+    </div>
+  </div>
+</form>
+

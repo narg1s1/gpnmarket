@@ -1,0 +1,81 @@
+<uxg-modal size="l" (stateChange)="onModalStateChange($event)">
+  <ng-container *ngIf="modal?.state">
+    <h2>Добавить новую позицию</h2>
+
+    <form *ngIf="!request" appFormValidation [formGroup]="firstStepForm">
+      <br>
+      <div class="app-row">
+        <div class="app-col">
+          <uxg-dropdown-input
+            formControlName="contragent" placeholder="Выберите заказчика" appSuggestions #sug="appSuggestions"
+            [$]="contragents$" [lg]="true" [strictMode]="true" [displayByFn]="getContragentName"
+            (select)="onContragentSelect($event)" [searchFn]="searchContragents"
+          >
+            <ng-container *ngIf="(sug.suggestions$ | async) as contragents">
+              <div uxgDropdownItem *ngFor="let contragent of contragents" [value]="contragent">
+                {{contragent.shortName }}
+              </div>
+            </ng-container>
+          </uxg-dropdown-input>
+        </div>
+      </div>
+      <div class="app-row">
+        <div class="app-col">
+          <uxg-dropdown-input
+            [disabled]="!firstStepForm.get('contragent').value"
+            class="app-dropdown"
+            placeholder="Введите название заявки"
+            formControlName="request"
+            [$]="requestList$"
+            [searchFn]="searchRequestFn"
+            [displayByFn]="displaySuggestName"
+            [minLength]="0"
+            [required]="true"
+            uxgSuggestions
+            #uxgSuggestions="uxgSuggestions">
+            <div
+              *ngFor="let suggest of (uxgSuggestions.suggestions$ | async)"
+              uxgDropdownItem
+              [value]="suggest">
+              <small class="app-ghost-color">{{ suggest.number }}</small>
+              &nbsp;
+              {{ suggest.name }}
+            </div>
+          </uxg-dropdown-input>
+          <div style="color: rgb(199, 43, 43);">{{ errorInput }}</div>
+        </div>
+      </div>
+      <ng-template uxgModalFooter>
+        <button uxgButton secondary lg type="button" (click)="close()">Отмена</button>
+        <button [disabled]="firstStepForm.invalid"
+                uxgButton primary lg
+                (click)="request = firstStepForm.get('request').value; onRequestSelected.emit(request);">Далее</button>
+      </ng-template>
+    </form>
+
+    <ng-container *ngIf="request">
+      <uxg-tabs>
+        <uxg-tab-title #template>Загрузить из шаблона</uxg-tab-title>
+        <uxg-tab-title #manual [active]="true">Заполнить вручную</uxg-tab-title>
+      </uxg-tabs>
+      <ng-container *uxgTab="template">
+        <app-add-from-excel
+          (create)="uploadFromTemplate.emit($event); close()"
+          (cancel)="cancel.emit()"
+          [templateUrl]="'assets/RequestTemplate.xlsx'">
+        </app-add-from-excel>
+      </ng-container>
+      <ng-container *uxgTab="manual">
+        <app-request-position-form
+          *ngIf="!!modal && modal.state && request"
+          [requestId]="request.id"
+          (cancel)="close()"
+          (positionChange)="success.emit($event); close()"
+          [onDrafted]="onDrafted"
+          [isShowDocumentsBlock]="isShowDocumentsBlock"
+        ></app-request-position-form>
+      </ng-container>
+    </ng-container>
+
+  </ng-container>
+</uxg-modal>

@@ -1,0 +1,121 @@
+<form appFormValidation [formGroup]="form" (ngSubmit)="submit();">
+
+  <uxg-dropdown-input
+    formControlName="supplier" placeholder="Наименование контрагента" appSuggestions #sug="appSuggestions"
+    [$]="contragents$"
+    [lg]="true"
+    [strictMode]="true"
+    [displayByFn]="getContragentName"
+    [searchFn]="searchContragents">
+
+    <ng-container *ngIf="(sug.suggestions$ | async) as contragents">
+      <ng-container *ngFor="let contragent of contragents">
+        <!--  @TODO: Скрытие уже добавленных контрагентов реализовано на фронте -->
+        <!--  Переделать после реализации тикета gpn_market-1625 -->
+        <div uxgDropdownItem *ngIf="!contragentExists(contragent)"
+             [value]="contragent">
+          {{ contragent.shortName || contragent.fullName }}
+          <span class="app-ghost-color">{{contragent.inn | splitNumber}}</span>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #errors>
+      <div class="app-control-error" *ngIf="form.get('supplier').errors as e">
+        <span *ngIf="e.required">Обязательное поле</span>
+        <span *ngIf="e.notFromList">Выберите контрагента из списка</span>
+      </div>
+    </ng-template>
+  </uxg-dropdown-input>
+  <div class="section">
+    <div class="app-row">
+      <div class="app-col mr-15">
+        <div class="app-control-wrap">
+          <input #deliveryAdditionalTerms uxgInput lg formControlName="deliveryAdditionalTerms"/>
+          <label class="app-control-label" (click)="deliveryAdditionalTerms.focus()">Дополнительные условия
+            поставки</label>
+          <div class="app-control-error" *ngIf="form.get('deliveryAdditionalTerms').errors as e">
+            <span *ngIf="e.required">Обязательное поле</span>
+          </div>
+        </div>
+      </div>
+      <div class="app-col">
+        <div class="app-control-wrap">
+          <input #warrantyConditions uxgInput lg formControlName="warrantyConditions"/>
+          <label class="app-control-label" (click)="warrantyConditions.focus()">Гарантийные условия</label>
+          <div class="app-control-error" *ngIf="form.get('warrantyConditions').errors as e">
+            <span *ngIf="e.required">Обязательное поле</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <small class="app-uppercase app-ghost-color app-bold">Тип и стоимость доставки</small>
+    <div class="app-row">
+      <div class="app-col" *ngFor="let deliveryType of deliveryTypes">
+        <p class="app-row access-radio">
+          <uxg-radio-item class="app-control" #deliveryTypeControl value="{{ deliveryType[0] }}"
+                          formControlName="deliveryType"></uxg-radio-item>
+          <label (click)="deliveryTypeControl.select($event)">&nbsp;{{ deliveryType[1] }}</label>
+        </p>
+      </div>
+    </div>
+    <ng-container [ngSwitch]="form.get('deliveryType').value">
+      <br *ngSwitchCase="deliveryType.INCLUDED"/>
+      <ng-container *ngSwitchCase="deliveryType.NOT_INCLUDED">
+        <div class="app-row">
+          <div class="app-col mr-15">
+            <div class="app-control-wrap">
+              <input appPriceInputFilter class="hidden-arrows" type="number" #deliveryPrice uxgInput lg formControlName="deliveryPrice"/>
+              <label class="app-control-label" (click)="deliveryPrice.focus()">Стоимость доставки</label>
+              <div class="app-control-error" *ngIf="form.get('deliveryPrice').errors as e">
+                <span *ngIf="e.required">Обязательное поле</span>
+              </div>
+            </div>
+          </div>
+          <div class="app-col currency">
+            <div class="app-control-wrap">
+              <uxg-dropdown lg class="app-dropdown" formControlName="deliveryCurrency" placeholder="Валюта" disabled>
+                <div uxgDropdownItem value="RUB">Руб.</div>
+              </uxg-dropdown>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <ng-container *ngSwitchCase="deliveryType.PICKUP">
+        <div class="app-row">
+          <div class="app-col">
+            <div class="app-control-wrap">
+              <input #deliveryPickup uxgInput lg formControlName="deliveryPickup"/>
+              <label class="app-control-label" (click)="deliveryPickup.focus()">Базис самовывоза</label>
+              <div class="app-control-error" *ngIf="form.get('deliveryPickup').errors as e">
+                <span *ngIf="e.required">Обязательное поле</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+  <div class="section">
+    <app-documents-form-control
+      formControlName="files"
+      [docType]="sourceLabel[source]"
+      [invalid]="invalidDocControl"
+      [documents]="proposal?.documents"
+      [dragAndDrop]="false"
+    ></app-documents-form-control>
+  </div>
+  <br>
+  <div class="app-row">
+    <div class="app-col">
+    </div>
+    <div class="app-row app-justify-content-end">
+      <button uxgButton lg secondary type="button" (click)="close.emit()">Отмена</button>
+      <button uxgButton lg primary>
+        {{ proposal ? 'Сохранить' : 'Добавить' }}
+      </button>
+    </div>
+  </div>
+</form>

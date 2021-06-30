@@ -1,0 +1,32 @@
+<div class="app-container">
+  <app-nav (openModal)="notificationModal.open()" class="app-header" [class.no-stick]="noHeaderStick"></app-nav>
+  <app-notification-list #notificationModal></app-notification-list>
+  <div class="app-content-wrap">
+    <div class="app-content">
+      <div [class.app-layout]="!noContentPadding">
+        <div class="breadcrumbs" *ngIf="!isBreadcrumbsHidden" [class.app-layout]="noContentPadding">
+          <uxg-breadcrumbs [breadcrumbs]="bc.breadcrumbs"></uxg-breadcrumbs>
+        </div>
+        <h1 [class.app-layout]="noContentPadding" *ngIf="!_isTitleHidden && titleService.getTitle() as title">{{ title }}</h1>
+
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+
+    <div class="app-footer app-layout app-row app-secondary-color" *ngIf="!noFooter">
+      <div class="app-col">Processor, {{ year }}</div>
+      <ng-container *ngIf="featureService.authorize('instructionsFileForCustomer')">
+        <a target="_blank" [href]="appConfig.instructions.forCustomer">Скачать инструкцию</a>
+        <div class="separator"></div>
+      </ng-container>
+      <ng-container *ngIf="featureService.authorize('instructionsFileForBackoffice')">
+        <a target="_blank" [href]="appConfig.instructions.forBackoffice">Скачать инструкцию</a>
+        <div class="separator"></div>
+      </ng-container>
+      <div class="isource">
+        <img src="assets/images/isource-logo.svg" />
+      </div>
+    </div>
+  </div>
+</div>
+<app-toast-list></app-toast-list>

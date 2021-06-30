@@ -1,0 +1,28 @@
+<div class="app-table app-notification" *ngIf="(notifications$ | async) as notifications"  [class.loading]="isLoading">
+  <div class="app-row" *ngFor="let notification of notifications.entities">
+    <div class="app-col-auto">
+      <div *ngIf="!notification?.data?.newStatus" class="app-notification-icon" [ngClass]="notification.status"></div>
+      <div *ngIf="notification?.data?.newStatus" class="app-notification-icon">
+        <div class="app-notification-icon-top" [ngClass]="notification.data.newStatus"></div>
+        <div class="app-notification-icon-bottom" [ngClass]="notification.data.oldStatus"></div>
+      </div>
+    </div>
+    <div class="app-col-auto">{{ notification.createdDate | date: 'd LLLL yyyy в HH:mm' }}</div>
+    <div class="app-col content">
+      <div class="app-bold">{{notification.typeLabel}}</div>
+      <div class="app-row app-align-items-center" *ngIf="notification?.data?.newStatus">
+        <app-position-status [status]="notification.data.oldStatus" [label]="notification.data.oldStatusLabel"></app-position-status>
+        <uxg-icon shape="app-arrow right" class="app-ghost-color"></uxg-icon>
+        <app-position-status [status]="notification.data.newStatus" [label]="notification.data.newStatusLabel"></app-position-status>
+      </div>
+      <div class="app-secondary-color">
+        <span *ngIf="notification.request">Заявка № {{notification.request.number}} {{notification.request.name}}</span>
+        <span *ngIf="notification.request && notification.requestPosition"> | </span>
+        <span *ngIf="notification.requestPosition">{{ notification.requestPosition.name }}</span>
+      </div>
+      <div class="app-ghost-color" *ngIf="notification?.user?.fullName">{{notification?.user?.fullName}}</div>
+    </div>
+  </div>
+</div>
+<br/>
+<app-pagination [total]="total$ | async" [pageSize]="pageSize" [pages$]="pages$" (change)="loadPage($event)"></app-pagination>

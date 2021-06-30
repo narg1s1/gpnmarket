@@ -1,0 +1,7 @@
+<button uxgButton secondary iconText
+        [class.app-detachable-button]="!filter?.el?.initiallyHidden"
+        (click)="filter?.el?.open()">
+  <uxg-icon shape="app-sort2"></uxg-icon>
+  <span>Фильтр</span>
+  <small *ngIf="filter?.el?.activeFilters.length > 0" class="counter">{{ filter?.el?.activeFilters.length }}</small>
+</button>

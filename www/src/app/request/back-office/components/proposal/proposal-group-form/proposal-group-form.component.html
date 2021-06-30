@@ -1,0 +1,59 @@
+<form appFormValidation [formGroup]="form" (ngSubmit)="submit()">
+  <div class="app-control-wrap">
+    <input #nameRef uxgInput type="text" lg formControlName="name"/>
+    <label class="app-control-label" (click)="nameRef.focus()">Наименование {{ sourceLabel }}</label>
+    <div class="app-control-error" *ngIf="form.get('name').errors as e">
+      <span *ngIf="e.required">Обязательное поле</span>
+    </div>
+  </div>
+  <select-items-with-search
+    class="select-list select-list-positions"
+    formControlName="requestPositions"
+    placeholder="Наименование позиции или группы"
+    (filter)="filterAvailablePositions.emit($event)"
+    [trackBy]="trackById"
+    [items]="mergeWithExistPositions"
+  >
+    <ng-template let-formGroup="formGroup" let-position="item">
+      <div class="app-row select-list-item" [formGroup]="formGroup" [class.app-ghost-color]="formGroup.disabled">
+        <div class="app-col app-grow-0">
+          <uxg-checkbox formControlName="checked"></uxg-checkbox>
+        </div>
+        <div class="app-col app-bold select-list-item-title">{{ position.name }}</div>
+        <ng-container *ngIf="!formGroup.disabled">
+          <div class="app-col app-col-auto select-list-item-quantity">
+            <span>{{ position.quantity }} </span>
+            <span class="app-ghost-color">{{ position.measureUnit | lowercase }}</span>
+          </div>
+
+          <div class="app-col app-col-auto select-list-item-date">
+            <ng-container *ngIf="position.isDeliveryDateAsap; else deliveryDate">Как можно скорее</ng-container>
+            <ng-template #deliveryDate>{{ position.deliveryDate | date : 'dd.MM.yyyy' }}</ng-template>
+          </div>
+        </ng-container>
+      </div>
+    </ng-template>
+
+    <ng-template #footerContentTpl>
+      <div class="app-row select-list-item-footer app-uppercase app-ghost-color app-bold">
+        <div class="app-col app-grow-0"></div>
+        <div class="app-col app-bold"></div>
+        <div class="app-col app-col-auto select-list-item-quantity">Кол-во</div>
+        <div class="app-col app-col-auto select-list-item-date">Дата поставки</div>
+      </div>
+    </ng-template>
+  </select-items-with-search>
+  <br/>
+  <div class="app-row app-justify-content-end">
+    <div class="app-row app-col app-align-items-center">
+      <uxg-switcher formControlName="useAllPositions" label="Добавить все позиции" labelAlign="right"></uxg-switcher>
+      <div class="app-col"></div>
+      <ng-container *ngIf="form.get('requestPositions') as c">
+        <div class="app-bold app-error-color" *ngIf="c.invalid && c.touched && c.dirty">Пожалуйста выберите позиции для предложения</div>
+      </ng-container>
+      <span *ngIf="isLoading" class="spinner spinner-inline"></span>
+      <button type="button" uxgButton secondary lg (click)="complete.emit()">Отмена</button>
+      <button uxgButton primary lg>Всё готово</button>
+    </div>
+  </div>
+</form>

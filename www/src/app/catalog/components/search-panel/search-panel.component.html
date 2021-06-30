@@ -1,0 +1,38 @@
+<app-catalog-categories *ngIf="categoriesOpened" [(opened)]="categoriesOpened"></app-catalog-categories>
+
+<div #searchPanel class="search-bar">
+  <div class="app-row app-layout app-align-items-center">
+    <div class="clr-col-2">
+      <button uxgButton primary iconText class="btn-categories" aria-label="Каталог" title="Каталог"
+              (click)="onToggleCategories()">
+        <uxg-icon shape="app-hamburger"></uxg-icon>
+        <span>Каталог</span>
+      </button>
+    </div>
+
+  <div class="clr-col-7 search">
+    <input placeholder="Введите наименование позиции для поиска"
+           type="text"
+           name="searchName"
+           class="input-search"
+           (keydown.enter)="onSearch()"
+           [(ngModel)]="searchText"/>
+    <button uxgButton icon clear class="btn-reset" (click)="onResetClick()" *ngIf="searchText">
+      <uxg-icon shape="app-cross"></uxg-icon>
+    </button>
+    <button uxgButton primary lg class="btn-search" aria-label="Поиск" title="Поиск" (click)="onSearch()"
+            [disabled]="!searchText">
+      <uxg-icon shape="app-search"></uxg-icon>
+    </button>
+    <div class="search-dropdown" *ngIf="showSearchResults">
+      <ng-container *ngIf="(searchResults$ | async) as searchResults">
+        <div class="search-item category"
+          *ngFor="let category of searchResults.categories"
+          (click)="onCategoryClick(category)">{{ category.name }}</div>
+        <div class="search-item position"
+          *ngFor="let position of searchResults.positions"
+             (click)="onPositionClick(position)">{{ position.name }}</div>
+      </ng-container>
+    </div>
+  </div>
+</div>

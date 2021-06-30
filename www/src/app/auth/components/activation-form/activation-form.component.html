@@ -1,0 +1,40 @@
+<ng-container *ngIf="title.getTitle()" [ngSwitch]="errorCode">
+  <div class="app-section app-secondary-color">
+    <ng-container *ngSwitchCase="ErrorCode.INCORRECT_ACTIVATION_TOKEN">
+      Не удалось активировать профиль из-за некорректного кода активации.
+    </ng-container>
+    <ng-container *ngSwitchCase="ErrorCode.ALREADY_ACTIVATED">
+      Ваш профиль уже был активирован, повторная активация не требуется.
+    </ng-container>
+    <ng-container *ngSwitchCase="ErrorCode.ACTIVATION_TOKEN_EXPIRED">
+      Не удалось активировать профиль, так как срок действия ссылки истек. Вы можете запросить письмо для активации повторно.
+    </ng-container>
+    <ng-container *ngSwitchCase="ErrorCode.NOT_ACTIVATED">
+      Вы зарегистрированы в системе, но еще не подтвердили свою регистрацию. Для активации аккаунта перейдите по ссылке, отправленной на электронную почту, указанную Вами при регистрации.
+    </ng-container>
+    <ng-container *ngSwitchCase="ErrorCode.INVALID_LINK">
+      В ссылке отсутствует код активации
+    </ng-container>
+    <ng-container *ngSwitchCase="ErrorCode.UNKNOWN">
+      Произошла ошибка. Попробуйте обновить страницу или повторить запрос позднее
+    </ng-container>
+    <ng-container *ngIf="!errorCode && state === 'completeActivation'">
+      Ваш профиль успешно активирован
+    </ng-container>
+    <ng-container *ngIf="!errorCode && state === 'completeResend'">
+      Мы отправили письмо с активацией на Вашу электронную почту
+    </ng-container>
+  </div>
+
+  <div class="app-row">
+    <button class="app-col" uxgButton primary lg strength routerLink="/auth/login" *ngIf="!errorCode">
+      Перейти к авторизации
+    </button>
+    <button class="app-col" uxgButton primary lg strength routerLink="/auth/login" *ngSwitchCase="ErrorCode.NOT_ACTIVATED">
+      Вернуться к авторизации
+    </button>
+    <button class="app-col" uxgButton primary lg strength (click)="resendActivationLink(code)" *ngSwitchCase="ErrorCode.ACTIVATION_TOKEN_EXPIRED" [disabled]="loading">
+      Отправить письмо еще раз
+    </button>
+  </div>
+</ng-container>

@@ -1,0 +1,33 @@
+.select-list {
+  max-height: calc(70vh - 206px);
+
+  &-item {
+    &-title {
+      line-height: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &-quantity {
+      flex-grow: .15; // 15% width
+      max-width: 100px;
+      text-align: right;
+    }
+    &-date { min-width: 130px; text-align: right; }
+
+    &-footer {
+      padding: 10px 0;
+
+      & * {
+        padding: 0 10px;
+        font-size: 11px;
+        box-sizing: content-box;
+        text-align: right;
+
+        &:first-child { padding-left: 0; }
+        &:last-child { padding-right: 0; }
+      }
+    }
+  }
+}

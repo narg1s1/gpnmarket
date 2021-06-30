@@ -1,0 +1,284 @@
+.delivery-monitor-loader {
+  margin: 20px auto;
+}
+
+.vehicle-icon {
+  width: 32px;
+  height: 32px;
+  background-image: url('/assets/images/delivery-monitor/vehicle-icon.svg');
+  background-repeat: no-repeat;
+  margin-right: 16px;
+  vertical-align: top;
+}
+
+::ng-deep .clr-accordion.delivery-timeline-block:not(.clr-stepper-forms) .clr-accordion-header-button {
+  padding: 33px 28px 25px 28px;
+
+  & .clr-accordion-status {
+    display: none;
+  }
+}
+
+::ng-deep .delivery-timeline-header {
+  width: 100%;
+}
+
+::ng-deep .delivery-timeline-panel .clr-accordion-header:hover {
+  background-color: initial;
+}
+
+::ng-deep .delivery-timeline-panel .clr-accordion-panel-open {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  margin-bottom: 30px;
+
+  .clr-accordion-header {
+    background: initial;
+  }
+}
+
+
+.item-info-block {
+  & .item-name {
+    font-size: 16px;
+    line-height: 18px;
+    color: #254456;
+    margin-bottom: 5px;
+  }
+
+  & .item-info {
+    font-size: 14px;
+    line-height: 17px;
+    color: #8B9AA3;
+  }
+}
+
+.item-status-block {
+  float: right;
+
+  & .item-status {
+    font-size: 14px;
+    line-height: 17px;
+    color: #8B9AA3;
+    display: inline-block;
+
+    &.st-Loaded:before,
+    &.st-Moving:before,
+    &.st-Arrived:before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 7px;
+      margin-bottom: 2px;
+      background-color: #0089E9;
+    }
+
+    &.st-Loaded:before {
+      background-color: #DBDBDB;
+    }
+    &.st-Moving:before {
+      background-color: #0089E9;
+    }
+    &.st-Arrived:before {
+      background-color: #20B55F;
+    }
+  }
+
+  & .item-toggle-icon {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-image: url('/assets/images/delivery-monitor/toggle-arrow-icon.svg');
+    background-repeat: no-repeat;
+    margin-left: 20px;
+
+    transition: transform 0.3s ease-in-out;
+  }
+}
+
+::ng-deep .clr-accordion-panel-open .item-status-block .item-toggle-icon {
+  transition: transform 0.3s ease-in-out;
+  transform: rotate(-180deg);
+}
+
+
+
+::ng-deep .vehicle-icon, ::ng-deep .item-info-block, ::ng-deep .status-block {
+  display: inline-block;
+}
+
+::ng-deep .delivery-timeline-block .clr-accordion-header,
+::ng-deep .delivery-timeline-block .clr-accordion-content,
+::ng-deep .delivery-timeline-block .clr-accordion-panel:last-child .clr-accordion-content,
+::ng-deep .delivery-timeline-block .clr-accordion-panel:last-child .clr-accordion-header {
+  border: 0;
+}
+
+
+::ng-deep .delivery-timeline-block .clr-accordion-header,
+::ng-deep .delivery-timeline-block .clr-accordion-panel:last-child .clr-accordion-header,
+::ng-deep .delivery-timeline-block.clr-accordion:not(.clr-stepper-forms) .clr-accordion-panel:first-child .clr-accordion-header {
+  border-top: 1px solid #e6e6e6;
+  border-radius: 0;
+  background-color: white;
+
+  &:hover {
+    background-color: #f1f6f9;
+  }
+}
+
+.item-info-inner-content {
+  padding-top: 10px;
+  display: block;
+}
+
+
+.item-info-element {
+  padding-bottom: 25px;
+}
+
+.item-info-label {
+  font-size: 14px;
+  line-height: 17px;
+  color: #A9BBC6;
+  padding-bottom: 5px;
+  margin: 0;
+}
+
+.item-info-content {
+  font-size: 14px;
+  line-height: 17px;
+  margin: 0;
+}
+
+
+
+.from-to-block {
+  padding-top: 35px;
+  padding-bottom: 20px;
+}
+
+.from-to-icon {
+  width: 15px;
+  height: 12px;
+  background-image: url('/assets/images/delivery-monitor/forward-arrow-icon.svg');
+  background-repeat: no-repeat;
+}
+
+
+table.shipment-tracker {
+  width: 100%;
+  margin-bottom: 30px;
+
+  & thead th,
+  & tbody td {
+    padding-right: .5rem;
+    padding-left: .5rem;
+  }
+
+  & thead {
+    height: 44px;
+    background-color: #F6F6F6;
+
+    th {
+      text-align: left;
+      color: #828282;
+      font-weight: 100;
+    }
+  }
+
+  & tbody {
+    & tr {
+      height: 50px;
+
+      & .circle-item {
+        width: 12px;
+        height: 12px;
+        background: #FFFFFF;
+        border: 2px solid #C4C4C4;
+        border-radius: 50%;
+        box-sizing: border-box;
+
+        &:before {
+          content: '';
+          height: 28px;
+          width: 2px;
+          background: #C4C4C4;
+          display: block;
+          margin: -35px 3px 0 3px;
+        }
+      }
+
+      &:first-of-type {
+        & .circle-item:before {
+          content: '';
+          display: none;
+        }
+      }
+
+
+      &.action-complete {
+        color: black;
+
+        .circle-item {
+          border: 2px solid #0089E9;
+
+          &:before {
+            content: '';
+            height: 28px;
+            width: 2px;
+            background: #0089E9;
+            display: block;
+            margin: -35px 3px 0 3px;
+          }
+        }
+
+        &:first-of-type {
+          & .circle-item:before {
+            content: '';
+            display: none;
+          }
+        }
+
+        .shipment-tracker-label {
+          color: #002033;
+        }
+      }
+
+
+      & td {
+        color: #999797;
+
+        .expected-date,
+        .factual-date {
+          display: inline-block;
+        }
+
+        .expected-date {
+          padding-right: 40px;
+          width: 130px;
+        }
+      }
+    }
+  }
+}
+
+
+.gibert-title {
+  font-size: 18px;
+  font-weight: bold;
+  padding-bottom: 10px;
+  display: block;
+}
+
+.control-element {
+  margin-bottom: 10px;
+}
+
+.good-infographics-card {
+  padding: 18px 23px;
+  border: 1px solid #e6e6e6;
+  border-radius: 5px;
+  margin-top: 20px;
+}

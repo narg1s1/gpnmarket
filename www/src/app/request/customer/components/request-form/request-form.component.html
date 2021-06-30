@@ -1,0 +1,124 @@
+<div class="app-row">
+  <div class="app-col">
+    <form [formGroup]="form" class="create-request-form"
+          (ngSubmit)="featureService.authorize('recommendedPositions') ? getRecommendedPositions() : submit()">
+      <ng-container *ngTemplateOutlet="actions"></ng-container>
+      <br/>
+      <div class="app-card">
+        <h3>Наименование заявки</h3>
+        <div class="app-control-wrap">
+          <input #nameRef uxgInput type="text" lg class="request-name-input" formControlName="name"/>
+          <label class="app-control-label" (click)="nameRef.focus()">Наименование заявки (обязательно)</label>
+          <div class="app-control-error" *ngIf="form.get('name').errors as e">
+            <span *ngIf="e.required">Обязательное поле</span>
+          </div>
+        </div>
+      </div>
+
+      <ng-container *ngFor="let position of formPositions.controls; let i=index">
+        <div class="app-card">
+          <div class="app-row app-align-items-center">
+            <h3 class="app-col">Новая позиция</h3>
+            <button uxgButton icon type="button" (click)="formPositions.removeAt(i)" *ngIf="formPositions.length > 1">
+              <uxg-icon shape="app-cross"></uxg-icon>
+            </button>
+          </div>
+          <app-request-position-form [formControl]="position" [position]="position.value"
+                                     [isNewRequest]="true"></app-request-position-form>
+
+        </div>
+      </ng-container>
+      <div class="app-card">
+        <div class="addNext">
+          <button uxgButton secondary type="button" (click)="pushPosition()">
+            <uxg-icon shape="app-plus"></uxg-icon>
+            Добавить еще одну позицию
+          </button>
+        </div>
+      </div>
+      <br/>
+      <ng-container *ngTemplateOutlet="actions"></ng-container>
+    </form>
+  </div>
+
+  <div class="app-col app-col-aside">
+    <h3>Общая инф. по заявке</h3>
+    <br/>
+    <div class="app-section">
+      <div class="app-ghost-color">Заказчик</div>
+      {{ user.getUserInfo().contragent.shortName }}
+    </div>
+    <div class="app-section">
+      <div class="app-ghost-color">Контактное лицо</div>
+      Вы, {{ user.getShortUserFio() }}
+    </div>
+    <div class="app-section">
+      <div class="app-ghost-color">Документы заявки</div>
+      <button uxgButton secondary class="download-docs" disabled>
+        <uxg-icon shape="app-upload"></uxg-icon>
+        <span>Загрузить документы</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<ng-template #actions>
+  <div class="submit">
+    <div class="app-row app-align-items-center">
+      <div class="app-col"><span class="app-ghost-color">Заполнено позиций: </span> {{ validPositions.length }}</div>
+      <div class="app-row app-align-items-center">
+        <div><span *ngIf="isLoading" class="spinner spinner-inline"></span></div>
+        <button uxgButton secondary type="button"
+                (click)="submit(false)"
+                [disabled]="form.disabled || form.invalid">Сохранить черновик
+        </button>
+        <button uxgButton primary [disabled]="form.disabled || form.invalid">Опубликовать</button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<uxg-modal size="l" #recommendationModal>
+  <h2>Рекомендованные позиции</h2>
+  <br/>
+  <div class="app-secondary-color">
+    Заполненные позиции соответствуют позициям в технической карте(картах), в связи с этим мы рекомендуем добавить
+    данные позиции в вашу заявку.
+  </div>
+  <br/>
+  <ng-container *ngIf="recommendationModal.state">
+    <select-items-with-search
+      class="select-list select-list-positions"
+      [formControl]="recommendedPositionsControl"
+      placeholder="Наименование позиции"
+      [items]="recommendedPositions"
+    >
+      <ng-template let-formGroup="formGroup" let-position="item">
+        <div class="app-row select-list-item" [formGroup]="formGroup" [class.app-ghost-color]="formGroup.disabled">
+          <div class="app-col app-grow-0">
+            <uxg-checkbox formControlName="checked"></uxg-checkbox>
+          </div>
+          <div class="app-col app-bold select-list-item-title">{{ position.name }}</div>
+          <div class="app-col app-col-auto select-list-item-quantity">
+            <span>{{ position.deliveryBasis }}</span>
+          </div>
+          <div class="app-col app-col-auto select-list-item-quantity">
+            <span>{{ position.quantity }}</span>
+            <span class="app-ghost-color">{{ position.measureUnit | lowercase }}</span>
+          </div>
+          <div class="app-col app-col-auto select-list-item-date">
+            <ng-container *ngIf="position.isDeliveryDateAsap; else deliveryDate">Как можно скорее</ng-container>
+            <ng-template #deliveryDate>{{ position.deliveryDate | date : 'dd.MM.yyyy' }}</ng-template>
+          </div>
+        </div>
+      </ng-template>
+    </select-items-with-search>
+    <br/>
+    <ng-template uxgModalFooter>
+      <button type="button" uxgButton lg secondary uxgModalClose>Отмена</button>
+      <button uxgButton lg secondary (click)="submit(); recommendationModal.close()">Пропустить</button>
+      <button uxgButton lg primary (click)="addRecommendedPositions()">Добавить</button>
+    </ng-template>
+
+  </ng-container>
+</uxg-modal>

@@ -1,0 +1,14 @@
+@import "src/theme";
+
+.scrollable {
+  padding: 11px 3px 11px 11px;
+  margin: -11px -19px 0 -11px;
+  overflow-y: auto;
+  max-height: 236px;
+
+  @include scrollbar($theme);
+
+  & > * {
+    flex-wrap: nowrap;
+  }
+}

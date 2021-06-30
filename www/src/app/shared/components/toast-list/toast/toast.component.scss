@@ -1,0 +1,31 @@
+@import "src/theme";
+
+:host {
+  animation: app-toast-show 300ms ease;
+  background: rgba(#000, 0.8);
+  color: uxg($theme, color-default);
+  display: block;
+  font-size: uxg($theme, font-size-l);
+  font-weight: bold;
+  overflow: hidden;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  transform-origin: bottom;
+  z-index: 9999;
+
+  bottom: 0; // Временное решение позиционирования алерта
+  position: fixed;
+  width: 100%;
+}
+
+
+@keyframes app-toast-show {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+

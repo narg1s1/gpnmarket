@@ -1,0 +1,206 @@
+<!-- Мои процедуры -->
+<ng-container *ngIf="procedures; else loading">
+  <ng-container *ngIf="view === 'full-list'">
+    <div class="app-table app-no-border">
+      <div class="app-row app-align-items-center">
+        <!-- Отправить позиции на согласование -->
+        <div class="app-col app-col-auto" style="display: none">
+          <button uxgButton clear link [disabled]="!selectedProcedure">
+            <uxg-icon shape="app-doc" size="16" class="is-solid"></uxg-icon>
+            <span>Просмотр извещения</span>
+          </button>
+        </div>
+
+        <!-- Вскрытие заявок -->
+        <div class="app-col app-col-auto">
+          <button uxgButton clear link
+                  [disabled]="!selectedProcedure || !canImportProcedures()"
+                  (click)="importProcedureOffers.emit(selectedProcedure)">
+            <uxg-icon shape="app-waiting" size="16" class="is-solid"></uxg-icon>
+            <span>Вскрытие заявок</span>
+          </button>
+        </div>
+
+        <!-- Назначение ответственного -->
+        <div class="app-col app-col-auto">
+          <button uxgButton clear link
+                  [disabled]="!selectedProcedure && !isProcedureMayBeAssigned()"
+                  (click)="addResponsiblePositionModal.open()">
+            <span>Назначить</span>
+          </button>
+        </div>
+
+        <!-- Уторговывание -->
+        <div class="app-col app-col-auto">
+          <uxg-popover #bargainPopover [openOnHover]="true" [style.margin-left.rem]="0.5">
+            <button uxgButton clear link
+                    uxgPopoverTrigger
+                    [disabled]="!selectedProcedure || retradeButtonIsDisabled() || !featureService.authorize('retradeProcedure') || canceled()"
+                    (click)="procedureBargain.emit(selectedProcedure)">
+              <uxg-icon shape="app-move" size="16" class="is-solid"></uxg-icon>
+              <span>Уторговывание</span>
+            </button>
+
+            <ng-container *ngIf="selectedProcedure && retradeButtonIsDisabled()">
+              <div *uxgPopoverContent="'app-popover-content-bottom-left'" (click)="bargainPopover.hide()">
+                <div *ngIf="procedureIsFinished(); else otherRetradeError" style="text-align: left">
+                  Период подведения итогов по этой процедуре завершен. <br>
+                  Уторговывание недоступно.
+                </div>
+
+                <ng-template #otherRetradeError>
+                  <div *ngIf="selectedProcedure?.offersImported && !canRetradeProcedure(); else notFinished"
+                       style="text-align: left">
+                    Получено менее 2 предложений от поставщиков. <br>
+                    Уторговывание недоступно.
+                  </div>
+
+                  <ng-template #notFinished>
+                    <div style="text-align: left">
+                      Идёт приём предложений от поставщиков. <br>
+                      Уторговывание недоступно.
+                    </div>
+                  </ng-template>
+                </ng-template>
+              </div>
+            </ng-container>
+          </uxg-popover>
+        </div>
+
+        <!-- Отказ от закупки -->
+        <div class="app-col app-col-auto">
+          <uxg-popover #procedurePopover [openOnHover]="true" class="popover-item">
+            <button uxgButton clear link
+                    [disabled]="isDisableCancelProcedureButton"
+                    (click)="cancelProcedure.emit(selectedProcedure)">
+              <uxg-icon shape="app-cross" size="16" class="is-solid"></uxg-icon>
+              <span>Отказ от закупки</span>
+            </button>
+
+            <ng-container *ngIf="!selectedProcedure?.isAvailableCancelProcedureByImportedOffers">
+              <div *uxgPopoverContent (click)="procedurePopover.hide()">
+                <div>На данную процедуру уже были поданы заявки, отказ от закупки недоступен</div>
+              </div>
+            </ng-container>
+          </uxg-popover>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <ng-container *ngIf="procedures.length > 0; else emptyProceduresList">
+    <div class="app-table procedures-list-header app-no-border" [class.disabled]="status !== 'received'">
+      <div class="app-row app-uppercase app-ghost-color app-bold">
+        <small class="app-col-auto app-ghost-color radiobutton" *ngIf="view === 'full-list'"></small>
+        <small class="app-col-1 app-ghost-color number"><b>№</b></small>
+        <small class="app-col app-ghost-color name"><b>Наименование процедуры</b></small>
+        <small class="app-col-2 app-ghost-color date"><b>Приём заяв. до</b></small>
+        <small class="app-col-2 app-ghost-color sum"><b>Сумма без НДС</b></small>
+        <small class="app-col-2 app-ghost-color sum-with-vat"><b>Сумма</b></small>
+        <small class="app-col-auto app-ghost-color status"><b>Статус</b></small>
+      </div>
+    </div>
+
+    <div class="app-table procedures-list" [formGroup]="proceduresListForm">
+      <a class="app-row app-align-items-center app-link-no-color"
+         [class.disabled]="(status && status !== 'received')"
+         [style.cursor]="!procedure.isCanceled ? 'pointer' : 'default'"
+         [routerLink]="!procedure.isCanceled ? ['/procedures', procedure.id || '', 'info'] : null"
+         [queryParams]="!procedure.isCanceled ? { source: procedure.source } : null"
+         *ngFor="let procedure of procedures">
+
+        <div class="app-col-auto radiobutton" *ngIf="view === 'full-list'">
+          <uxg-radio-item class="app-control"
+                          [value]="procedure"
+                          formControlName="selectedProcedure"
+                          (click)="selectProcedure($event, procedure)">
+          </uxg-radio-item>
+        </div>
+
+        <div class="app-col-1 number">
+          <span [title]="procedure.procedureId">
+            {{ procedure.procedureId }}
+          </span>
+        </div>
+
+        <div class="app-col app-bold app-ellipsis name">
+          <span [title]="procedure.procedureParams.procedureTitle">
+            {{ procedure.procedureParams.procedureTitle }}
+          </span>
+        </div>
+
+        <div class="app-col-2 date">
+          <span [title]="procedure.dateEndRegistration | date: 'dd.MM.yyyy, HH:mm'">
+            {{ procedure.dateEndRegistration | date: "dd.MM.yyyy, HH:mm" }}
+          </span>
+        </div>
+
+        <div class="app-col-2 sum">
+          <span [title]="procedure.sumWithoutVat | number: '1.0-2'">
+            {{ procedure.sumWithoutVat | number: "1.0-2" }} <span class="app-ghost-color">{{ getCurrencySymbol('RUB', 'narrow') }}</span>
+          </span>
+        </div>
+
+        <div class="app-col-2 sum-with-vat">
+          <span [title]="procedure.sumWithoutVat + (procedure.sumWithoutVat * (procedure.vatPercent / 100)) | number: '1.0-2'">
+            {{ procedure.sumWithoutVat + (procedure.sumWithoutVat * (procedure.vatPercent / 100)) | number: "1.0-2" }} <span class="app-ghost-color">{{ getCurrencySymbol('RUB', 'narrow') }}</span>
+          </span>
+        </div>
+
+        <div class="app-col-auto status app-ellipsis" [ngSwitch]="getStatusLabel(procedure)">
+          <ng-container *ngSwitchCase="'PROCEDURE_ACTIVE'">
+            <span class="app-ghost-color pr-20">
+              <uxg-icon shape="app-waiting"></uxg-icon>
+              <b title="Идет процедура">Идет процедура</b>
+            </span>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'PROCEDURE_FINISHED'">
+            <span class="app-success-color pr-20">
+              <uxg-icon shape="app-check"></uxg-icon>
+              <b title="Завершена">Завершена</b>
+            </span>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'WAITING_OFFERS_IMPORT'">
+            <span class="app-ghost-color pr-20">
+              <uxg-icon shape="app-waiting"></uxg-icon>
+              <b title="Ожидание выгрузки результатов">Ожидание выгрузки результатов</b>
+            </span>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'CANCELED'">
+            <span class="app-error-color pr-20">
+              <uxg-icon shape="app-cross"></uxg-icon>
+              <b>Отменена</b>
+            </span>
+          </ng-container>
+        </div>
+      </a>
+    </div>
+  </ng-container>
+
+  <ng-template #emptyProceduresList>
+    <span class="empty-list">Список процедур пуст</span>
+  </ng-template>
+</ng-container>
+
+<ng-template #loading>
+  <div class="app-card">
+    <div class="text-center">
+      <span class="spinner spinner-md"></span>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Модальное окно для назначения ответственного процедурам -->
+<uxg-modal #addResponsiblePositionModal size="s">
+  <h2>Назначить позиции в процедуре</h2>
+  <div *ngIf="addResponsiblePositionModal.state">
+    <app-select-responsible-form
+      (setResponsibleUser)="changeResponsibleUser({ user: $event })"
+      (close)="addResponsiblePositionModal.close()"
+    ></app-select-responsible-form>
+  </div>
+</uxg-modal>

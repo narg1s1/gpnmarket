@@ -1,0 +1,13 @@
+<div *ngIf="textAlign == 'left'" class="app-row">
+  <div class="app-col">{{ label }}</div>
+  <div class="app-col app-row app-justify-content-end">
+    <div class="app-position-status">
+      <span>{{ count }}</span>
+      <div class="app-position-status-icon" [ngClass]="status + (type ? ' activity-type-'+ type : '')"></div>
+    </div>
+  </div>
+</div>
+<div *ngIf="textAlign == 'right'" class="app-position-status">
+  <div class="app-position-status-icon" [ngClass]="status + (type ? ' activity-type-'+ type : '')"></div>
+  <span>{{ label }}</span>
+</div>

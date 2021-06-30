@@ -1,0 +1,357 @@
+<div class="app-row">
+  <div class="app-col">
+    <ng-container *ngIf="(contragent$ | async) as contragent">
+      <div class="last-edit" *ngIf="contragent.updatedDate">
+        <span class="app-ghost-color">Последние изменения:  </span> {{ contragent.updatedDate | date: 'shortDate' }}
+      </div>
+    </ng-container>
+
+    <form appFormValidation [formGroup]="form" (ngSubmit)="submit()">
+      <div class="app-card">
+        <ng-container *ngIf="!isEditing; else editHeader">
+          <h2>Новый контрагент</h2>
+          <p class="app-secondary-color">Начните вводить наименование контрагента, и если он появится в подсказках,
+            то после нажатия на него большинство полей будет заполнено автоматически, вам нужно будет их только <b>проверить</b>.
+            В этом блоке все поля являются обязательными для заполнения.</p>
+        </ng-container>
+
+        <ng-template #editHeader>
+          <h3>Общая информация</h3>
+          <p class="app-secondary-color">В этом блоке все поля являются обязательными для заполнения.</p>
+        </ng-template>
+
+        <ng-container formGroupName="contragent">
+          <div class="app-row">
+            <div class="app-col app-col-6">
+              <ngx-dadata
+                [config]="configParty"
+                (selected)="onPartySuggestionSelected($event)"
+                formControlName="shortName"
+                placeholder="Краткое наименование"
+                appFormControlInvalidClass="invalid"></ngx-dadata>
+            </div>
+
+            <div class="app-col app-col-6">
+              <div class="app-control-wrap">
+                <input #fullName uxgInput lg formControlName="fullName"/>
+                <label class="app-control-label" (click)="fullName.focus()">Полное наименование</label>
+                <div class="app-control-error" *ngIf="form.get('contragent').get('fullName').errors as e">
+                  <span *ngIf="e.required">Обязательное поле</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-row">
+            <div class="app-col app-col-4">
+              <ng-container *ngIf="!isEditing; else innDisabled">
+                <ngx-dadata [config]="configParty" (selected)="onPartySuggestionSelected($event)"
+                            formControlName="inn"
+                            placeholder="ИНН"
+                            appFormControlInvalidClass="invalid"></ngx-dadata>
+              </ng-container>
+              <ng-template #innDisabled>
+                <div class="app-control-wrap">
+                  <input #inn uxgInput lg formControlName="inn"/>
+                  <label class="app-control-label" (click)="inn.focus()">ИНН</label>
+                </div>
+              </ng-template>
+            </div>
+            <div class="app-col app-col-4">
+              <div class="app-control-wrap">
+                <input #kpp uxgInput lg formControlName="kpp"/>
+                <label class="app-control-label" (click)="kpp.focus()">КПП</label>
+                <div class="app-control-error" *ngIf="form.get('contragent').get('kpp').errors as e">
+                  <span *ngIf="e.required">Обязательное поле</span>
+                </div>
+              </div>
+            </div>
+            <div class="app-col app-col-4">
+              <div class="app-control-wrap">
+                <input #ogrn uxgInput lg formControlName="ogrn"/>
+                <label class="app-control-label" (click)="ogrn.focus()">ОГРН/ОГРНИП</label>
+                <div class="app-control-error" *ngIf="form.get('contragent').get('ogrn').errors as e">
+                  <span *ngIf="e.required">Обязательное поле</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-row">
+            <div class="app-col app-col-4">
+              <div class="app-control-wrap">
+                <input #taxAuthorityRegistrationDate uxgInput lg uxgDatepicker formControlName="taxAuthorityRegistrationDate"/>
+                <label class="app-control-label" (click)="taxAuthorityRegistrationDate.focus()">Дата регистрации</label>
+                <label class="app-control-icon" (click)="taxAuthorityRegistrationDate.focus()">
+                  <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+                </label>
+                <div class="app-control-error" *ngIf="form.get('contragent').get('taxAuthorityRegistrationDate').errors as e">
+                  <span *ngIf="e.required">Обязательное поле</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="app-col app-col-auto select-role">
+              <div class="app-row app-align-items-center">
+                <uxg-radio-item class="app-control" value="{{ role.SUPPLIER }}" formControlName="role"></uxg-radio-item>
+                <label>&nbsp; {{ roleLabel.SUPPLIER }}</label>
+              </div>
+
+              <div class="app-row app-align-items-center">
+                <uxg-radio-item class="app-control" value="{{ role.CUSTOMER }}" formControlName="role"></uxg-radio-item>
+                <label>&nbsp; {{ roleLabel.CUSTOMER }}</label>
+              </div>
+            </div>
+
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <uxg-dropdown [placeholder]="groupPlaceholder" lg formControlName="usersGroup" >
+                  <div uxgDropdownItem [value]="group" *ngFor="let group of groups$ | async">
+                    {{ group.name }}
+                  </div>
+                </uxg-dropdown>
+              </div>
+            </div>
+
+            <div class="app-col" [style.display]="'none'">
+              <ng-container *ngIf="contragentRating && form.get('contragent').get('inn').valid">
+                <div class="rating-label app-secondary-color">Рейтинг надежности контрагента:</div>
+
+                <div class="rating-stars">
+                  <ng-container *ngFor="let index of [1, 2, 3, 4, 5]">
+                    <uxg-icon class="star"
+                              shape="app-star" size="23"
+                              [ngClass]="isRatingStarActive(index) ? 'active is-solid' : 'app-ghost-color'"></uxg-icon>
+                  </ng-container>
+                </div>
+              </ng-container>
+            </div>
+
+          </div>
+        </ng-container>
+        <br/>
+
+        <h3>Юридический адрес</h3>
+        <ng-container formGroupName="contragentAddress">
+          <div class="app-row">
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <input #postIndex uxgInput lg formControlName="postIndex"/>
+                <label class="app-control-label" (click)="postIndex.focus()">Почтовый индекс</label>
+                <div class="app-control-error" *ngIf="form.get('contragentAddress').get('postIndex').errors as e">
+                  <span *ngIf="e.required">Обязательное поле</span>
+                </div>
+              </div>
+            </div>
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <input #country uxgInput lg formControlName="country"/>
+                <label class="app-control-label" (click)="country.focus()">Страна</label>
+                <div class="app-control-error" *ngIf="form.get('contragentAddress').get('country').errors as e">
+                  <span *ngIf="e.required">Обязательное поле</span>
+                </div>
+              </div>
+            </div>
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <input #region uxgInput lg formControlName="region"/>
+                <label class="app-control-label" (click)="region.focus()">Регион/область (не обяз.)</label>
+              </div>
+            </div>
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <input #city uxgInput lg formControlName="city"/>
+                <label class="app-control-label" (click)="city.focus()">Город/н.п.</label>
+                <div class="app-control-error" *ngIf="form.get('contragentAddress').get('city').errors as e">
+                  <span *ngIf="e.required">Обязательное поле</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="app-row">
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <input #address uxgInput lg formControlName="address"/>
+                <label class="app-control-label" (click)="address.focus()">Адрес</label>
+                <div class="app-control-error" *ngIf="form.get('contragentAddress').get('address').errors as e">
+                  <span *ngIf="e.required">Обязательное поле</span>
+                </div>
+              </div>
+            </div>
+            <div class="app-col"></div>
+          </div>
+        </ng-container>
+        <br/>
+
+        <h3>Банковские реквизиты</h3>
+        <p class="app-secondary-color">Введите БИК банка, и если он появится в подсказках, то после нажатия на него большинство полей будет
+          заполнено автоматически, вам нужно будет их только проверить.</p>
+        <ng-container formGroupName="contragentBankRequisite">
+          <div class="app-row">
+            <div class="app-col">
+              <ngx-dadata [config]="configBank" (selected)="onBankSuggestionSelected($event)"
+                          formControlName="bik"
+                          placeholder="БИК"
+                          appFormControlInvalidClass="invalid"></ngx-dadata>
+            </div>
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <input #account uxgInput lg formControlName="account"/>
+                <label class="app-control-label" (click)="account.focus()">Расчетный счет</label>
+              </div>
+            </div>
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <input #correspondentAccount uxgInput lg formControlName="correspondentAccount"/>
+                <label class="app-control-label" (click)="correspondentAccount.focus()">Корреспондентский счет</label>
+              </div>
+            </div>
+          </div>
+          <div class="app-row">
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <input #name uxgInput lg formControlName="name"/>
+                <label class="app-control-label" (click)="name.focus()">Наименование банка</label>
+              </div>
+            </div>
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <input #address uxgInput lg formControlName="address"/>
+                <label class="app-control-label" (click)="address.focus()">Адрес банка</label>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        <br/>
+
+        <h3>Контактная информация и ответственный</h3>
+        <p class="app-secondary-color">Поля «E-mail контрагента» и «Телефон контрагента» заполняются если есть и не являются обязательными.</p>
+        <ng-container formGroupName="contragentContact">
+          <div class="app-row">
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <input #email uxgInput lg formControlName="email"/>
+                <label class="app-control-label" (click)="email.focus()">E-mail контрагента</label>
+              </div>
+            </div>
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <input #phone uxgInput lg formControlName="phone" />
+                <label class="app-control-label" (click)="phone.focus()">Телефон контрагента</label>
+              </div>
+            </div>
+            <div class="app-col">
+              <div class="app-control-wrap">
+                <uxg-dropdown appFormControlInvalidClass="invalid"
+                  [placeholder]="responsiblePlaceholder" lg formControlName="responsible" >
+                  <div uxgDropdownItem [value]="user.user" *ngFor="let user of seniorBackofficeUsers$ | async">
+                    {{ user.user.fullName}}
+                  </div>
+                </uxg-dropdown>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        <br/>
+
+        <h3>Подписание документов</h3>
+        <p class="app-secondary-color">Поля заполняются если есть и не являются обязательными.</p>
+        <ng-container formGroupName="contragentContractData">
+          <div class="app-row">
+            <div class="app-col app-col-4">
+              <div class="app-control-wrap">
+                <input #contractSignerPosition uxgInput lg formControlName="contractSignerPosition"/>
+                <label class="app-control-label" (click)="contractSignerPosition.focus()">Должность подписанта</label>
+              </div>
+            </div>
+
+            <div class="app-col app-col-4">
+              <div class="app-control-wrap">
+                <input #contractSignerFio uxgInput lg formControlName="contractSignerFio"/>
+                <label class="app-control-label" (click)="contractSignerFio.focus()">ФИО подписанта (полностью)</label>
+              </div>
+            </div>
+
+            <div class="app-col app-col-4">
+              <div class="app-control-wrap">
+                <input #authorizingDocument uxgInput lg formControlName="authorizingDocument"/>
+                <label class="app-control-label" (click)="authorizingDocument.focus()">Документ, дающий право на подпись</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-row">
+            <div class="app-col app-col-3">
+              <div class="app-control-wrap">
+                <input #agencyContract uxgInput lg formControlName="agencyContract"/>
+                <label class="app-control-label" (click)="agencyContract.focus()">Номер агентского договора</label>
+              </div>
+            </div>
+
+            <div class="app-col app-col-3">
+              <div class="app-control-wrap">
+                <input #agencyContractCreatedDate uxgInput lg uxgDatepicker
+                       [disable]="[isFutureDate]"
+                       formControlName="agencyContractCreatedDate"/>
+                <label class="app-control-label" (click)="agencyContractCreatedDate.focus()">Дата агент. договора</label>
+                <label class="app-control-icon" (click)="agencyContractCreatedDate.focus()">
+                  <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+                </label>
+                <div class="app-control-error" *ngIf="form.get('contragentContractData').get('agencyContractCreatedDate').errors as e">
+                  <span *ngIf="e.required">Некорректная дата</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="app-col app-col-3">
+              <div class="app-control-wrap">
+                <input #letterOfAuthority uxgInput lg formControlName="letterOfAuthority" />
+                <label class="app-control-label" (click)="letterOfAuthority.focus()">Номер доверенности</label>
+              </div>
+            </div>
+
+            <div class="app-col app-col-3">
+              <div class="app-control-wrap">
+                <input #letterOfAuthorityCreatedDate uxgInput lg uxgDatepicker
+                       [disable]="[isFutureDate]"
+                       formControlName="letterOfAuthorityCreatedDate"/>
+                <label class="app-control-label" (click)="letterOfAuthorityCreatedDate.focus()">Дата доверенности</label>
+                <label class="app-control-icon" (click)="letterOfAuthorityCreatedDate.focus()">
+                  <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+                </label>
+                <div class="app-control-error" *ngIf="form.get('contragentContractData').get('letterOfAuthorityCreatedDate').errors as e">
+                  <span *ngIf="e.required">Некорректная дата</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        <br/>
+      </div>
+
+      <div class="app-row app-align-items-center app-justify-content-end add-contragent">
+        <div>
+          <span *ngIf="isLoading" class="spinner spinner-inline"></span>
+        </div>
+        <button uxgButton primary lg>{{isEditing ? "Сохранить" : "Добавить" }}</button>
+      </div>
+    </form>
+  </div>
+  <div class="app-col app-col-aside">
+    <h3>Обратите внимание</h3>
+    <p class="app-secondary-color info">
+      <ng-container *ngIf="user.isAdmin(); else backoffice">
+        Для каждого контрагента должна быть указана ответственная группа сотрудников бэк-офиса. <br>
+        Все заявки от этого контрагента в дальнейшем будут по умолчанию назначаться на нее. <br><br>
+        Вы можете переназначить ответственную группу сотрудников БО позже. <br><br>
+        Не может быть ситуации, при которой у контрагента (заказчика) нет ответственной группы сотрудников БО.
+      </ng-container>
+
+      <ng-template #backoffice>
+        Для каждого контрагента (заказчика) должен быть указан ответственный менеджер бэк-офиса. <br>
+        Этот человек будет указан как контактное лицо для заказчика. <br><br>
+        Вы можете переназначить ответственного менеджера БО позже, если это будет необходимо.
+      </ng-template>
+    </p>
+  </div>
+</div>

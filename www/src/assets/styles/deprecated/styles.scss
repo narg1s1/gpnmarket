@@ -1,0 +1,45 @@
+h2 {
+  font-weight: 800;
+  margin-bottom: 13px;
+}
+
+h5 {
+  font-weight: 300;
+  margin-bottom: 25px;
+}
+
+b.required-star {
+  font-size: 18px;
+  color: #F44336;
+}
+
+span.spinner {
+  margin: 0 auto;
+  display: block;
+}
+
+/* Увеличенный шрифт лейблов полей ввода */
+.form-group label {
+  font-size: 14px;
+}
+
+/* Скрытие стрелочек внутри инпута */
+input[type=number].hidden-arrows::-webkit-inner-spin-button,
+input[type=number].hidden-arrows::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+input[type=number].hidden-arrows {
+  -moz-appearance:textfield;
+}
+
+button[routerlink]:hover, button[ng-reflect-router-link]:hover{
+  color:inherit;
+}
+
+.app-btn-primary[routerlink]:hover {
+  @extend .app-btn-primary;
+}

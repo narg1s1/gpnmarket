@@ -1,0 +1,48 @@
+<ng-container *ngIf="openModal">
+  <ng-container *ngIf="(notifications$ | async) as notifications">
+    <div class="app-aside-modal app-col-aside app-row app-flex-column detachable open notification">
+    <h2 class="app-row app-align-items-center">
+      <div class="app-col">Уведомления</div>
+
+      <uxg-popover #morePopover [openOnHover]="true" [hideDelay]="100">
+        <div class="app-col-auto">
+          <button uxgButton uxgPopoverTrigger outline lg class="more-actions">
+            <uxg-icon shape="app-kebab"></uxg-icon>
+          </button>
+
+          <div *uxgPopoverContent="'app-popover-content-bottom-right'">
+            <button uxgButton icon link (click)="markAllNotificationsAsRead(); morePopover.hide()" class="mark-all-btn">
+              Отметить все как прочитанные
+            </button>
+          </div>
+        </div>
+      </uxg-popover>
+    </h2>
+
+    <br>
+    <ng-content></ng-content>
+
+    <app-notification-popup [view]="'list'"></app-notification-popup>
+
+    <ng-container *ngIf="notifications.totalHits === '0'; else notificationsList">
+      <span class="app-ghost-color">Уведомления отсутствуют</span>
+    </ng-container>
+
+    <ng-template #notificationsList>
+      <div class="app-col" *ngFor="let notification of notifications.items">
+        <app-notification-card
+          #notificationCardRef
+          [notification]="notification"
+          [view]="'list'">
+        </app-notification-card>
+      </div>
+    </ng-template>
+
+    <div class="app-aside-modal-backdrop" (click)="close()">
+      <div class="close">
+        <uxg-icon shape="app-cross"></uxg-icon>
+      </div>
+    </div>
+  </div>
+  </ng-container>
+</ng-container>

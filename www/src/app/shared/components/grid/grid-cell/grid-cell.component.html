@@ -1,0 +1,155 @@
+<ng-container *ngIf="proposal else emptyProposal">
+  <button
+    (click)="editable && proposal?.source !== 'ETP' && featureService.authorize('editProposal') ? edit.emit(proposal) : show.emit(proposal)">
+    <div class="app-row app-align-items-center">
+      <div class="app-col app-grow-0" *ngIf="user.isBackOffice() || (user.isCustomer() && activeTab === 'sentToReviewTab')">
+        <uxg-radio-item
+          *ngIf="(!proposal.isAnalog && tradingScheme === 'TRADE' && !user.isCustomer())"
+          [name]="position.id"
+          [value]="proposal"
+          [checked]="selectedProposal.value?.id === proposal.id"
+          [formControl]="selectedProposal"
+          (click)="$event.stopPropagation()"
+        ></uxg-radio-item>
+        <input
+          *ngIf="user.isCustomer() && approveType !== 'REFERENCE'"
+          class="native-radio"
+          type="radio"
+          [checked]="selectedProposal.value?.id === proposal.id"
+          [name]="position.id"
+          [value]="proposal"
+          [formControl]="selectedProposal"
+          (click)="$event.stopPropagation()"
+        />
+        <uxg-checkbox
+          *ngIf="(proposal.isAnalog && !user.isCustomer()) || (tradingScheme === 'AGENT' && !user.isCustomer())"
+          [disabled]="(selectedProposal.value && proposal.supplierContragent?.id !== selectedProposal.value?.supplierContragent?.id) && user.isCustomer()"
+          [formControl]="selectedAnalog"
+          (click)="$event.stopPropagation()"
+        ></uxg-checkbox>
+      </div>
+
+      <!-- name -->
+      <h3 class="app-col">
+        &nbsp;
+        <span *ngIf="user.isCustomer()">
+          {{(proposal.priceWithoutVat * proposal.quantity) | number:'1.0-2'}}
+        </span>
+        <span *ngIf="user.isBackOffice()">
+          {{ ((proposal.increasedPriceWithoutVat || proposal.priceWithoutVat) * proposal.quantity) | number:'1.0-2' }}
+        </span>
+        <span class="app-ghost-color">{{getCurrencySymbol(proposal.currency, "narrow")}}</span>
+      </h3>
+      <!-- status -->
+
+      <uxg-icon
+        shape="app-star"
+        size="24"
+        class="favorite-star"
+        [class.is-customer]="user.isCustomer()"
+        [style.color]="proposal.isFavorite ? '#F0C332' : '#A9A9A9'"
+        (click)="!user.isCustomer() && addToFavorite($event)"></uxg-icon>
+
+
+        <uxg-popover [openOnHover]="true"  *ngIf="!user.isCustomer() && proposalGroupId && tradingScheme === 'TRADE'">
+          <uxg-icon
+                    shape="app-rub"
+                    size="20"
+                    class="increase-rub"
+                    [style.color]="getIncreaseValue(proposal) ? '#ED9254' : '#A9A9A9'">
+          </uxg-icon>
+          <div *ngIf="getIncreaseValue(proposal)">
+            <div *uxgPopoverContent>
+              <div>
+                Цена указана с наценкой <strong>{{proposal.increase.value}}</strong>
+                <strong  *ngIf="proposal.increase.type == 'ABSOLUTE'">{{getCurrencySymbol(proposal.currency, "narrow")}}</strong>
+                <strong  *ngIf="proposal.increase.type == 'RELATIVE'">%</strong>
+                от общей суммы
+              </div>
+              <div>
+                <strong>
+                  Цена без наценки...................
+                  {{ (proposal.priceWithoutVat * proposal.quantity) | number:'1.0-2' }}
+                  {{getCurrencySymbol(proposal.currency, "narrow")}}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </uxg-popover>
+
+      <ng-template #winnerLabel>
+        <div class="winner">
+          <svg height="25" width="101" viewBox="0 0 101 25" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0H101V25H0L7 12.5L0 0Z" fill="#0EA04B"></path>
+            <text y="13" x="92" fill="#fff" alignment-baseline="middle" text-anchor="end">Победитель</text>
+          </svg>
+        </div>
+      </ng-template>
+
+      <ng-container *ngIf="proposal.isWinner">
+        <ng-container *ngTemplateOutlet="winnerLabel"></ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="!proposal.isWinner && !editable">
+        <ng-container *ngIf="proposal.sourceProposal?.status !== 'SENT_TO_EDIT'">
+          <ng-container *ngIf="proposal.sourceProposal?.status === 'APPROVED'; else mark">
+            <ng-container *ngTemplateOutlet="winnerLabel"></ng-container>
+          </ng-container>
+
+          <ng-template #mark>
+            <ng-container *ngIf="proposal.sourceProposal?.inQueue">
+              <div class="app-ghost-color">
+                <uxg-icon shape="app-waiting"></uxg-icon>
+              </div>
+            </ng-container>
+          </ng-template>
+        </ng-container>
+      </ng-container>
+
+      <uxg-icon shape="app-warning" *ngIf="proposal?.status ==='SENT_TO_EDIT'" class="app-warning-color" title="На доработке"></uxg-icon>
+
+
+    </div>
+
+    <div>
+      <!-- Количество, цена за ед. -->
+      <span [ngClass]="position && !helper.isQuantityValid(position, proposal) ? 'app-error-color app-bold' : ''">{{proposal.quantity | number:'1.0-2'}} {{proposal.measureUnit}}</span>
+      <span class="app-ghost-color"> | </span>
+
+      <span class="app-ghost-color" *ngIf="user.isCustomer()">{{proposal.priceWithoutVat | number:'1.0-2'}} </span>
+      <span class="app-ghost-color" *ngIf="user.isBackOffice()">{{(proposal.increasedPriceWithoutVat || proposal.priceWithoutVat) | number:'1.0-2'}} </span>
+      <span class="app-ghost-color">{{getCurrencySymbol(proposal.currency, "narrow")}}/{{proposal.measureUnit}}</span>
+      <br/>
+
+      <!-- Дата поставки. -->
+      <span [ngClass]="position && !helper.isDateValid(position, proposal) ? 'app-error-color app-bold' : ''">{{proposal.deliveryDate | date:"dd.MM.yyyy"}}</span>
+      <span class="app-ghost-color"> доставка</span>
+    </div>
+
+    <div *ngIf="proposal.manufacturingName" class="app-ellipsis app-secondary-color manufacturing-name" [style.width.%]="proposal.isAnalog ? 75 : 100">
+      {{ proposal.manufacturingName }}
+    </div>
+
+    <div class="analog" *ngIf="proposal.isAnalog">Аналог</div>
+
+    <div *ngIf="supplier" class="app-ellipsis">
+      <app-contragent-info-link (click)="$event.stopPropagation()" hiddenName="Наименование поставщика скрыто" [contragent]="supplier">
+      </app-contragent-info-link>
+    </div>
+  </button>
+</ng-container>
+
+<ng-template #emptyProposal>
+  <button [disabled]="!editable || !featureService.authorize('createProposal') || proposal?.source === 'ETP'" (click)="create.emit()">
+    <uxg-icon class="app-link" *ngIf="editable; else notDataProposal" shape="app-plus-big" size="24"></uxg-icon>
+    <ng-template #notDataProposal>
+      <!--      Любой статус кроме «на доработке» и source не важен-->
+      <ng-container *ngIf="proposalStatusCode !== 'SENT_TO_EDIT' else notProvided">
+        <b>Не направлялось на согласование</b>
+      </ng-container>
+      <ng-template #notProvided>
+        <b>Не предоставлено</b>
+      </ng-template>
+    </ng-template>
+  </button>
+</ng-template>

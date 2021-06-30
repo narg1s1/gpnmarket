@@ -1,0 +1,18 @@
+@import "src/theme";
+@import "src/assets/styles/statuses";
+@import "src/assets/styles/helpers";
+
+textarea {
+  padding-right: 40px;
+  height: 60px;
+}
+
+.send {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.app-col {
+  margin-left: .5em;
+}

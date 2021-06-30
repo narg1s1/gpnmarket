@@ -1,0 +1,15 @@
+<div class="app-row app-align-items-center" [class.app-layout]="noContentPadding" *ngIf="!proposalGroupId">
+  <uxg-tabs class="app-col">
+    <uxg-tab-title
+      *ngIf="procedure.id"
+      [routerLink]="'/procedures/'+procedure.id+'/info'"
+      [queryParams]="{source: sourceFromUrl}"
+      [active]="activeTab == 'info'"
+      >Извещение о процедуре</uxg-tab-title>
+    <uxg-tab-title
+      [routerLink]="'/procedures/'+procedure.requestTechnicalCommercialProposalGroupId+'/technical-commercial-proposals'"
+      [queryParams]="{source: sourceFromUrl, procedureUid: procedure.id}"
+      [active]="activeTab == 'technical-commercial-proposals'"
+    >Предложения поставщиков</uxg-tab-title>
+  </uxg-tabs>
+</div>

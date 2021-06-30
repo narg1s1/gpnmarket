@@ -1,0 +1,95 @@
+<ng-template #loading class="load-block">
+  <span class="spinner spinner-md"></span>
+</ng-template>
+
+<ng-container *ngIf="employee; else loading">
+
+    <h1>{{ employee.fullName }}</h1>
+
+    <div class="app-row">
+
+      <div class="app-col employee-card-content">
+        <uxg-tabs class="app-section">
+<!--          todo Возможность назначения всей заявки временно деактивирована (isprocessor-609) -->
+<!--          <uxg-tab-title #requestsTab>-->
+<!--            Назначенные заявки-->
+<!--            <ng-container *ngIf="requestList; else employeeCardCountLoader">-->
+<!--              <span class="counter">({{ requestList.length }})</span>-->
+<!--            </ng-container>-->
+<!--          </uxg-tab-title>-->
+          <uxg-tab-title #requests2Tab [active]="true">
+            Частично назначенные заявки
+            <ng-container *ngIf="requestList; else employeeCardCountLoader">
+              <span class="counter">({{ requestList.length }})</span>
+            </ng-container>
+          </uxg-tab-title>
+          <uxg-tab-title #positionsTab>
+            Позиции
+            <ng-container *ngIf="positionsList; else employeeCardCountLoader">
+              <span class="counter">({{ positionsList.length }})</span>
+            </ng-container>
+          </uxg-tab-title>
+        </uxg-tabs>
+        <ng-template #employeeCardCountLoader>
+          <span class="employee-card-count-loader spinner spinner-md"></span>
+        </ng-template>
+
+<!--        todo Возможность назначения всей заявки временно деактивирована (isprocessor-609) -->
+<!--        <ng-container *uxgTab="requestsTab">-->
+<!--          <app-employee-card-request-list-->
+<!--            *ngIf="responsibleRequestList.length > 0; else emptyRequestList"-->
+<!--            (setResponsibleUser)="setResponsibleUser($event.requestId, $event.userId)"-->
+<!--            [requests]="responsibleRequestList">-->
+<!--          </app-employee-card-request-list>-->
+<!--        </ng-container>-->
+
+        <ng-container *uxgTab="requests2Tab">
+          <app-employee-card-request-list *ngIf="requestList.length > 0; else emptyRequestList" [requests]="requestList">
+          </app-employee-card-request-list>
+        </ng-container>
+
+        <ng-container *uxgTab="positionsTab">
+          <app-employee-card-position-list *ngIf="positionsList.length > 0; else emptyPositionsList" [positions]="positionsList">
+          </app-employee-card-position-list>
+        </ng-container>
+
+        <ng-template #emptyRequestList><span class="empty-list">Список заявок пуст</span></ng-template>
+        <ng-template #emptyPositionsList><span class="empty-list">Список позиций пуст</span></ng-template>
+      </div>
+
+      <!-- Сайдбар с информацией -->
+      <div class="app-col-aside">
+        <div class="app-row employee-info-card">
+          <div class="app-col">
+            <h3 class="sector-title">Информация о сотруднике</h3>
+
+            <div class="activation-section" *ngIf="!employee.activated">
+              <div class="title app-warning-color">Профиль не активирован пользователем</div>
+              <div class="description">Не осуществлен переход по ссылке активации</div>
+
+              <button uxgButton secondary iconText [disabled]="sendingActivationLink"
+                      class="resend-btn"
+                      (click)="resendActivationLink(employee.id)">
+                <uxg-icon shape="app-clockwise-arrow"></uxg-icon>
+                Отправить повторно
+              </button>
+            </div>
+
+            <div class="app-ghost-color">ФИО</div>
+            <div>{{ employee.fullName }}</div>
+            <br/>
+
+            <div class="app-ghost-color">E-mail</div>
+            <div><a href="mailto:{{ employee.username }}">{{ employee.username }}</a></div>
+            <br/>
+
+            <div class="app-ghost-color">Телефон</div>
+            <div>{{ employee.phone ? employee.phone : 'не указан' }}</div>
+            <br/>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+</ng-container>

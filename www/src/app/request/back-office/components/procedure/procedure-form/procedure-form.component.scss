@@ -1,0 +1,82 @@
+@import "../../../../../../theme";
+
+:host {
+  virtual-scroller {
+    display: block;
+    width: 830px;
+  }
+}
+
+.scrollable {
+  max-height: calc(70vh - 230px);
+  overflow-y: scroll;
+  padding: 0 15px;
+  margin: 0px -22px 0 -15px;
+  @include scrollbar($theme);
+}
+
+.divider {
+  margin: 0;
+}
+
+.select-list {
+  &-positions, &-contragents { max-height: calc(70vh - 206px) }
+
+  &-item {
+    &-title {
+      line-height: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &-quantity {
+      flex-grow: .15; // 15% width
+      max-width: 100px;
+      min-width: 100px;
+      text-align: right;
+    }
+    &-total-price { flex-grow: .15; min-width: 150px; max-width: 150px; text-align: right; }
+    &-date { min-width: 130px; max-width: 130px; text-align: right; }
+    &-kpp { min-width: 120px; max-width: 120px; }
+    &-inn { max-width: 190px; min-width: 190px; }
+
+    &-footer {
+      padding: 10px 23px 10px 0;
+
+      & * {
+        font-size: 11px;
+        box-sizing: content-box;
+        text-align: right;
+
+        &:first-child { padding-left: 0; }
+        &:last-child { padding-right: 0; }
+      }
+    }
+  }
+}
+
+virtual-scroller {
+  overflow-y: scroll !important;
+}
+
+.upload-docs {
+  margin-left: 25px;
+}
+
+.access-radio {
+  padding-right: 30px;
+
+  &.readonly {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+}
+
+.no-total-price {
+  padding-right: 30px;
+}
+
+.okpd2 {
+  padding-bottom: 0;
+}

@@ -1,0 +1,98 @@
+<ng-template #loading class="load-block">
+  <span class="spinner spinner-md"></span>
+</ng-template>
+
+<ng-container *ngIf="employees; else loading">
+  <div class="app-table app-no-border">
+    <div class="app-row app-uppercase app-ghost-color app-bold">
+      <small class="app-col name">Имя сотрудника</small>
+      <small class="app-col email">E-mail</small>
+      <small class="app-col phone">Телефон</small>
+      <small class="app-col count">Заявок/позиций</small>
+      <small class="app-col edit"></small>
+    </div>
+  </div>
+
+  <div class="app-table">
+    <a class="app-row app-link-no-color" [routerLink]="['/employees', employee.user.id, 'info']" *ngFor="let employee of employees">
+      <div class="app-col app-bold name app-ellipsis" [ngClass]="{
+        'not-activated' : !employee.user.activated,
+        'app-ghost-color' : !employee.user.activated
+      }">
+        {{ employee.user.fullName }}
+        <span *ngIf="!employee.user.activated">
+          (<span class="app-warning-color">Не активирован пользователем</span>)
+        </span>
+      </div>
+
+      <div class="app-col email app-ellipsis">
+        <a (click)="mailto($event, employee.user.username)" href="mailto:{{ employee.user.username }}">{{ employee.user.username }}</a>
+      </div>
+
+      <div class="app-col phone">
+        {{ employee.user.phone || 'не указан' }}
+      </div>
+
+      <div class="app-col count">
+        {{ employee.reqCount }}<span class="app-ghost-color">/</span>{{ employee.posCount }}
+      </div>
+      <div class="app-col edit">
+        <button uxgButton icon secondary (click)="openEditModal($event, employee.user.id); editEmployeeModal.open()">
+          <uxg-icon shape="app-info"></uxg-icon>
+        </button>
+      </div>
+    </a>
+  </div>
+
+  <uxg-modal #editEmployeeModal size="l">
+    <h2>Информация о сотруднике</h2>
+    <br>
+    <ng-container *ngIf="editEmployeeModal.state">
+      <ng-container *ngIf="(userInfo$ | async) as user">
+        <ng-container>
+          <div class="app-row">
+            <div class="app-col">
+              <div class="app-ghost-color">E-mail</div>
+              <div>{{user.user.email}}</div>
+            </div>
+            <div class="app-col">
+              <div class="app-ghost-color">Телефон</div>
+              <div>{{ user.user.phone ? user.user.phone : 'не указан' }}</div>
+            </div>
+          </div>
+          <br>
+          <div class="app-row">
+            <div class="app-col">
+              <div class="app-ghost-color">Имя</div>
+              <div>{{user.user.firstName}}</div>
+            </div>
+            <div class="app-col">
+              <div class="app-ghost-color">Фамилия</div>
+              <div>{{user.user.lastName}}</div>
+            </div>
+          </div>
+          <br>
+          <div class="app-row">
+            <div class="app-col">
+              <div class="app-ghost-color">Отчество</div>
+              <div>{{user.user.middleName}}</div>
+            </div>
+            <div class="app-col">
+              <div class="app-ghost-color">Должность</div>
+              <div>{{user.user.position ? user.user.position : 'не указана'}}</div>
+            </div>
+          </div>
+          <br>
+          <br>
+          <div class="app-row app-align-items-center">
+            <div class="app-col">
+              Для редактирования информации о сотруднике обратитесь в службу поддержки
+            </div>
+            <button uxgButton lg secondary type="button" (click)="editEmployeeModal.close()">Закрыть</button>
+          </div>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </uxg-modal>
+
+</ng-container>

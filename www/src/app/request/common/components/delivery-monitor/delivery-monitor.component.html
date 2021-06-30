@@ -1,0 +1,237 @@
+<ng-template #loading>
+  <span class="spinner spinner-md delivery-monitor-loader"></span>
+</ng-template>
+
+<ng-container *ngIf="(deliveryMonitorInfo$ | async ) as deliveryMonitorInfo; else loading">
+  <app-request-delivery-monitor-good-card
+    [requestPosition]="requestPosition"
+    [deliveryMonitorInfo]="deliveryMonitorInfo">
+  </app-request-delivery-monitor-good-card>
+
+  <ng-container *ngIf="deliveryMonitorInfoCanBeShown()">
+
+
+    <ng-container *ngFor="let consignment of deliveryMonitorInfo.consignments; index as i">
+      <div class="good-infographics-card">
+
+        <div class="delivery-timeline-panel" *ngIf="consignmentCanBeShown(consignment)">
+
+          <div class="delivery-timeline-header">
+            <div class="app-row">
+              <div class="app-col delivery-timeline-item">
+                <div class="vehicle-icon"></div>
+
+                <div class="item-info-block">
+                  <div class="item-name">Партия от {{ getShipmentItemShippingDate(consignment) }}</div>
+                  <div class="item-info">{{ getWaybillNumber(consignment) }}
+                    <span class="item-info-label">Вес по документам: </span>
+                    <span class="item-info-content">{{ getWeightByTd(consignment) }} {{ getWeightEiByTd(consignment) }}</span>
+                  </div>
+                </div>
+                <div class="item-status-block">
+                  <div class="item-status st-{{ consignment.deliveryState }}">
+                    {{ getStatusLabel(consignment.deliveryState) }}
+                  </div>
+
+                  <button uxgButton icon link (click)="folded[i] = !folded[i]">
+                    <uxg-icon shape="app-chevron" [attr.dir]="folded[i] ? 'down' : 'up'"></uxg-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-container *ngIf="folded[i]">
+            <div class="item-info-inner-content">
+
+              <div class="app-row">
+                <div class="app-col-4">
+                  <div class="item-info-element">
+                    <p class="item-info-label">Транспортная накладная</p>
+                    <p class="item-info-content">{{ getWaybillNumber(consignment) }}</p>
+                  </div>
+                </div>
+
+                <div class="app-col-4">
+                  <div class="item-info-element">
+                    <p class="item-info-label">Дата отгрузки</p>
+                    <p class="item-info-content">{{ getShipmentItemShippingDate(consignment) }}</p>
+                  </div>
+                </div>
+
+                <div class="app-col-auto">
+                  <div class="item-info-element">
+                    <p class="item-info-label">Расчетная дата прибытия</p>
+                    <p class="item-info-content">{{ getShipmentItemEstimatedArrivalDate(consignment) }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="app-row">
+                <div class="app-col-4">
+                  <div class="item-info-element">
+                    <p class="item-info-label">Ожидаемая дата прибытия</p>
+                    <p class="item-info-content">{{ getShipmentItemExpectedArrivalDate(consignment) }}</p>
+                  </div>
+                </div>
+
+                <div class="app-col-4">
+                  <div class="item-info-element">
+                    <p class="item-info-label">Фактическая дата прибытия</p>
+                    <p class="item-info-content">{{ getShipmentItemActualArrivalDate(consignment) }}</p>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="app-row">
+                <div class="app-col-4">
+                  <div class="item-info-element">
+                    <p class="item-info-label">Внутренний номер c/ф</p>
+                    <p class="item-info-content">{{ consignment.invoice?.internalNumber || '—' }}</p>
+                  </div>
+                </div>
+
+                <div class="app-col-4">
+                  <div class="item-info-element">
+                    <p class="item-info-label">Внешний номер с/ф</p>
+                    <p class="item-info-content">{{ consignment.invoice?.externalNumber || '—' }}</p>
+                  </div>
+                </div>
+
+                <div class="app-col-4">
+                </div>
+              </div>
+
+
+              <div class="app-row">
+                <div class="app-col-auto">
+                  <div class="item-info-element">
+                    <p class="item-info-label">Транспортные средства или номер заказа транспортной компании</p>
+                    <p class="item-info-content">{{ getVehicleNumber(consignment) }}</p>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="app-row">
+
+                <div class="app-col-6">
+                  <div class="item-info-element">
+                    <p class="item-info-label">Грузоотправитель</p>
+                    <p class="item-info-content">{{ consignment.consignor?.name || '—' }}</p>
+                  </div>
+
+                  <div class="item-info-element">
+                    <p class="item-info-label">Пункт отправления</p>
+                    <p class="item-info-content">{{ consignment.consignor?.actualAddress?.rawAddress || '—' }}</p>
+                  </div>
+                </div>
+
+                <div class="app-col-6">
+                  <div class="item-info-element">
+                    <p class="item-info-label">Грузополучатель</p>
+                    <p class="item-info-content">{{ consignment?.consignee?.name || '—' }}</p>
+                  </div>
+
+                  <div class="item-info-element">
+                    <p class="item-info-label">Пункт назначения</p>
+                    <p class="item-info-content">{{ consignment?.consignee?.actualAddress?.rawAddress || '—' }}</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </ng-container>
+
+
+          <!--        <div class="app-row">-->
+          <!--          <table class="shipment-tracker">-->
+          <!--            <thead>-->
+          <!--            <tr>-->
+          <!--              <th>Этап поставки</th>-->
+          <!--              <th>Дата прогнозная/фактическая</th>-->
+          <!--              <th>Статус</th>-->
+          <!--            </tr>-->
+          <!--            </thead>-->
+
+          <!--            <tbody>-->
+          <!--            <tr>-->
+          <!--              <td><div class="circle-item"></div></td>-->
+
+          <!--              <td>-->
+          <!--                <div class="expected-date">{{ consignment.shippingExpectedDate | date : 'shortDate' }}</div>-->
+          <!--                <div class="factual-date">{{ consignment.shippingActualDate | date : 'shortDate' }}</div>-->
+          <!--              </td>-->
+
+          <!--              <td><div class="shipment-tracker-label">Партия отгружена</div></td>-->
+          <!--            </tr>-->
+
+          <!--            <tr>-->
+          <!--              <td><div class="circle-item"></div></td>-->
+
+          <!--              <td>-->
+          <!--                <div class="expected-date">{{ consignment.sentToConsigneeCityExpectedDate | date : 'shortDate' }}</div>-->
+          <!--                <div class="factual-date">{{ consignment.sentToConsigneeCityActualDate | date : 'shortDate' }}</div>-->
+          <!--              </td>-->
+
+          <!--              <td><div class="shipment-tracker-label">Отправлена в город грузополучателя</div></td>-->
+          <!--            </tr>-->
+
+          <!--            <tr>-->
+          <!--              <td><div class="circle-item"></div></td>-->
+
+          <!--              <td>-->
+          <!--                <div class="expected-date">{{ consignment.arrivedToConsigneeCityExpectedDate | date : 'shortDate' }}</div>-->
+          <!--                <div class="factual-date">{{ consignment.arrivedToConsigneeCityActualDate | date : 'shortDate' }}</div>-->
+          <!--              </td>-->
+
+          <!--              <td><div class="shipment-tracker-label">Доставлена в город грузополучателя</div></td>-->
+          <!--            </tr>-->
+          <!--            </tbody>-->
+          <!--          </table>-->
+          <!--        </div>-->
+        </div>
+      </div>
+
+    </ng-container>
+  </ng-container>
+
+
+  <form [formGroup]="assignIdForm" (ngSubmit)="assignIdSubmit()" *ngIf="opened">
+    <span class="gibert-title">Замена ID товара</span>
+
+    <div class="control-element">
+      <label>ID товара:</label>
+      <input type="text" formControlName="newGoodId" appFormControlInvalidClass="invalid"/>
+    </div>
+
+    <button uxgButton primary lg>Заменить</button>
+    <br><br>
+  </form>
+
+
+  <form [formGroup]="newEventForm" (ngSubmit)="newEventSubmit()" *ngIf="opened">
+    <span class="gibert-title">Добавление нового события</span>
+
+    <div class=" control-element">
+      <label>Тип события:</label>
+      <uxg-dropdown formControlName="type" placeholder="Тип события">
+        <div uxgDropdownItem value="CertificateUploaded">Загружен сертификат качества</div>
+        <div uxgDropdownItem value="PackagesLeftProductionOperationLink">Пакеты прошли через производственное звено</div>
+        <div uxgDropdownItem value="OptionVerification">Инспектор проверил характеристику</div>
+      </uxg-dropdown>
+    </div>
+
+    <div class=" control-element">
+      <label>Описание:</label>
+      <input type="text" formControlName="description" appFormControlInvalidClass="invalid"/>
+    </div>
+
+    <div class=" control-element">
+      <label>Дата:</label>
+      <input type="date" formControlName="occurredAt" appFormControlInvalidClass="invalid"/>
+    </div>
+
+    <button uxgButton primary lg>Добавить</button>
+    <button uxgButton secondary lg (click)="opened = false">Закрыть</button>
+  </form>

@@ -1,0 +1,352 @@
+<form appFormValidation [formGroup]="form" (ngSubmit)="submit()">
+  <div class="app-card">
+    <!-- page title -->
+    <div class="app-row">
+      <div class="app-col">
+        <h3 *ngIf="!proposal">
+          Новое {{source === 'TECHNICAL_COMMERCIAL_PROPOSAL' ? 'технико-коммерческое' : 'коммерческое'}}
+          предложение</h3>
+        <h3 *ngIf="proposal">
+          Редактирование {{source === 'TECHNICAL_COMMERCIAL_PROPOSAL' ? 'технико-коммерческого' : 'коммерческого'}}
+          предложения</h3>
+      </div>
+
+      <div class="app-col app-grow-0" *ngIf="closable">
+        <button type="button" uxgButton icon link (click)="close.emit()">
+          <uxg-icon shape="app-cross"></uxg-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- supplier -->
+    <div class="app-row app-align-items-center">
+      <div class="app-col">
+        <div class="app-control-wrap">
+          <uxg-dropdown-input
+            formControlName="supplier" placeholder="Наименование контрагента" appSuggestions #sug="appSuggestions"
+            [$]="contragents$" [lg]="true" [strictMode]="true" [displayByFn]="getContragentName"
+            [searchFn]="searchContragents">
+
+            <ng-container *ngIf="(sug.suggestions$ | async) as contragents">
+              <ng-container *ngFor="let contragent of contragents">
+                <div uxgDropdownItem *ngIf="!contragentExists(contragent)" [value]="contragent">
+                  {{contragent.shortName || contragent.fullName}}
+                  <span class="app-ghost-color">{{contragent.inn | splitNumber}}</span>
+                </div>
+              </ng-container>
+            </ng-container>
+            <ng-template #errors>
+              <div class="app-control-error" *ngIf="form.get('supplier').errors as e">
+                <span *ngIf="e.required">Обязательное поле</span>
+                <span *ngIf="e.notFromList">Выберите контрагента из списка</span>
+              </div>
+            </ng-template>
+          </uxg-dropdown-input>
+        </div>
+      </div>
+      <div class="app-col app-secondary-color">
+        Начните вводить наименование контрагента или его ИНН и система предложит вам варианты
+      </div>
+    </div>
+
+    <hr/>
+
+    <div class="app-col app-secondary-color section" *ngIf="source === 'TECHNICAL_COMMERCIAL_PROPOSAL'">
+      Вам необходимо выбрать позиции предложения, а также заполнить все обязательные поля (заводские наименования, изготовителя и параметры предложения). <br>
+      Дополнительно можно приложить документы. Все цены нужно указывать <b>без НДС</b>.
+    </div>
+    <div class="app-row section" *ngIf="form.get('positions') as control">
+      <div class="app-col" [style.max-width.px]="700">
+        <div class="app-row">
+          <div class="app-col" [style.overflow]="'hidden'">
+            <div class="title"><small class="app-uppercase app-ghost-color app-bold">Наименование позиции</small></div>
+            <div class="app-row">
+              <div class="app-col-auto">
+                <button type="button" uxgButton secondary (click)="positionsModal.open()">Выбрать позиции</button>
+              </div>
+
+              <ng-container *ngIf="form.get('positions').dirty && form.get('positions').touched">
+                <div class="app-control-error" *ngIf="form.get('positions').errors as e">
+                  <span class="error-message" *ngIf="e.required">Выберите позиции для создания предложения</span>
+                </div>
+              </ng-container>
+            </div>
+
+            <div *ngFor="let proposalPosition of control.value" class="app-ellipsis app-bold position-info-item">
+              {{ proposalPosition.position.name }}
+            </div>
+          </div>
+
+          <div class="app-col" [style.overflow]="'hidden'">
+            <div class="title">
+              <small class="app-uppercase app-ghost-color app-bold">
+                {{source === 'TECHNICAL_COMMERCIAL_PROPOSAL' ? 'Заводское наименование и изготовитель' : 'Изготовитель и стандарт'}}
+              </small>
+            </div>
+
+            <div class="app-row">
+              <div class="app-col-auto">
+                <button type="button" uxgButton secondary (click)="manufacturerModal.open()" [disabled]="!control.value?.length">
+                  Заполнить наименования
+                </button>
+              </div>
+            </div>
+
+            <ng-container *ngIf="control.value.length; else manufacturerItemError">
+              <div *ngFor="let proposalPosition of control.value" class="position-info-item">
+                <ng-container *ngIf="source === 'TECHNICAL_COMMERCIAL_PROPOSAL' || source === 'TECHNICAL_PROPOSAL'">
+                  <ng-container *ngIf="proposalPosition.manufacturingName; else manufacturerItemError">
+                    {{ proposalPosition.manufacturingName }} | {{ proposalPosition?.manufacturer }}
+                  </ng-container>
+                </ng-container>
+                <ng-container *ngIf="source === 'COMMERCIAL_PROPOSAL'">
+                  <ng-container *ngIf="proposalPosition.manufacturer; else manufacturerItemError">
+                    {{ proposalPosition.manufacturer }} | {{ proposalPosition?.standard }}
+                  </ng-container>
+                </ng-container>
+              </div>
+            </ng-container>
+
+            <ng-template #manufacturerItemError>
+              <ng-container *ngIf="(!isManufacturingNamePristine && !isManufacturerPristine) || form.get('positions').dirty && form.get('positions').touched">
+                <span class="error-message">Заполните данные</span>
+              </ng-container>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+      <div class="app-col">
+        <div class="app-row title">
+          <div class="app-col"><small class="app-uppercase app-ghost-color app-bold">Сумма без НДС</small></div>
+          <div class="app-col"><small class="app-uppercase app-ghost-color app-bold">Количество</small></div>
+          <div class="app-col"><small class="app-uppercase app-ghost-color app-bold">Цена за ед. без НДС1</small></div>
+          <div class="app-col"><small class="app-uppercase app-ghost-color app-bold">Срок пост.</small></div>
+        </div>
+        <div>
+          <button type="button" uxgButton secondary class="wide-button" (click)="parametersModal.open()"
+                  [disabled]="!control.value?.length">
+            Заполнить параметры
+          </button>
+        </div>
+
+        <ng-container *ngIf="control.value.length; else parameterItemError">
+          <div class="position-info-item app-row" *ngFor="let pos of control.value">
+            <ng-container
+              *ngIf="pos.priceWithoutVat && pos.quantity && pos.measureUnit && pos.currency && pos.deliveryDate; else parameterItemError">
+              <div class="app-col">
+                {{ pos.quantity * pos.priceWithoutVat | number:'1.0-2' }}
+                <span class="app-ghost-color">{{ getCurrencySymbol(pos.currency, "narrow")}}</span>
+              </div>
+
+              <div class="app-col">
+                {{ pos.quantity }}
+                <span class="app-ghost-color">{{ pos.measureUnit }}</span>
+              </div>
+
+              <div class="app-col">
+                {{ pos.priceWithoutVat | number:'1.0-2' }}
+                <span class="app-ghost-color">{{ getCurrencySymbol(pos.currency, "narrow")}}</span>
+              </div>
+
+              <div class="app-col">{{ pos.deliveryDate | date: "dd.MM.yyyy"}}</div>
+            </ng-container>
+          </div>
+        </ng-container>
+
+        <ng-template #parameterItemError>
+          <ng-container *ngIf="!isParamsPristine || form.get('positions').dirty && form.get('positions').touched">
+            <span class="error-message">Заполните параметры для позиций</span>
+          </ng-container>
+        </ng-template>
+      </div>
+    </div>
+    <hr/>
+    <div class="section">
+      <div class="app-row">
+        <div class="app-col">
+          <small class="app-uppercase app-ghost-color app-bold">Дополнительные условия поставки</small>
+          <div class="app-control-wrap">
+            <input #deliveryAdditionalTerms uxgInput lg formControlName="deliveryAdditionalTerms"/>
+            <label class="app-control-label" (click)="deliveryAdditionalTerms.focus()">Введите комментарий</label>
+            <div class="app-control-error" *ngIf="form.get('deliveryAdditionalTerms').errors as e">
+              <span *ngIf="e.required">Обязательное поле</span>
+            </div>
+          </div>
+        </div>
+        <div class="app-col">
+          <small class="app-uppercase app-ghost-color app-bold">Гарантийные условия</small>
+          <div class="app-control-wrap">
+            <input #warrantyConditions uxgInput lg formControlName="warrantyConditions"/>
+            <label class="app-control-label" (click)="warrantyConditions.focus()">Введите комментарий</label>
+            <div class="app-control-error" *ngIf="form.get('warrantyConditions').errors as e">
+              <span *ngIf="e.required">Обязательное поле</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <small class="app-uppercase app-ghost-color app-bold">Тип и стоимость доставки</small>
+      <div class="app-row">
+        <div class="app-col">
+          <p class="app-row access-radio app-align-items-center">
+            <uxg-radio-item class="app-control" #included value="{{ deliveryType.INCLUDED }}"
+                            formControlName="deliveryType"></uxg-radio-item>
+            <label (click)="included.select($event)">&nbsp;<b>{{ deliveryTypeLabel.INCLUDED }}</b></label>
+          </p>
+        </div>
+        <div class="app-col">
+          <p class="app-row access-radio app-align-items-center">
+            <uxg-radio-item class="app-control" #notIncluded value="{{ deliveryType.NOT_INCLUDED }}"
+                            formControlName="deliveryType"></uxg-radio-item>
+            <label (click)="notIncluded.select($event)">&nbsp;{{ deliveryTypeLabel.NOT_INCLUDED }}</label>
+          </p>
+          <ng-container *ngIf="form.get('deliveryType').value === deliveryType.NOT_INCLUDED">
+            <div class="app-row">
+              <div class="app-col not-included">
+                <div class="app-control-wrap">
+                  <input type="number" #deliveryPrice uxgInput lg formControlName="deliveryPrice"/>
+                  <label class="app-control-label" (click)="deliveryPrice.focus()">Стоимость доставки</label>
+                  <div class="app-control-error" *ngIf="form.get('deliveryPrice').errors as e">
+                    <span *ngIf="e.required">Обязательное поле</span>
+                  </div>
+                </div>
+                <div class="app-control-wrap">
+                  <uxg-dropdown lg class="app-dropdown" formControlName="deliveryCurrency" placeholder="Валюта"
+                                disabled>
+                    <div uxgDropdownItem value="RUB">Руб.</div>
+                  </uxg-dropdown>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+        <div class="app-col">
+          <p class="app-row access-radio app-align-items-center">
+            <uxg-radio-item class="app-control" #pickup value="{{ deliveryType.PICKUP }}"
+                            formControlName="deliveryType"></uxg-radio-item>
+            <label (click)="pickup.select($event)">&nbsp;{{ deliveryTypeLabel.PICKUP }}</label>
+          </p>
+          <ng-container *ngIf="form.get('deliveryType').value === deliveryType.PICKUP">
+            <div class="app-row">
+              <div class="app-col">
+                <div class="app-control-wrap">
+                  <input #deliveryPickup uxgInput lg formControlName="deliveryPickup"/>
+                  <label class="app-control-label" (click)="deliveryPickup.focus()">Базис самовывоза</label>
+                  <div class="app-control-error" *ngIf="form.get('deliveryPickup').errors as e">
+                    <span *ngIf="e.required">Обязательное поле</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <hr/>
+
+    <div class="section">
+      <app-documents-form-control
+        formControlName="files"
+        [invalid]="invalidDocControl"
+        [documents]="proposal?.documents || []"
+      ></app-documents-form-control>
+    </div>
+
+    <hr/>
+
+    <!-- footer -->
+    <div class="app-row app-align-items-center section">
+      <div class="app-col app-secondary-color">
+        Черновики {{source === 'TECHNICAL_COMMERCIAL_PROPOSAL' ? 'технико-коммерческих' : 'коммерческих'}}
+        предложений видны только сотрудникам бэкофиса, но не заказчику
+      </div>
+      <div class="app-row app-col app-col-auto app-align-items-center">
+        <span *ngIf="(status$ | async) ==='updating'" class="spinner spinner-inline">Загрузка...</span>
+        <button uxgButton primary (click)="publish.setValue(false)" [disabled]="form.disabled">Сохранить</button>
+      </div>
+    </div>
+
+    <!-- modals -->
+    <uxg-modal #positionsModal size="l">
+      <h2>Выбор позиций для {{source === 'TECHNICAL_COMMERCIAL_PROPOSAL' ? 'технико-коммерческого' : 'коммерческого'}}
+        предложения</h2>
+      <div class="app-secondary-color">
+        Выберите все необходимые позиции или группы позиций в заявке <b>№{{request.number}}</b>, по которым вы хотите
+        создать {{source === 'TECHNICAL_COMMERCIAL_PROPOSAL' ? 'технико-коммерческое' : 'коммерческое'}} предложение от одного
+        контрагента.
+      </div>
+      <br/>
+      <br/>
+      <ng-container *ngIf="proposalPositions">
+        <select-items-with-search
+          #positionsSelect
+          placeholder="Наименование позиции или группы"
+          formControlName="positions"
+          class="select-list select-list-positions"
+          [liveUpdate]="false"
+          [items]="proposalPositions"
+          (ngModelChange)="positionsModal.close()"
+          [filterFn]="searchPosition"
+          [trackBy]="trackByPositionId"
+        >
+
+          <ng-template let-formGroup="formGroup" let-positionWithMan="item">
+            <div class="app-row" [formGroup]="formGroup" *ngIf="positionWithMan.position as position">
+              <div class="app-col app-grow-0">
+                <uxg-checkbox formControlName="checked"></uxg-checkbox>
+              </div>
+              <div class="app-col app-bold app-ellipsis">{{ position.name }}</div>
+              <div class="app-col app-col-auto select-list-item-quantity">
+                <span>{{ position.quantity }} </span>
+                <span class="app-ghost-color">{{ position.measureUnit | lowercase }}</span>
+              </div>
+              <div class="app-col app-col-auto select-list-item-date">
+                <ng-container *ngIf="position.isDeliveryDateAsap; else deliveryDate">Как можно скорее</ng-container>
+                <ng-template #deliveryDate>{{ position.deliveryDate | date : 'dd.MM.yyyy' }}</ng-template>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #footerContentTpl>
+            <div class="app-row select-list-item-footer app-uppercase app-ghost-color app-bold">
+              <div class="app-col app-grow-0"></div>
+              <div class="app-col app-bold"></div>
+              <div class="app-col app-col-auto select-list-item-quantity">Кол-во</div>
+              <div class="app-col app-col-auto select-list-item-date">Дата поставки</div>
+            </div>
+          </ng-template>
+        </select-items-with-search>
+
+        <br/>
+        <ng-template uxgModalFooter>
+          <button type="button" uxgButton lg secondary uxgModalClose>Отмена</button>
+          <button uxgButton lg primary type="button" (click)="positionsSelect.submit()"
+                  [disabled]="!positionsSelect.checkedFormItems.length">Все готово
+          </button>
+        </ng-template>
+      </ng-container>
+    </uxg-modal>
+    <uxg-modal #manufacturerModal size="l">
+      <h2>
+        {{source === 'TECHNICAL_COMMERCIAL_PROPOSAL' ? 'Заполнение заводских наименований' : 'Заполнение изготовителей и стандартов'}}
+      </h2>
+      <app-request-proposal-form-manufacturing-name
+        [source]="source"
+        (cancel)="manufacturerModal.close()"
+        (ngModelChange)="manufacturerModal.close()"
+        formControlName="positions"
+      ></app-request-proposal-form-manufacturing-name>
+    </uxg-modal>
+
+    <uxg-modal #parametersModal size="l">
+      <h2>Параметры {{source === 'TECHNICAL_COMMERCIAL_PROPOSAL' ? 'ТКП' : 'КП'}} по позициям</h2>
+      <app-common-proposal-parameters-form
+        *ngIf="parametersModal.state"
+        formControlName="positions"
+        (ngModelChange)="parametersModal.close()"
+        (cancel)="parametersModal.close()"
+      ></app-common-proposal-parameters-form>
+    </uxg-modal>
+  </div>
+</form>

@@ -1,0 +1,26 @@
+<div class="app-row">
+  <div class="app-col app-bold">
+    <div appUploadFile class="upload-area" [ngClass]="{'invalid' : invalid}" hoverClass="upload-area-hover" (dropFile)="addDocument($event)">
+      <div>Перетащите заполненный шаблон сюда</div>
+    </div>
+  </div>
+
+  <div class="app-col app-row app-justify-content-between app-flex-column">
+    <div class="app-secondary-color">
+      Вы можете перетащить заполненный шаблон в окно слева, или нажать на кнопку ниже, и выбрать нужный файл в окне проводника
+    </div>
+    <div>
+      <button type="button" uxgButton secondary appUploadFile (select)="addDocument($event)" [multiple]="true">Загрузить заполненный шаблон</button>
+    </div>
+  </div>
+</div>
+<ng-container *ngIf="appFiles.length !== 0">
+  <small class="app-ghost-color app-bold">ЗАГРУЖЕННЫЕ ДОКУМЕНТЫ</small>
+  <div class="documents">
+    <div class="app-row">
+      <div class="app-col" *ngFor="let appFile of appFiles; index as i">
+        <app-file [appFile]="appFile" (delete)="removeDocument(appFile, i)"></app-file>
+      </div>
+    </div>
+  </div>
+</ng-container>

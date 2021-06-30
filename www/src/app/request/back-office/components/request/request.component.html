@@ -1,0 +1,36 @@
+<ng-container *ngIf="(request$ | async) as request; else loading">
+  <app-request
+    #commonRequestComponent
+    [positions]="(positions$ | async) || []"
+    [procedureCreationPositions]="procedureCreationPositions$ | async"
+    [request]="request"
+    [groups]="groups$ | async"
+    [onDrafted]="sendOnApprove"
+    [status]="status$ | async"
+    [positionsStatus]="positionsStatus$ | async"
+    [filterForm]="filterForm"
+    [availableFilters$]="availableFilters$"
+    [total]="totalCount$ | async"
+    [totalCountWithoutNotRelevantAndCanceled]="totalCountWithoutNotRelevantAndCanceled$ | async"
+    [isWithoutStartPrice]="isWithoutStartPrice$ | async"
+    [pageSize]="pageSize"
+    (filter)="fetchFilters$.next($event)"
+    (filterProcedureCreationPositions)="store.dispatch(fetchProcedureCreationPositions($event))"
+    (publish)="publish(requestId, $event)"
+    (addPosition)="fetchFilters$.next({})"
+    (addGroup)="fetchFilters$.next({}); store.dispatch(fetchGoups())"
+    (changeStatus)="fetchFilters$.next({})"
+    (saveRequestName)="store.dispatch(saveRequestName($event))"
+    (addResponsiblePositions)="changeResponsibleUserPositions(requestId, $event.user.id, $event.positions, $event.useAllPositions, $event.filters)"
+    (addResponsibleRequest)="changeResponsibleUser(requestId, $event.id)"
+    (uploadFromTemplate)="uploadFromTemplate($event)"
+    (attachDocuments)="store.dispatch(attachDocuments($event))"
+    (refreshAll)="store.dispatch([refresh(requestId)]); fetchFilters$.next({})"
+  ></app-request>
+</ng-container>
+
+<ng-template #loading>
+  <div class="text-center">
+    <span class="spinner spinner-md"></span>
+  </div>
+</ng-template>

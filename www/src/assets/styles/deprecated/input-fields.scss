@@ -1,0 +1,205 @@
+$font_ptroot: PT Root UI, Roboto, sans-serif;
+$font_size_basic: 14px;
+
+$color_black: #2B2B2B;
+$color_red: #FF2519;
+$color_blue: #0085FF;
+$color_gray: #999999;
+$color_light_gray: #D4D9E2;
+
+/* Поля ввода */
+
+
+/* Цвет плейсхолдера в полях ввода */
+::-webkit-input-placeholder { /* Chrome */
+  color: #9caebb;
+  opacity: 1;
+}
+
+:-ms-input-placeholder { /* IE 10+ */
+  color: #9caebb;
+  opacity: 1;
+}
+
+::-moz-placeholder { /* Firefox 19+ */
+  color: #9caebb;
+  opacity: 1;
+}
+
+:-moz-placeholder { /* Firefox 4 - 18 */
+  color: #9caebb;
+  opacity: 1;
+}
+
+textarea {
+  border: 1px solid $color_light_gray;
+  color: $color_black;
+  border-radius: 4px;
+  padding: 10px;
+  line-height: 18px;
+  min-height: 32px;
+}
+
+input[type=date],
+input[type=datetime-local],
+input[type=email],
+input[type=number],
+input[type=password],
+input[type=tel],
+input[type=text],
+input[type=time],
+input[type=url] {
+  &:not(.app-control) {
+    display: block;
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid $color_light_gray;
+    border-radius: 4px;
+    height: 32px;
+    font-family: $font_ptroot;
+    font-size: $font_size_basic;
+    line-height: 1;
+    box-sizing: border-box;
+    color: $color_black;
+    min-width: initial;
+    margin-bottom: 0;
+    transition: none !important;
+
+    &.invalid {
+      background: 0;
+      border: 1px solid $color_red !important;
+    }
+
+    &:not([readonly]) {
+      background-color: white;
+    }
+
+
+    &:focus {
+      outline: 0;
+      background-image: none;
+      background-color: white;
+      box-shadow: none;
+      border: 1px solid $color_blue;
+    }
+  }
+}
+
+textarea:focus { // todo дублируются свойства выше, придумать как избавиться
+  outline: 0;
+  background: 0;
+  box-shadow: none;
+  border: 1px solid $color_blue;
+}
+
+
+// todo привети в порядок стиль
+
+
+
+.clr-input {
+  max-height: inherit;
+  border: 1px solid #D4D9E2;
+}
+
+.clr-input-group {
+
+  & .clr-input {
+    background: 0 0;
+    border: 1px solid #D4D9E2;
+    margin-right: 0;
+    max-width: 100%;
+  }
+
+  height: inherit;
+  border-bottom: none;
+  color: #2b2b2b !important;
+  padding-right: 0;
+}
+
+.clr-input-group .clr-input-group-icon-action {
+  color: #969696;
+  padding: 0;
+  margin-left: -27px;
+  height: 32px;
+  line-height: 1;
+}
+
+.compact .clr-input-group .clr-input-group-icon-action {
+  height: 30px;
+}
+
+
+.form-group {
+  margin-bottom: 15px;
+
+  span.error {
+    color: $color_red;
+    font-size: 12px;
+    line-height: 1;
+    display: block;
+    margin-top: 5px;
+  }
+
+  label {
+    display: inline-block;
+    font-size: 12px;
+    line-height: 1;
+    color: $color_gray;
+    margin-bottom: 9px;
+  }
+
+
+  /* Стиль для компактного поля ввода высотой 30px */
+  &.compact {
+    input,
+    .chosen-container .chosen-single,
+    .date-container input {
+      font-size: 12px;
+      height: 30px;
+      padding: 0 10px;
+      line-height: 30px;
+    }
+  }
+}
+
+
+/* Формы */
+
+.form, form {
+  padding-top: initial;
+}
+
+.input-group {
+  position: relative;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -ms-flex-align: stretch;
+  align-items: stretch;
+  width: 100%;
+}
+
+.input-group > .custom-file, .input-group > .custom-select, .input-group > .form-control {
+  position: relative;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  width: 1%;
+  margin-bottom: 0;
+}
+
+.input-group-append, .input-group-prepend {
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.input-group > .input-group-append > .btn, .input-group > .input-group-append > .input-group-text, .input-group > .input-group-prepend:first-child > .btn:not(:first-child), .input-group > .input-group-prepend:first-child > .input-group-text:not(:first-child), .input-group > .input-group-prepend:not(:first-child) > .btn, .input-group > .input-group-prepend:not(:first-child) > .input-group-text {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.text-alert {
+  font-size: 16px;
+  padding: 0 20px;
+}

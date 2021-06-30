@@ -1,0 +1,169 @@
+@import "../../../../theme";
+
+.app-technical-commercial-proposal-list {
+  & > *:not(:last-child) {
+    display: block;
+    margin-bottom: 24px;
+  }
+
+  &.disabled {
+    opacity: .5;
+  }
+}
+
+.placeholder {
+  height: 160px;
+  background: #F2F2F2;
+  margin-bottom: 24px;
+  border-radius: uxg($theme, card-border-radius);
+}
+
+.template {
+  padding-bottom: 20px;
+}
+
+.scheme-btn {
+  line-height: 1;
+}
+
+.app-table > .app-row {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.analytical-report {
+  margin-top: -26px;
+  position: relative;
+  top: -28px;
+}
+
+.position-row .position-item {
+  padding-bottom: 15px;
+}
+
+.doc-error-message {
+  width: 150px;
+  text-align: right;
+  font-weight: bold;
+  margin-right: 10px;
+  color: uxg($theme, color-control-invalid);
+}
+
+.grid-cell .app-control {
+  margin-right: 8px;
+}
+
+.grid-cell label {
+  margin-bottom: 4px;
+}
+
+.overflow-visible {
+  overflow: visible;
+}
+
+.procedure-proposal-view {
+  &-empty {
+    margin-top: 120px;
+    font-weight: bold;
+    font-size: 22px;
+    line-height: 28px;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.12);
+  }
+}
+
+.procedure-proposal-view-modal {
+  &-uppercase {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 11px;
+    line-height: 14px;
+    color: rgba(0, 0, 0, 0.3);
+    margin-bottom: 15px;
+  }
+
+  .app-control {
+    display: inline-block;
+    margin-right: 7px;
+  }
+
+  .app-control ~ label {
+    font-size: 12px;
+  }
+}
+
+.counter {
+  background: #5066FF;
+  border-radius: 2px;
+  box-sizing: content-box;
+  color: #fff;
+  display: inline-block;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  padding: 0 5px;
+}
+
+.download-reference-link {
+  color: #5066FF;
+  padding: 0;
+  margin: 0;
+}
+
+.upload-reference-link {
+  margin-left: 0;
+}
+
+:host {
+  ::ng-deep {
+    .uxg-datatable {
+      min-height: auto !important;
+      &-headers {
+        height: auto !important;
+        padding: 5px;
+      }
+      &-headers-col {
+        padding: 10px 0 !important;
+      }
+      &-headers-col:first-child {
+        padding-left: 55px !important;
+      }
+      &-headers-col:last-child {
+        padding-right: 55px !important;
+      }
+      &-body-col {
+        background: #EFF4FF !important;
+        padding: 20px 5px !important;
+        height: 70px !important;
+      }
+      &-body-col:first-child {
+        padding-left: 60px !important;
+      }
+      &-body-col:last-child {
+        padding-right: 60px !important;
+      }
+      &-body-row {
+        margin-bottom: 4px;
+      }
+    }
+  }
+}
+
+::ng-deep {
+  .proposal-item-increase {
+    margin-top: 20px;
+    .proposal-item-uppercase {
+      margin: 0 0 10px 0;
+      font-weight: bold;
+      font-size: 11px;
+      line-height: 14px;
+      text-transform: uppercase;
+      color: rgba(0, 0, 0, 0.3);
+    }
+
+    .proposal-item-label,
+    .proposal-item-radio {
+      display: inline-block;
+    }
+  }
+}

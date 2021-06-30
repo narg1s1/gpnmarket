@@ -1,0 +1,50 @@
+@import "src/theme";
+
+.contragents-common-params {
+  position: sticky;
+  top: 65px;
+  background: uxg($theme, color-bg);
+  z-index: 3;
+
+  &:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .app-btn.common-params {
+    position: absolute;
+    bottom: -32px;
+    right: 20px;
+    border-radius: 0 0 uxg($theme, control-border-radius) uxg($theme, control-border-radius);
+    z-index: 1;
+  }
+}
+
+.contragents-scroll {
+  @include scrollbar($theme);
+  overflow-y: auto;
+  max-height: calc(100vh - 180px);
+  & > .app-row {
+    min-height: 470px;
+  }
+}
+
+.common-footer {
+  height: 1.5em;
+  padding: 20px 0;
+  box-sizing: content-box;
+}
+
+button.right.arrow {
+  box-shadow: 23px 0 0 white, -20px 0px 12px #ffffff;
+}
+
+button.left.arrow {
+  box-shadow: -23px 0 0 white, 20px 0px 12px #ffffff;
+  left: 13px;
+}

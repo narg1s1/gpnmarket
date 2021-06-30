@@ -1,0 +1,16 @@
+@import "src/theme";
+
+:host {
+  ::ng-deep .app-tabs-item-count{
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    background: uxg($theme, color-primary);
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 11px;
+    color: #fff;
+    text-align: center;
+  }
+}

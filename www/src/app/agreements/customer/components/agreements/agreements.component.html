@@ -1,0 +1,54 @@
+<ng-container *ngIf="(agreements$ | async) as agreements" uxgFilter>
+
+  <div class="app-row app-align-items-center">
+    <div class="app-col">
+      <form [formGroup]="form">
+        <uxg-dropdown lg class="action-select" formControlName="actions">
+          <div uxgDropdownItem [value]="null">Все задачи</div>
+          <div uxgDropdownItem [value]="action.type" *ngFor="let action of actions">{{ action.label }}</div>
+        </uxg-dropdown>
+      </form>
+    </div>
+
+    <uxg-filter-button class="app-col-auto"></uxg-filter-button>
+
+    <div class="app-col-aside detachable"></div>
+  </div>
+
+  <div class="app-row">
+    <div class="app-col agreements-col">
+      <app-agreements [agreements]="agreements" (sendRating)="sendRating($event.requestId, $event.positionId, $event.rating)">
+      </app-agreements>
+    </div>
+
+    <uxg-filter [formGroup]="form" [count]="totalCount$| async" [skipKeys]="['actions']" (filter)="filter$.next($event)">
+      <uxg-filter-section label="Заявка">
+        <input uxgInput formControlName="numberOrName" placeholder="Номер или наименование заявки"/>
+      </uxg-filter-section>
+
+      <uxg-filter-section label="Даты поступления">
+        <div class="app-row">
+          <div class="app-col" [style.padding-right.px]="15">
+            <div class="app-control-wrap" [style.padding]="0">
+              <input #issuedDateFrom uxgInput uxgDatepicker placeholder="Дата с" class="delivery-date" formControlName="issuedDateFrom">
+              <label class="app-control-icon" (click)="issuedDateFrom.focus()">
+                <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+              </label>
+            </div>
+          </div>
+
+          <div class="app-col">
+            <div class="app-control-wrap" [style.padding]="0">
+              <input #issuedDateTo uxgInput uxgDatepicker placeholder="Дата по" class="delivery-date" formControlName="issuedDateTo">
+              <label class="app-control-icon" (click)="issuedDateTo.focus()">
+                <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+              </label>
+            </div>
+          </div>
+        </div>
+      </uxg-filter-section>
+    </uxg-filter>
+  </div>
+</ng-container>
+
+<app-pagination [total]="(totalCount$| async)" [pageSize]="pageSize" [pages$]="pages$"></app-pagination>

@@ -1,0 +1,38 @@
+<form [formGroup]="form">
+  <uxg-filter-section label="Цена">
+    <range-slider-control [min]="priceRange[0]" [max]="priceRange[1]"
+                          formControlName="price"></range-slider-control>
+  </uxg-filter-section>
+
+  <uxg-filter-section label="Наличие" [disabled]="form.get('availability').disabled">
+    <label class="app-row app-align-items-center">
+      <div class="app-col">Поставка только со склада</div>
+      <div class="app-col app-grow-0">
+        <checkbox-slider-control formControlName="availability"></checkbox-slider-control>
+      </div>
+    </label>
+  </uxg-filter-section>
+
+  <uxg-filter-section label="Сроки поставки (дн.)">
+    <range-slider-control [step]="1" [min]="productionTimeRange[0]" [max]="productionTimeRange[1]"
+                          formControlName="productionTime"></range-slider-control>
+  </uxg-filter-section>
+
+  <uxg-filter-section label="Поставщик">
+    <app-supplier-autocomplete [multiple]="true" formControlName="contragents"></app-supplier-autocomplete>
+  </uxg-filter-section>
+
+  <ng-container *ngFor="let attribute of attributes.controls; let i=index;" formArrayName="attributes">
+    <uxg-filter-section [label]="attribute.get('label').value" formGroupName="{{i}}">
+      <ng-container *ngFor="let attributeValue of asFormArray(attribute.get('values')).controls; let j=index"
+                    formArrayName="values">
+        <ng-container formGroupName="{{j}}">
+          <div class="app-row app-align-items-center">
+            <uxg-checkbox class="attribute-checkbox app-control" #attributeCheckbox formControlName="checked"></uxg-checkbox>
+            <label (click)="attributeCheckbox.check($event)">{{ attributeValue.get('value').value }}</label>
+          </div>
+        </ng-container>
+      </ng-container>
+    </uxg-filter-section>
+  </ng-container>
+</form>

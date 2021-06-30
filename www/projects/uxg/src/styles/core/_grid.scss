@@ -1,0 +1,103 @@
+@import "../uxg";
+
+@mixin grid($theme) {
+.app-main {
+  max-width: uxg($theme, content-width);
+  margin: auto;
+}
+
+.app-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.app-col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+
+  & + &-aside {
+    margin-left: 20px;
+  }
+
+  &-aside {
+    max-width: uxg($theme, aside-width);
+
+    & + * {
+      margin-left: 20px;
+    }
+  }
+
+  &-auto {
+    flex: 0 0 auto;
+  }
+
+  @for $i from 1 through 12 {
+    &-#{$i} {
+      max-width: $i / 12 * 100%;
+    }
+  }
+}
+
+[class*=app-col-] {
+  @extend .app-col;
+}
+
+.app-card {
+  border: 1px solid uxg($theme, color-border);
+  background: uxg($theme, color-default);
+  transition: background-color 250ms;
+  border-radius: uxg($theme, card-border-radius);
+  padding: 17px 20px;
+
+
+  hr {
+    border-top:1px uxg($theme, color-border) dotted;
+    border-bottom: none;
+    border-right: none;
+    border-left: none;
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+
+  &:not(.app-row) + & {
+    margin-top: 2em;
+  }
+}
+
+.app-table {
+  &:not(.app-no-border) > .app-row {
+    @extend .app-card;
+    padding: 17px 6px;
+
+    &-clickable:hover {
+      cursor: pointer;
+      background: uxg($theme, color-bg);
+    }
+
+    & > :last-child:not(:first-child) {
+      padding-bottom: 0;
+    }
+  }
+
+  & > .app-row {
+    padding: 17px 6px;
+
+    &:not(:first-child) {
+      border-top: none;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    &:not(:last-child) {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    & > .app-col {
+      padding: 0 14px;
+      box-sizing: content-box;
+    }
+  }
+}
+}

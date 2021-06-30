@@ -1,0 +1,127 @@
+<div class="app-card" *ngIf="user.isBackOffice() || (user.isCustomer() && group.status !== 'DRAFT')">
+  <!-- actions -->
+  <div class="app-row app-align-items-center">
+    <ng-container *ngIf="!group.inQueue; else groupInQueue">
+      <h3 class="app-col">
+        <a [routerLink]="[group.id]">{{group.name}}</a>
+      </h3>
+
+      <div class="app-col-auto app-ellipsis" [ngSwitch]="group.statusData?.status">
+        <div class="app-ghost-color app-bold" *ngSwitchCase="'PROCEDURE_IN_PROGRESS'">
+          <uxg-icon shape="app-waiting"></uxg-icon>
+          <span>Идет процедура</span>
+        </div>
+
+        <div class="app-ghost-color app-bold" *ngSwitchCase="'DRAFT'">
+          <uxg-icon shape="app-draft"></uxg-icon>
+          <span>Черновик</span>
+        </div>
+
+        <div class="app-warning-color app-bold" *ngSwitchCase="'PARTIALLY_REVIEWED'">
+          <uxg-icon shape="app-warning"></uxg-icon>
+          <span>Частично рассмотрено</span>
+        </div>
+
+        <div class="app-success-color app-bold" *ngSwitchCase="'REVIEWED'">
+          <uxg-icon shape="app-check"></uxg-icon>
+          <span>Рассмотрено</span>
+        </div>
+
+        <div class="app-ghost-color app-bold" *ngSwitchCase="'SENT_TO_REVIEW'">
+          <uxg-icon shape="app-waiting"></uxg-icon>
+          <span>На рассмотрении</span>
+        </div>
+
+        <div class="app-ghost-color app-bold" *ngSwitchCase="'ON_CUSTOMER_APPROVAL'">
+          <uxg-icon shape="app-waiting"></uxg-icon>
+          <span>На рассмотрении</span>
+        </div>
+
+        <div class="app-warning-color app-bold" *ngSwitchCase="'SEND_TO_EDIT'">
+          <uxg-icon shape="app-warning"></uxg-icon>
+          <span>На доработке</span>
+        </div>
+
+        <div *ngSwitchDefault class="app-ghost-color">{{ group.statusData?.statusLabel }}</div>
+      </div>
+
+      <button uxgButton icon link
+              *ngIf="edit.observers.length && featureService.authorize('editProposalsGroup')"
+              (click)="edit.emit()" [disabled]="group.status !== 'DRAFT'">
+        <uxg-icon shape="app-pen"></uxg-icon>
+      </button>
+    </ng-container>
+
+    <ng-template #groupInQueue>
+      <h3 class="app-col">
+        {{group.name}}
+      </h3>
+
+      <div class="app-col-auto app-ellipsis">
+        <div class="app-ghost-color app-bold">
+          <uxg-icon shape="app-waiting"></uxg-icon>
+          <span>В обработке</span>
+        </div>
+      </div>
+    </ng-template>
+
+    <button uxgButton icon link (click)="folded = !folded">
+      <uxg-icon shape="app-chevron" [attr.dir]="folded ? 'down' : 'up'"></uxg-icon>
+    </button>
+  </div>
+
+  <!-- positions -->
+  <ng-container *ngIf="!folded">
+    <div class="app-table app-no-border">
+      <hr/>
+      <div class="app-row app-uppercase app-ghost-color app-bold">
+        <small class="app-col app-ellipsis">Наименование позиции</small>
+        <small class="app-col app-ellipsis">Решение принято</small>
+        <small class="app-col app-ellipsis">Статус рассмотрения</small>
+      </div>
+
+      <ng-container *ngFor="let position of group.requestPositions">
+        <div class="app-row" *ngIf="user.isBackOffice() ||
+                                    user.isCustomer() && position.status && position.status !== 'NEW'">
+          <div class="app-col app-ellipsis name">{{position.name}}</div>
+          <div class="app-col app-ghost-color">
+            <ng-container *ngIf="position.history; else nohistory">
+              {{position.history?.user.shortName}}, {{position.history?.createdDate | date : "dd.MM.yyyy"}}
+            </ng-container>
+            <ng-template #nohistory>
+              -
+            </ng-template>
+          </div>
+          <div class="app-col app-ellipsis" [ngSwitch]="group.statusData?.status">
+            <div class="app-ghost-color" *ngSwitchCase="'NEW'">
+              <span>Новое</span>
+              <uxg-icon shape="app-draft"></uxg-icon>
+            </div>
+
+            <div class="app-success-color" *ngSwitchCase="'APPROVED'">
+              <span>Выбран победитель</span>
+              <uxg-icon shape="app-check"></uxg-icon>
+            </div>
+
+            <div class="app-warning-color" *ngSwitchCase="'SENT_TO_EDIT'">
+              <span>На доработке</span>
+              <uxg-icon shape="app-warning"></uxg-icon>
+            </div>
+
+            <div class="app-ghost-color" *ngSwitchCase="'SENT_TO_REVIEW'">
+              <span>Решение не принято</span>
+              <uxg-icon shape="app-unknown"></uxg-icon>
+            </div>
+
+            <div class="app-ghost-color" *ngSwitchCase="'REJECTED'">
+              <span>Рассмотрено</span>
+              <uxg-icon shape="app-check"></uxg-icon>
+            </div>
+
+            <div *ngSwitchDefault class="app-ghost-color">{{ position.statusLabel }}</div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>

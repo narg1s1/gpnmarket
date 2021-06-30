@@ -1,0 +1,68 @@
+@import "src/theme";
+
+small {
+  margin-bottom: 17px;
+  display: block;
+}
+
+.upload-area {
+  align-items: center;
+  background: uxg($theme, color-list-hover);
+  color: rgba(uxg($theme, color-control-primary), .3);
+  font-size: uxg($theme, font-size-l);
+  display: flex;
+  height: 100px;
+  justify-content: center;
+  border: 2px transparent solid;
+  transition: border 200ms, color 200ms;
+  border-radius: 4px;
+  &.invalid {
+    border: 1px solid uxg($theme, color-control-invalid);
+    color: uxg($theme, color-control-invalid);
+  }
+
+  &-hover {
+    border-color: uxg($theme, color-border);
+    color: rgba(uxg($theme, color-control-primary), 1);
+  }
+}
+
+.app-col:not(:last-child) {
+  padding-right: 24px;
+}
+
+.documents {
+  & > .app-row > .app-col {
+    width: 25%;
+    min-width: 320px;
+    padding: 0 20px 12px 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    flex-grow: 0;
+  }
+
+  &-title {
+    padding: 0 12px;
+    overflow: hidden;
+    flex-grow: 1;
+
+    div {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  button {
+    min-height: auto;
+  }
+
+  app-file {
+    width: 100%;
+  }
+}
+
+.download-button {
+  max-width: 180px;
+}

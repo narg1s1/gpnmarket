@@ -1,0 +1,73 @@
+@import "src/theme";
+@import "src/assets/styles/statuses";
+
+.procedure-requests-from-suppliers {
+
+  &-header {
+    border-bottom: 1px solid uxg($theme, color-border);
+    padding-bottom: 10px;
+  }
+
+  &-title {
+    font-weight: bold;
+    font-size: 17px;
+    line-height: 21px;
+  }
+
+  &-label {
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 18px;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.3);
+  }
+
+  &-question,
+  &-answer {
+    p {
+      margin-top: 15px;
+      color: #000;
+    }
+  }
+
+  &-answer {
+    margin: 0 -20px;
+    padding: 20px;
+    background: uxg($theme, color-background);
+  }
+
+  .status {
+    display: inline-block;
+    margin-right: 40px;
+
+    &.status-new {
+      font-size: 11px;
+      line-height: 21px;
+      color: #fff;
+      border-radius: 2px;
+      padding: 0 8px;
+      background: uxg($theme, color-primary);
+    }
+
+    &.status-answered {
+      font-size: 14px;
+      line-height: 32px;
+      color: map-get($statuses, REQUEST_ANSWERED);
+    }
+
+    &.status-canceled {
+      font-size: 14px;
+      line-height: 32px;
+      color: map-get($statuses, REQUEST_CANCELED);
+    }
+  }
+
+  app-document-upload-list {
+    display: block;
+    margin-top: 25px;
+
+    ::ng-deep .form-group {
+      margin-bottom: 20px !important;
+    }
+  }
+}

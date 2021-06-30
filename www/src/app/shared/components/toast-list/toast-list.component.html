@@ -1,0 +1,5 @@
+<app-toast
+  [toast]="toast"
+  *ngFor="let toast of toasts$ | async"
+  @animateDestroy
+></app-toast>

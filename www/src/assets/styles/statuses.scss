@@ -1,0 +1,50 @@
+$statuses: (
+  DRAFT: #C4C4C4, // Черновик
+  PROOF_OF_NEED: #C4C4C4, // На согласовании заказчика
+  ON_CUSTOMER_APPROVAL: #C4C4C4, // На согласовании заказчика
+  CANCELED: #C4C4C4, // Отменено
+  NOT_RELEVANT: #C4C4C4, // Неактуально
+  NEW: #BE3A3A, // Новый
+  TECHNICAL_PROPOSALS_PREPARATION: #ED9254, // Подготовка ТП
+  TECHNICAL_PROPOSALS_AGREEMENT: #ED9254, // Согласование ТП
+  REVIEW: #ED9254,
+  SENT_TO_EDIT: #ED9254,
+  DECLINED: #ED9254,
+
+  TECHNICAL_COMMERCIAL_PROPOSALS_PREPARATION: #F35C6C, // Подготовка ТКП
+  TECHNICAL_COMMERCIAL_PROPOSALS_AGREEMENT: #F35C6C, // Согласование ТКП
+  TCP_WINNER_SELECTED: #00AA5F, // Выбран победитель ТКП
+
+  PROPOSALS_PREPARATION: #F9C74F, // Подготовка КП
+  RESULTS_AGREEMENT: #F9C74F, // Выбор победителя
+  WINNER_SELECTED: #00AA5F, // Выбран победитель
+  CONTRACT_AGREEMENT: #00AA5F, // Согласование договора
+  CONTRACT_SIGNING: #00AA5F, // Подписание договора
+  IN_PROGRESS: #00AA5F,
+  REJECTED: #00AA5F,
+  APPROVED: #00AA5F,
+
+  CONTRACTED: #00AA5F, // Законтрактовано
+  RKD_AGREEMENT: #56B9F2, // Согласование РКД
+  MANUFACTURING: #56b9f2, // Изготовление
+  RKD_APPROVED: #56b9f2, // РКД согласована
+  DELIVERY: #1400DC, // Доставка
+  DELIVERED: #1400DC, // Поставлено
+  RELATED_SERVICES_EXECUTION: #1400DC, // Оказание сопутствующих услуг
+  PAID: #1400DC, // Оплачено
+  WARRANTY: #1400DC, // Гарантийные обязательства
+  COMPLETED: #9255CE, // Завершено
+
+  // todo Статусы вынесены для корректного отображения индикаторов в истории позиции
+  SENT_TO_REVIEW: #F9C74F, // Добавлено новое КП
+  ARCHIVE: #F9C74F, // Архив
+  ACCEPTED: #ED9254, // Согласовано
+  SIGNED: #00AA5F, // Подписано
+  ON_APPROVAL: #00AA5F, // На согласовании
+
+  // Статусы запросов от поставщиков
+  REQUEST_ANSWERED: #00AA5F, // Отвечено
+  REQUEST_CANCELED: #F35C6C, // Отклонено
+);
+
+

@@ -1,0 +1,114 @@
+<div class="app-row im">
+  <div class="app-col im-list">
+
+    <!-- request info -->
+    <ng-container *ngIf="item$ | async as item">
+      <div class="app-row app-align-items-center">
+        <h3 class="app-col">Заявка №{{item.request.number}}</h3>
+        <div>
+          <button uxgButton clear link [routerLink]="['/requests', urlRole, item.request.id]">
+            <uxg-icon shape="app-hamburger"></uxg-icon>
+            <span>Описание</span>
+          </button>
+        </div>
+      </div>
+      <div class="app-secondary-color">{{item.request.contragent.shortName}}</div>
+    </ng-container>
+
+    <!-- position list -->
+    <ul>
+      <li class="search"><input [formControl]="search" uxgInput placeholder="Поиск по позициям и группам"/></li>
+      <li *ngIf="item$ | async as item">
+        <a [routerLink]="['/im', item.request.id]" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+          <span class="app-col app-ellipsis">Обсуждение заявки</span>
+          <small *ngIf="unreadCountContext$ | async as cnt">{{cnt}}</small>
+        </a>
+      </li>
+      <ng-container *ngFor="let subItem of subItems$ | async | subItemsFilter: search.value">
+        <ng-container *ngTemplateOutlet="subItemTpl; context: {$implicit: subItem}"></ng-container>
+      </ng-container>
+
+      <ng-template #subItemTpl let-subItem>
+        <li>
+          <a
+            [routerLink]="['/im', subItem.position.request?.id || subItem.position.requestId]"
+            [queryParams]="{positionId: subItem.position.id}"
+            [routerLinkActive]="'active'"
+            [routerLinkActiveOptions]="{exact:true}"
+            [ngClass]="asPosition(subItem.position).status"
+          >
+            <span class="app-col app-ellipsis">{{subItem.position.name}}</span>
+            <small *ngIf="subItem.conversation?.unreadCount as cnt">{{cnt}}</small>
+          </a>
+
+          <ul *ngIf="subItemsByGroup$(subItem.position.id) | async as subItems">
+            <li *ngFor="let subItem of subItems | subItemsFilter: search.value">
+              <ng-container *ngTemplateOutlet="subItemTpl; context: {$implicit: subItem}"></ng-container>
+            </li>
+          </ul>
+        </li>
+      </ng-template>
+    </ul>
+  </div>
+
+  <!-- chat -->
+  <div class="app-col app-row app-flex-column no-wrap">
+    <ng-container *ngIf="request$ | async as request">
+      <div class="im-info" *ngIf="position$ | async as position; else requestInfo">
+        <h4 class="app-col">
+          <span>{{position.name}} </span>
+          <span class="app-ghost-color">
+            <ng-container *ngIf="asPosition(position) as position">{{position.quantity}} {{position.measureUnit}}</ng-container>
+            <ng-container *ngIf="asGroup(position) as group">
+              {{group.positions.length | pluralize: "позиция" : "позиции" : "позиций"}}
+            </ng-container>
+          </span>
+        </h4>
+
+        <div class="app-row app-align-items-center" *ngIf="asPosition(position) as position">
+          <app-position-status [status]="position.status" [label]="PositionStatusesLabels[position.status]"></app-position-status>
+          <button uxgButton clear link [routerLink]="['/requests', urlRole, request.id, position.id]">
+            <uxg-icon shape="app-hamburger"></uxg-icon>
+            <span>Описание</span>
+          </button>
+        </div>
+      </div>
+      <ng-template #requestInfo>
+        <div class="im-info">
+          <h4 class="app-col">Заявка №{{request.number}}</h4>
+          <div>{{request.status.label}}</div>
+        </div>
+      </ng-template>
+    </ng-container>
+    <div class="divider"></div>
+    <div class="im-messages app-col" [class.app-justify-content-center]="conversationLoading" #messagesContainer>
+      <ng-container *ngIf="!conversationLoading; else loading">
+        <ng-container *ngFor="let message of messages$ | async; trackBy: trackById">
+          <div #messageEl class="im-messages-item" [class.im-messages-item-own]="isOwn(message)">
+            <div class="app-col im-messages-item-body">
+              <div class="app-bold">{{message.author.fullName}}</div>
+              <div class="im-messages-item-attachment app-ellipsis" *ngFor="let attachment of message.attachments" (click)="attachmentsService.download(attachment).subscribe()">
+                <document-icon [name]="attachment.originalFilename" size="s"></document-icon>
+                <span>{{attachment.originalFilename}}</span>
+              </div>
+              <div class="im-messages-item-text">{{message.text}}</div>
+            </div>
+            <small class="app-ghost-color">{{message.createdAt | humanDate}}</small>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+    <app-chat-form
+      [disabled]="conversationLoading"
+      [itemIsDraft]="asPosition(position$ | async)?.status === 'DRAFT'"
+      [allItemsAreDrafts]="allPositionsAreDrafts$ | async"
+      (send)="send($event)"
+      class="im-textarea"></app-chat-form>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="text-center">
+    <span class="spinner spinner-md"></span>
+  </div>
+</ng-template>

@@ -1,0 +1,18 @@
+<div #appTabsScroll class="app-tabs-scroll" [class.app-tabs-scroll-active]="hasScroll">
+  <div class="app-tabs">
+    <ng-content></ng-content>
+    <div *ngIf="activeTab"
+         class="app-tabs-indicator"
+         [class.app-tabs-indicator-left]="isTabPrevous"
+         [class.app-tabs-indicator-right]="!isTabPrevous"
+         [style.left.px]="activeTab.left"
+         [style.right.px]="activeTab.right"
+    ></div>
+  </div>
+</div>
+<div class="app-tabs-slide app-tabs-slide-left">
+  <uxg-icon (click)="slideLeft()" shape="app-chevron left"></uxg-icon>
+</div>
+<div class="app-tabs-slide app-tabs-slide-right">
+  <uxg-icon (click)="slideRight()" shape="app-chevron right"></uxg-icon>
+</div>

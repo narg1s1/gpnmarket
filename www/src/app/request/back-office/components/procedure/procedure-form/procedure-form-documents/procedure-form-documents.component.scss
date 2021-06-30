@@ -1,0 +1,19 @@
+.app-documents {
+  display: flex;
+  flex-wrap: wrap;
+
+  & > div {
+    display: flex;
+    width: 50%;
+  }
+
+  &-item {
+    margin-bottom: 16px;
+    display: flex;
+
+    &-icon {
+      margin: 0 8px;
+      display: flex;
+    }
+  }
+}

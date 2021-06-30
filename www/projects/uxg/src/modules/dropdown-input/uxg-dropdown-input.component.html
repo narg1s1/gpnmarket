@@ -1,0 +1,35 @@
+<input #inputRef
+       uxgInput
+       #uxgInput="uxgInput"
+       class="app-dropdown-handler"
+       [warning]="warning"
+       [lg]="lg"
+       [value]="(value && displayByFn && displayByFn(value)) || value"
+       [disabled]="disabled"
+       (input)="input($event)"
+       (blur)="onBlur($event)"
+       (focus)="focus.emit(inputValue || value)"
+       [class.active]="!isHidden"
+       [class.app-dropdown-handler-up]="isDirectionUp"
+       [attr.placeholder]="!appControlWrap && placeholder || null"
+       [style.padding-right.px]="allowClear ? 60 : 30"
+/>
+<label *ngIf="placeholder && appControlWrap" class="app-control-label" (click)="inputRef.focus()" [class.required]="required">{{ placeholder }}</label>
+<div class="app-dropdown-handler-icon" *ngIf="!strictMode" (click)="$event.stopPropagation(); toggle(isHidden)">
+  <uxg-icon shape="app-triangle" [attr.dir]="isHidden ? 'down':'up'"></uxg-icon>
+</div>
+
+<uxg-icon class="app-dropdown-clear" shape="app-cross" *ngIf="allowClear && !!inputRef.value" (click)="clear()"></uxg-icon>
+
+<ng-container *ngTemplateOutlet="errors"></ng-container>
+<div
+  #itemsWrapper
+  class="app-dropdown-items-wrapper"
+  [class.hidden]="isHidden"
+  [class.invalid]="inputRef.classList.contains('invalid')"
+  [class.app-dropdown-items-wrapper-up]="isDirectionUp"
+>
+  <div class="app-dropdown-items">
+    <ng-content></ng-content>
+  </div>
+</div>

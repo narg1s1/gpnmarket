@@ -1,0 +1,364 @@
+<form [formGroup]="form" [uxgWizzard]="wizzard" (ngSubmit)="submit()" (cancel)="cancel.emit()">
+  <uxg-wizzard-steps [wizzard]="wizzard"></uxg-wizzard-steps>
+  <br/>
+  <br/>
+  <!-- Select positions -->
+  <div *uxgWizzardStep="'positions'">
+    <div class="app-secondary-color" [hidden]="isVirtualScrollUsed">
+      Выберите все необходимые позиции или группы позиций в заявке, по которым вы хотите создать процедуру на
+      Электронной торговой площадке Газпромбанка
+    </div>
+    <br/>
+
+    <div class="app-col-auto selected-counter" *ngIf="positions?.length && isVirtualScrollUsed">
+      <span class="app-ghost-color">Выбрано позиций: </span>
+      <span>{{ positions.length }}</span>
+    </div>
+
+    <br>
+
+    <ng-container *ngIf="positions?.length && isVirtualScrollUsed; else selectItemsWithSearch">
+      <virtual-scroller #scroll [items]="positions" [style.height.px]="positions?.length <= 10 ? positions?.length * 30 : 300">
+        <div *ngFor="let position of scroll.viewPortItems"
+          class="app-row select-list-item"
+          [class.app-ghost-color]="position._disabled"
+          [style.width.%]="100"
+          [style.height.px]="30">
+          <div class="app-col app-bold select-list-item-title">{{ position.name }}</div>
+          <ng-container *ngIf="!position._disabled">
+            <div class="app-col app-col-auto select-list-item-quantity">
+              <span>{{ position.quantity }} </span>
+              <span class="app-ghost-color">{{ position.measureUnit | lowercase }}</span>
+            </div>
+
+            <div class="app-col app-col-auto select-list-item-total-price">
+              <ng-container *ngIf="position.startPrice; else withoutTotalPrice">
+                <span>{{ position.startPrice * position.quantity | currency: position.currency }}</span>
+              </ng-container>
+
+              <ng-template #withoutTotalPrice>
+                <span class="app-ghost-color">не указана</span>
+              </ng-template>
+            </div>
+
+            <div class="app-col app-col-auto select-list-item-date">
+              <ng-container *ngIf="position.isDeliveryDateAsap; else deliveryDate">Как можно скорее</ng-container>
+              <ng-template #deliveryDate>{{ (position.deliveryDate?.date || position.deliveryDate) | date : 'dd.MM.yyyy' }}</ng-template>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="position._disabled">
+            <div class="app-col app-col-auto select-list-item-date">
+              <span *ngIf="position.hasProcedure">Участвует в процедуре</span>
+              <span *ngIf="isStatusInvalid(position.status)">{{PositionStatusesLabels[position.status]}}</span>
+            </div>
+          </ng-container>
+        </div>
+      </virtual-scroller>
+      <div class="app-row select-list-item-footer app-uppercase app-ghost-color app-bold">
+        <div class="app-col app-grow-0"></div>
+        <div class="app-col app-bold select-list-item-title"></div>
+        <div class="app-col app-col-auto select-list-item-quantity">Кол-во</div>
+        <div class="app-col app-col-auto select-list-item-total-price">Сумма НМЦ без НДС</div>
+        <div class="app-col app-col-auto select-list-item-date">Дата поставки</div>
+      </div>
+    </ng-container>
+
+    <ng-template #selectItemsWithSearch>
+      <select-items-with-search
+        class="select-list select-list-positions"
+        formControlName="positions"
+        placeholder="Наименование позиции или группы"
+        (filter)="filterPositions.emit($event)"
+        [disabledFn]="disabledPositions"
+        [trackBy]="trackById"
+        [items]="positions">
+        <ng-template let-formGroup="formGroup" let-position="item">
+          <div class="app-row select-list-item" [formGroup]="formGroup" [class.app-ghost-color]="formGroup.disabled">
+            <div class="app-col app-grow-0">
+              <uxg-checkbox formControlName="checked"></uxg-checkbox>
+            </div>
+            <div class="app-col app-bold select-list-item-title">{{ position.name }}</div>
+            <ng-container *ngIf="!formGroup.disabled">
+              <div class="app-col app-col-auto select-list-item-quantity">
+                <span>{{ position.quantity }} </span>
+                <span class="app-ghost-color">{{ position.measureUnit | lowercase }}</span>
+              </div>
+
+              <div class="app-col app-col-auto select-list-item-total-price">
+                <ng-container *ngIf="position.startPrice; else withoutTotalPrice">
+                  <span>{{ position.startPrice * position.quantity | currency: position.currency }}</span>
+                </ng-container>
+
+                <ng-template #withoutTotalPrice>
+                  <span class="app-ghost-color">не указана</span>
+                </ng-template>
+              </div>
+
+              <div class="app-col app-col-auto select-list-item-date">
+                <ng-container *ngIf="position.isDeliveryDateAsap; else deliveryDate">Как можно скорее</ng-container>
+                <ng-template #deliveryDate>{{ (position.deliveryDate?.date || position.deliveryDate) | date : 'dd.MM.yyyy' }}</ng-template>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="formGroup.disabled">
+              <div class="app-col app-col-auto select-list-item-date">
+                <span *ngIf="position.hasProcedure">Участвует в процедуре</span>
+                <span *ngIf="isStatusInvalid(position.status)">{{PositionStatusesLabels[position.status]}}</span>
+              </div>
+            </ng-container>
+          </div>
+        </ng-template>
+
+        <ng-template #footerContentTpl>
+          <div class="app-row select-list-item-footer app-uppercase app-ghost-color app-bold">
+            <div class="app-col app-grow-0"></div>
+            <div class="app-col app-bold title"></div>
+            <div class="app-col app-col-auto select-list-item-quantity">Кол-во</div>
+            <div class="app-col app-col-auto select-list-item-total-price">Сумма НМЦ без НДС</div>
+            <div class="app-col app-col-auto select-list-item-date">Дата поставки</div>
+          </div>
+        </ng-template>
+      </select-items-with-search>
+    </ng-template>
+
+    <ng-template #loading>
+      <div *uxgWizzardStep="'positions'" class="text-center">
+        <span class="spinner spinner-md"></span>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- General -->
+  <div *uxgWizzardStep="'general'" formGroupName="general">
+
+    <h3>Общие сведения</h3>
+    <div class="app-control-wrap">
+      <input #nameControlRef uxgInput lg formControlName="procedureTitle"/>
+      <label class="app-control-label" (click)="nameControlRef.focus()">Наименование закупки</label>
+      <div class="app-control-error" *ngIf="form.get('general').get('procedureTitle').errors as e">
+        <span *ngIf="e.required">Обязательное поле</span>
+      </div>
+    </div>
+
+    <div class="app-row app-justify-content-between">
+      <div class="app-col" [style.padding-right.px]="10">
+        <div class="app-control-wrap">
+          <input
+            uxgInput lg uxgDatepicker
+            #dateEndRegistrationRef
+            formControlName="dateEndRegistration"
+            minDate="today"
+            dateFormat="d.m.Y H:i"
+            [enableTime]="true"
+          />
+          <label class="app-control-label" (click)="dateEndRegistrationRef.focus()">Прием заявок до</label>
+          <label class="app-control-icon" (click)="dateEndRegistrationRef.focus()">
+            <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+          </label>
+
+          <div class="app-control-error" *ngIf="form.get('general').get('dateEndRegistration').errors as e">
+            <span *ngIf="e.beforeSummingUpDate; else error">Дата не может быть позже даты подведения итогов</span>
+
+            <ng-template #error>
+              <span>Неверная дата</span>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-col" [style.padding-left.px]="10">
+        <div class="app-control-wrap">
+          <input type="text"
+                 uxgInput lg uxgDatepicker
+                 #dateSummingUpRef
+                 formControlName="dateSummingUp"
+                 minDate="today"
+                 dateFormat="d.m.Y H:i"
+                 [enableTime]="true">
+
+          <label class="app-control-label" (click)="dateSummingUpRef.focus()">Подведение итогов до</label>
+          <label class="app-control-icon" (click)="dateSummingUpRef.focus()">
+            <uxg-icon shape="app-calendar-big" size="24"></uxg-icon>
+          </label>
+
+          <div class="app-control-error" *ngIf="form.get('general').get('dateSummingUp').errors as e">
+            <span *ngIf="e.afterEndRegistrationDate; else error">Дата не может быть раньше даты приёма заявок (больше 30 мин.)</span>
+
+            <ng-template #error>
+              <span>Неверная дата</span>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-row">
+      <p class="app-row access-radio app-align-items-center" [class.readonly]="publicAccessReadonly">
+        <uxg-radio-item class="app-control" #publicAccess1 [value]="true" formControlName="publicAccess"></uxg-radio-item>
+        <label (click)="publicAccess1.select($event)">&nbsp;Открытая процедура</label>
+      </p>
+
+      <p class="app-row app-align-items-center" [class.readonly]="publicAccessReadonly">
+        <uxg-radio-item class="app-control" #publicAccess2 [value]="false" formControlName="publicAccess"></uxg-radio-item>
+        <label (click)="publicAccess2.select($event)">&nbsp;Для ограниченного круга участников</label>
+      </p>
+    </div>
+
+    <div class="app-control-wrap okpd2">
+      <uxg-dropdown-input
+        appSuggestions
+        formControlName="okpd2"
+        placeholder="OКПД2"
+        [$]="okpd2List$"
+        [searchFn]="searchOkpd2"
+        #okpd2="appSuggestions"
+        [strictMode]="true"
+        [displayByFn]="getOkpd2Name"
+        lg>
+        <ng-container *ngFor="let suggestion of okpd2.suggestions$ | async">
+          <div uxgDropdownItem [value]="suggestion" [attr.title]="suggestion.name">
+            <b>{{suggestion.code}}</b>&nbsp;{{suggestion.name }}
+          </div>
+        </ng-container>
+        <ng-template #errors>
+          <div class="app-control-error" *ngIf="form.get('general.okpd2').errors as e">
+            <span *ngIf="e.required">Обязательное поле</span>
+            <span *ngIf="e.notFromList">Выберите значение из списка</span>
+          </div>
+        </ng-template>
+      </uxg-dropdown-input>
+    </div>
+
+    <br>
+
+    <div class="app-row app-align-items-center">
+      <div class="app-row no-total-price">
+        <uxg-checkbox class="app-control" #withoutTotalPriceRef formControlName="withoutTotalPrice" [class.readonly]="isWithoutStartPrice"
+                      [readonly]="isWithoutStartPrice"></uxg-checkbox>
+        <label (click)="withoutTotalPriceRef.check($event)"> &nbsp; Без указания НМЦ &nbsp;</label>
+
+        <uxg-popover *ngIf="isWithoutStartPrice" [openOnHover]="true">
+          <uxg-icon uxgPopoverTrigger shape="app-info" class="app-warning-color" size="16"></uxg-icon>
+
+          <div *uxgPopoverContent>
+            Для проведения процедуры с указанием НМЦ <br>необходимо указать НМЦ по всем позициям
+          </div>
+        </uxg-popover>
+      </div>
+
+      <div class="app-row">
+        <uxg-checkbox class="app-control" #verificationRequired formControlName="dishonestSuppliersForbidden"></uxg-checkbox>
+        <label (click)="verificationRequired.check($event)"> &nbsp; Проверка на предмет отсутствия участников в реестре недобросовестных поставщиков ФАС</label>
+      </div>
+    </div>
+
+    <br>
+
+    <div class="app-control-wrap" [hidden]="!form.get('general.withoutTotalPrice').value">
+      <input #withoutTotalPriceReasonRef uxgInput lg formControlName="withoutTotalPriceReason"
+             [disabled]="form.get('general.withoutTotalPrice').value" />
+      <label class="app-control-label" (click)="withoutTotalPriceReasonRef.focus()">Причина отсутствия НМЦ</label>
+      <div class="app-control-error" *ngIf="form.get('general').get('withoutTotalPriceReason').errors as e">
+        <span *ngIf="e.required">Обязательное поле</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Properties -->
+  <div *uxgWizzardStep="'properties'">
+    <h3>Параметры процедуры</h3>
+    <br/>
+    <hr class="divider"/>
+    <div class="scrollable">
+      <app-request-procedure-form-properties
+        formControlName="properties"
+        [procedureForm]="form"
+        [action]="action"
+      ></app-request-procedure-form-properties>
+    </div>
+    <hr class="divider"/>
+  </div>
+
+  <!-- Contragents -->
+  <div *uxgWizzardStep="'contragents'">
+    <div class="app-secondary-color">
+      Выберите всех необходимых контрагентов, которых вы хотите пригласить к участию в процедуре. Другие контрагенты не
+      будут видеть процедуру и не смогут в ней участвовать.
+    </div>
+    <br/>
+    <br/>
+    <select-items-with-search
+      *ngIf="procedure?.privateAccessContragents || (contragents?.length ? contragents : (allContragents$ | async)) as contragents; else loading"
+      class="select-list select-list-contragents"
+      formControlName="privateAccessContragents"
+      placeholder="Наименование контрагента или ИНН"
+      [filterFn]="searchContragent"
+      [trackBy]="trackById"
+      [items]="contragents"
+    >
+      <ng-template let-formGroup="formGroup" let-contragent="item">
+        <div class="app-row select-list-item" [formGroup]="formGroup">
+          <div class="app-col app-grow-0">
+            <uxg-checkbox formControlName="checked"></uxg-checkbox>
+          </div>
+          <div class="app-col app-bold select-list-item-title">{{ contragent.shortName }}</div>
+          <div class="app-col select-list-item-inn">
+            <span class="app-ghost-color">ИНН: </span>
+            <span>{{ contragent.inn | splitNumber }}</span>
+          </div>
+          <div class="app-col select-list-item-kpp">
+            <span class="app-ghost-color">КПП: </span>
+            <span>{{ contragent.kpp | splitNumber }}</span>
+          </div>
+        </div>
+      </ng-template>
+    </select-items-with-search>
+    <ng-template #loading>
+      <div class="text-center">
+        <span class="spinner spinner-md"></span>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Documents -->
+  <div *uxgWizzardStep="'documents'" formGroupName="documents">
+    <div class="app-secondary-color" *ngIf="request">Ниже вы можете выбрать те документы заявки, которые могут быть прикреплены к процедуре</div>
+    <div class="app-secondary-color" *ngIf="!request">Ниже вы можете загрузить документы, которые могут быть прикреплены к процедуре</div>
+    <br/>
+    <br/>
+
+    <app-request-procedure-form-documents
+      [documents]="form.get('general.useAllPositions').value ? procedureAvailableDocuments : documents"
+      (addDocuments)="documentUpload.addDocument($event)"
+      formControlName="procedureDocuments">
+    </app-request-procedure-form-documents>
+    <div class="upload-docs">
+      <app-document-upload-list #documentUpload [documents]="form.get('documents.procedureUploadDocuments').value"
+                                (fileSelected)="form.get('documents.procedureUploadDocuments').setValue($event.files)"
+                                [uploadAvailable]="false">
+      </app-document-upload-list>
+    </div>
+  </div>
+
+
+  <br/>
+  <div class="app-row app-justify-content-end app-align-items-center">
+    <div class="app-col">
+      <ng-container *uxgWizzardStep="'positions'" formGroupName="general">
+        <uxg-switcher [hidden]="isVirtualScrollUsed" formControlName="useAllPositions" label="Добавить все позиции" labelAlign="right"></uxg-switcher>
+      </ng-container>
+    </div>
+
+    <div class="app-col-auto app-row app-align-items-center">
+      <div class="app-col">
+        <span *ngIf="isLoading" class="spinner spinner-inline"></span>
+      </div>
+
+      <button uxgWizzardButton="cancel" type="button" uxgButton secondary lg>Отмена</button>
+      <button uxgWizzardButton="prev" type="button" uxgButton secondary lg>Назад</button>
+      <button [disabled]="isLoading" uxgWizzardButton="next" type="button" uxgButton primary lg>Продолжить</button>
+      <button *ngIf="action==='create'" uxgWizzardButton="end" uxgButton primary lg>Создать процедуру</button>
+      <button *ngIf="action==='bargain'" uxgWizzardButton="end" uxgButton primary lg>Объявить уторговывание</button>
+      <button *ngIf="action==='prolong'" uxgWizzardButton="end" uxgButton primary lg>Продлить процедуру</button>
+    </div>
+  </div>
+</form>

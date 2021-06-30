@@ -1,0 +1,109 @@
+<div class="proposals-footer-body app-row app-align-items-center">
+<!--  todo Временно скрыто (isprocessor-979) -->
+<!--  <button uxgButton outline lg (click)="chooseBy$.next('price')">Автовыбор по цене</button>-->
+<!--  <button uxgButton outline lg (click)="chooseBy$.next('date')">Автовыбор по дате</button>-->
+  <div class="app-col"></div>
+
+  <ng-container>
+    <ng-container *ngIf="view === 'list'">
+      <h3 class="total-sum">
+        <span class="app-ghost-color app-font-normal">Общая сумма без НДС: </span>
+        <span>
+          {{ getSummaryPriceByPositions(selectedPositions) | number: "1.0-2" }} <span class="app-ghost-color">{{ getCurrencySymbol('RUB', 'narrow') }}</span>
+        </span>
+      </h3>
+
+      <div class="vertical-divider"></div>
+
+      <div class="app-col-auto selected-counter">
+        <span class="app-ghost-color">Выбрано позиций: </span>
+        <span>{{ selectedPositions.length }}</span>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="view !== 'list'">
+      <h3  class="total-sum">
+        <span class="app-ghost-color app-font-normal">Общая сумма без НДС: </span>
+        <span>
+          {{ total | number: "1.0-2" }} <span class="app-ghost-color">{{ getCurrencySymbol('RUB', 'narrow') }}</span>
+        </span>
+      </h3>
+
+      <ng-container *ngIf="source !== 'price-order'">
+        <div class="vertical-divider"></div>
+
+        <div class="app-col-auto selected-counter">
+          <div>
+            <span class="app-ghost-color">Выбран победитель: </span>
+            <span [class.app-ghost-color]="uniqWinners?.length === 0">
+            {{ uniqWinners?.length }}
+          </span>
+          </div>
+
+          <div *ngIf="source !== 'price-order'">
+            <span class="app-ghost-color">На доработку: </span>
+            <span [class.app-ghost-color]="uniqSendToEdit?.length === 0">
+            {{ uniqSendToEdit?.length }}
+          </span>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngIf="view === 'list'; else gridButtons">
+    <!-- Временно скрыто -->
+<!--    <button uxgButton secondary lg (click)="sendToEditFromListView.emit()" [disabled]="loading || selectedPositions.length === 0">-->
+<!--      На доработку-->
+<!--    </button>-->
+
+    <button uxgButton primary lg (click)="approveFromListView.emit()" [disabled]="loading || selectedPositions.length === 0">
+      Выбрать победителя
+    </button>
+  </ng-container>
+
+  <ng-template #gridButtons>
+    <button
+      *ngIf="view !== 'list'"
+      uxgButton
+      secondary
+      outline lg
+      (click)="sendToEditModal.open()">Все на доработку</button>
+
+    <button *ngIf="reject.observers.length" uxgButton secondary lg (click)="reject.emit()" [disabled]="loading">
+      Отклонить все
+    </button>
+
+    <button
+      *ngIf="approve.observers.length"
+      uxgButton primary lg
+      (click)="approve.emit()"
+      [disabled]="isApproveButtonDisabled || isCanApprove === false"
+      [title]="isApproveButtonDisabled || isCanApprove === false ? 'Существует позиция с аналогами в аналитической справке, для точного выбора необходимо выбрать предложение или аналог и отправить справку на доработку' : ''">
+      Подтвердить выбор
+    </button>
+
+  </ng-template>
+</div>
+
+<uxg-modal size="m" #sendToEditModal>
+  <h2>Введите текст ниже</h2>
+  <div class="app-secondary-color">
+    Вы хотите отправить все позиции на доработку. Укажите комментарий, которые помогут бэк-офису подобрать оптимальное решение
+  </div>
+  <div>&nbsp;</div>
+  <textarea
+    #comment
+    [style.height.px]="80"
+    uxgInput
+    [required]="offersApproveGroup?.approveType === 'REFERENCE'"
+    [(ngModel)]="sendToEditComment"
+    placeholder="Введите текст комментария"></textarea>
+    <div>&nbsp;</div>
+  <ng-template uxgModalFooter>
+    <button uxgButton lg secondary uxgModalClose>Отмена</button>
+    <button uxgButton lg primary
+      (click)="sendToEdit.emit(sendToEditComment); sendToEditModal.close()"
+      [disabled]="!sendToEditComment && offersApproveGroup?.approveType === 'REFERENCE'">Отправить</button>
+  </ng-template>
+</uxg-modal>

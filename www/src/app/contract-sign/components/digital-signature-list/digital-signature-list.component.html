@@ -1,0 +1,41 @@
+<ng-container *ngIf="isValidSystemSetup !== null; else loader">
+  <ng-container *ngIf="isValidSystemSetup === false; else certificateList">
+    Для работы КриптоПро ЭЦП Browser plugin на данном сайте необходимо расширение для браузера. <br>
+    Убедитесь, что оно у Вас включено или установите его. <br><br>
+
+    <a target="_blank" href="https://www.cryptopro.ru/products/cades/plugin">Скачать плагин</a>
+  </ng-container>
+
+  <ng-template #certificateList>
+    <ng-container *ngIf="certificates?.length; else loader">
+      <div class="certificates-list">
+        <div *ngFor="let certificate of certificates"
+             [ngClass]="certificate?.isValid ? 'valid' : 'not-valid'"
+             class="app-row app-align-items-top cert-item">
+
+          <div class="app-col-auto">
+            <uxg-radio-item class="app-control"
+                            (click)="select(certificate)"
+                            value="{{ certificate?.data.thumbprint }}">
+            </uxg-radio-item>
+          </div>
+
+          <div class="cert-info">
+            <div class="name app-bold">{{ certificate?.data.name || '—' }}</div>
+            <div class="brief">
+              <span class="app-ghost-color">ИНН: </span>
+              <span class="app-secondary-color">{{ certificate?.ownerInfo['ИНН'] }}</span>,
+
+              <span class="app-ghost-color">Действует до: </span>
+              <span class="app-bold date-valid-to">{{ certificate?.data.validTo | date : "dd.MM.yyyy" }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </ng-template>
+</ng-container>
+
+<ng-template #loader>
+  <span class="spinner spinner-md"></span>
+</ng-template>

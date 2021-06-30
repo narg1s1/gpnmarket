@@ -1,0 +1,17 @@
+.procedures-list-header, .procedures-list {
+  & .radiobutton {
+    width: 20px;
+  }
+
+  & .sum, & .sum-with-vat {
+    max-width: 110px;
+  }
+
+  & .status {
+    min-width: 260px;
+  }
+
+  & .disabled {
+    opacity: .5;
+  }
+}

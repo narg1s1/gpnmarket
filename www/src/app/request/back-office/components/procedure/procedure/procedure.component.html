@@ -1,0 +1,119 @@
+<ng-container *ngIf="procedure">
+  <div class="app-card">
+    <div class="app-row app-align-items-center">
+      <h3 class="app-col">
+        <a [routerLink]="['/requests', 'backoffice', procedure.requestId, 'procedure']"
+           [queryParams]="{ source: source, procedureId: procedure.procedureId }">Процедура №{{procedure.procedureId}} «{{procedure.procedureTitle}}»</a>
+      </h3>
+      <a *ngIf="finished" [href]="resultLink" target="_blank" class="app-bold">Показать на ЭТП ГПБ</a>
+      <a *ngIf="!finished" [href]="link" target="_blank" class="app-bold">Показать на ЭТП ГПБ</a>
+
+      <button uxgButton icon link (click)="folded = !folded">
+        <uxg-icon shape="app-chevron" [attr.dir]="folded ? 'down' : 'up'"></uxg-icon>
+      </button>
+    </div>
+
+    <ng-container *ngIf="!folded">
+      <hr/>
+      <div class="app-section app-col app-uppercase app-ghost-color app-bold app-ellipsis">
+        <small>Даты проведения</small>
+      </div>
+      <div class="app-row">
+        <div class="app-col">
+          <div class="app-section">Прием заявок до</div>
+          <div class="app-section"><b>{{procedure.dateEndRegistration | date:"dd.MM.yyyy, HH:mm"}}</b></div>
+        </div>
+
+        <div class="app-col" *ngIf="procedure.dateSummingUp">
+          <div class="app-section">Подведение итогов до</div>
+          <div class="app-section"><b>{{procedure.dateSummingUp | date:"dd.MM.yyyy, HH:mm"}}</b></div>
+        </div>
+
+        <div class="app-col">
+          <div class="app-section">Возможность продления</div>
+          <div class="app-section"><b>{{ prolongButtonIsDisabled() ? 'Нет' : 'Да'}}</b></div>
+        </div>
+
+        <div class="app-col-auto">
+          <uxg-popover #prolongPopover [openOnHover]="true" [style.margin-left.rem]="0.5">
+            <button uxgButton secondary
+                    uxgPopoverTrigger
+                    [disabled]="prolongButtonIsDisabled() || !featureService.authorize('prolongProcedure')" (click)="prolong.emit()">
+              Продлить
+            </button>
+
+            <ng-container *ngIf="prolongButtonIsDisabled()">
+              <div *uxgPopoverContent="'app-popover-content-bottom-right'" (click)="prolongPopover.hide()">
+                <div *ngIf="procedureIsFinished(); else otherProlongError" style="text-align: left">
+                  Период подведения итогов по этой процедуре завершен. <br>
+                  При необходимости объявите новую процедуру.
+                </div>
+
+                <ng-template #otherProlongError>
+                  <div *ngIf="procedureIsRetrade() && !this.dateEndRegistrationFinished()" style="text-align: left">
+                    По процедуре объявлено уторговывание. <br>
+                    Продление невозможно.
+                  </div>
+
+                  <div *ngIf="procedureIsRetrade() && this.dateEndRegistrationFinished() && !this.dateSummingUpFinished()" style="text-align: left">
+                    По процедуре проведено уторговывание результатов. <br>
+                    Продление невозможно.
+                  </div>
+                </ng-template>
+              </div>
+            </ng-container>
+          </uxg-popover>
+
+          <uxg-popover #bargainPopover [openOnHover]="true" [style.margin-left.rem]="0.5">
+            <button uxgButton secondary
+                    uxgPopoverTrigger
+                    [disabled]="retradeButtonIsDisabled() || !featureService.authorize('retradeProcedure')" (click)="bargain.emit()">
+              Уторговать
+            </button>
+
+            <ng-container *ngIf="retradeButtonIsDisabled()">
+              <div *uxgPopoverContent="'app-popover-content-bottom-right'" (click)="bargainPopover.hide()">
+                <div *ngIf="procedureIsFinished(); else otherRetradeError" style="text-align: left">
+                  Период подведения итогов по этой процедуре завершен. <br>
+                  Уторговывание недоступно.
+                </div>
+
+                <ng-template #otherRetradeError>
+                  <div *ngIf="procedure.offersImported && !canRetradeProcedure(); else notFinished" style="text-align: left">
+                    Получено менее 2 предложений от поставщиков. <br>
+                    Уторговывание недоступно.
+                  </div>
+
+                  <ng-template #notFinished>
+                    <div style="text-align: left">
+                      Идёт приём предложений от поставщиков. <br>
+                      Уторговывание недоступно.
+                    </div>
+                  </ng-template>
+                </ng-template>
+              </div>
+            </ng-container>
+          </uxg-popover>
+        </div>
+      </div>
+
+      <ng-container *ngIf="documents.length">
+        <hr/>
+        <small class="app-uppercase app-ghost-color app-bold">Документы процедуры</small>
+        <app-document-simple-list [gridable]="true" [enableUpload]="false" [documents]="documents">
+        </app-document-simple-list>
+      </ng-container>
+
+      <ng-container *ngIf="procedure.positions.length">
+        <hr/>
+        <div class="app-section app-col app-uppercase app-ghost-color app-bold app-ellipsis">
+          <small>Наименование позиции процедуры</small>
+        </div>
+
+        <div class="app-section" *ngFor="let procedurePosition of procedure.positions">
+          {{ procedurePosition.requestPosition.name }}
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-container>

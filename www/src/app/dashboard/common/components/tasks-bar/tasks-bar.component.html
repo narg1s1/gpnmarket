@@ -1,0 +1,45 @@
+<div class="app-row" [class.bar-view]="!folded" *ngIf="tasksBar; else loading">
+  <div class="app-col-auto app-align-self-center">
+    <small class="task-name app-justify-content-end"><b>{{isTasks ? 'Все задачи' : 'Все согласования'}} </b></small>
+    <small class="total app-justify-content-end">{{totalCounter}}</small>
+    <small class="app-ghost-color percent app-justify-content-end"> 100%</small>
+  </div>
+  <div class="app-row app-col tasks-bar" [class.no-border]="folded">
+    <div class="bar-area">
+      <ng-container *ngFor="let tasks of tasksBar; index as i">
+        <div class="app-col {{tasks.group}} bar-item-folded"
+             [style.top.px]="!folded ? 25*(i+1)+1 : 0"
+             [style.min-width.%]="tasks.percentReal"
+             [style.max-width.%]="tasks.percentReal"></div>
+      </ng-container>
+    </div>
+  </div>
+  <div class="app-col extend-button">
+    <button uxgButton icon clear (click)="folded=!folded">
+      <uxg-icon shape="app-chevron" [attr.dir]="!folded ? 'up' : 'down'"></uxg-icon>
+    </button>
+  </div>
+</div>
+<div @showGridTrigger *ngIf="!folded">
+  <ng-container *ngFor="let tasks of tasksBar">
+    <div class="app-row bar-item">
+      <div class="app-col-auto">
+        <small class="task-name app-justify-content-end">{{tasks.groupLabel}}</small>
+        <small class="total app-justify-content-end">{{tasks.count}}</small>
+        <small class="app-ghost-color percent app-justify-content-end">{{tasks.percent || '< 1'}}%</small>
+      </div>
+      <div class="app-row app-col bar-grid">
+        <div class="app-col"></div>
+        <div class="app-col"></div>
+        <div class="app-col"></div>
+        <div class="app-col"></div>
+        <div class="app-col"></div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+<ng-template #loading>
+  <div class="text-center">
+    <span class="spinner spinner-md"></span>
+  </div>
+</ng-template>

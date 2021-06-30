@@ -1,0 +1,91 @@
+<div class="price-info-block">
+  <ng-container *ngIf="proposal.items.length; else positionsPriceInfo">
+    <div class="app-success-color" *ngIf="helper.isProposalQuantityValid(proposal, positions, hasAnalogs); else positionsInvalid">
+      <b>Предложены все позиции</b>
+    </div>
+    <ng-template #positionsInvalid>
+      <div class="app-error-color"><b>Предложены не все позиции</b></div>
+    </ng-template>
+
+    <div class="app-success-color" *ngIf="helper.isQuantityPositionsValid(proposal.items, positions, hasAnalogs); else quantityInvalid">
+      <b>Все позиции в нужном количестве</b>
+    </div>
+    <ng-template #quantityInvalid>
+      <div class="app-error-color"><b>Не все поз-ии в нужном количестве</b></div>
+    </ng-template>
+
+    <div class="app-success-color" *ngIf="helper.isDatePositionsValid(proposal.items, positions, hasAnalogs); else dateInvalid">
+      <b>Сроки укладываются в заданные</b>
+    </div>
+    <ng-template #dateInvalid>
+      <div class="app-error-color"><b>Сроки не укладываются в заданные</b></div>
+    </ng-template>
+
+    <br/>
+
+    <div class="app-ghost-color">Общая сумма поставки без НДС</div>
+    <h2 class="price">
+      <span>{{helper.getSummaryPrice(proposal.items, hasAnalogs) | number: "1.0-2"}} </span>
+      <span class="app-ghost-color">{{getCurrencySymbol('RUB', 'narrow') }}</span>
+    </h2>
+  </ng-container>
+
+  <ng-template #positionsPriceInfo>
+    <div class="app-ghost-color">
+      <div>Количество не указано</div>
+      <div>Сроки не указаны</div>
+      <br/>
+      <br/>
+      <div>Общая сумма поставки без НДС</div>
+      <h2 class="price"><b>0 {{ getCurrencySymbol('RUB', 'narrow') }}</b></h2>
+    </div>
+  </ng-template>
+</div>
+<div class="delivery-block">
+  <ng-container *ngIf="!showDocs">
+    <ng-container *ngIf="proposal.deliveryType === 'PICKUP'">
+      <div class="app-ghost-color">Базис самовывоза</div>
+      <div class="info-value">{{ proposal.deliveryPickup }}</div>
+    </ng-container>
+
+    <ng-container *ngIf="proposal.deliveryType !== 'PICKUP'">
+      <div class="app-ghost-color">Стоимость доставки</div>
+      <div class="info-value" *ngIf="proposal.deliveryType === 'INCLUDED'">Включена в стоимость</div>
+      <div class="info-value" *ngIf="proposal.deliveryType !== 'INCLUDED'">{{ proposal.deliveryPrice }} {{proposal.deliveryCurrency}}</div>
+    </ng-container>
+
+    <ng-container *ngIf="proposal.deliveryAdditionalTerms">
+      <div class="app-ghost-color">Дополнительные условия поставки</div>
+      <div class="info-value">{{ proposal.deliveryAdditionalTerms }}</div>
+    </ng-container>
+
+    <ng-container *ngIf="proposal.warrantyConditions">
+      <div class="app-ghost-color">Гарантийные условия</div>
+      <div class="info-value">{{ proposal.warrantyConditions }}</div>
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngIf="showDocs">
+    <div class="app-ghost-color">Документы предложения</div>
+    <app-document-simple-list
+      *ngIf="proposal.documents.length; else noDocs"
+      size="s"
+      [enableUpload]="false"
+      [documents]="proposal.documents"
+    ></app-document-simple-list>
+    <ng-template #noDocs>Документы не были приложены</ng-template>
+  </ng-container>
+</div>
+
+<div class="app-col"></div>
+
+<div *ngIf="userInfoService.isCustomer()">
+  <button uxgButton outline (click)="selectAll.emit(proposal); close.emit()">Выбрать все</button>
+</div>
+
+<div *ngIf="!showDocs && featureService.authorize('editProposalsCommonParameters') && canEditCommonParams()">
+  <button uxgButton iconText secondary (click)="edit(proposal)">
+    <uxg-icon shape="app-pen"></uxg-icon>
+    Редактировать
+  </button>
+</div>

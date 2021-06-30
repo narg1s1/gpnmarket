@@ -1,0 +1,155 @@
+<div class="sticky-header" [style.top.px]="offsetTopForStickyHeader">
+  <div class="uxg-datatable-header" #uxgDatatableHeader>
+    <!-- Arrows -->
+    <div class="uxg-datatable-arrows" *ngIf="columnHeaders?.length" [style.width.px]="uxgDatatable.offsetWidth">
+      <div class="uxg-datatable-arrow left" [hidden]="isScrollLeftDisabled" (click)="scrollDatatable('left')" [style.left.px]="leftArrowOffset">
+        <uxg-icon shape="app-simple-arrow"></uxg-icon>
+      </div>
+
+      <div class="uxg-datatable-arrow right" [hidden]="isScrollRightDisabled" (click)="scrollDatatable('right')">
+        <uxg-icon shape="app-simple-arrow" class="rotated"></uxg-icon>
+      </div>
+    </div>
+
+    <!-- Headers -->
+    <div class="uxg-datatable-headers app-uppercase" *ngIf="columnHeaders?.length">
+      <div class="uxg-datatable-headers-col settings-col pinnable" *ngIf="allowSelect || allowCustomizeColumns">
+        <uxg-icon class="uxg-datatable-headers-settings-icon" shape="app-settings" (click)="toggleCustomizeColumnsPopup(true)" *ngIf="allowCustomizeColumns"></uxg-icon>
+      </div>
+      <ng-container *ngFor="let header of columnHeaders; let index = index; let first = first; let last = last; trackBy: trackByFn">
+        <div class="uxg-datatable-headers-col"
+             [class.pinnable]="header.pinnable"
+             [class.sortable]="header.sortable"
+             [class.sorted]="header.sorted"
+             [style]="header.customStyles"
+             *ngIf="header.isVisible"
+             (click)="header.sortable && sortBy(header)">
+          {{ header.name }}
+          <uxg-icon class="uxg-datatable-headers-sort"
+                    *ngIf="header.sortable"
+                    shape="app-sort2"
+                    [class.rotated]="header.sortDirection === 'ASC'"></uxg-icon>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<div class="uxg-datatable" #uxgDatatable (scroll)="onTableScrolled($event)">
+  <!-- Body -->
+  <div class="uxg-datatable-body" *ngIf="itemsData?.length && !isLoading; else emptyList">
+    <div class="uxg-datatable-body-row" *ngFor="let item of itemsData; let rowFirst = first; let rowLast = last; trackBy: trackByFn;">
+
+      <ng-container *ngTemplateOutlet="(item.entityType === 'GROUP') ? groupTemplate : rowTemplate; context: {item: item, rowLast: rowLast, rowFirst: rowFirst}">
+      </ng-container>
+
+    </div>
+  </div>
+
+  <!-- Шаблон группы -->
+  <ng-template #groupTemplate let-item="item">
+    <div class="uxg-datatable-body-group" [style.min-width.%]="item._folded ? 100 : 'none'">
+      <div class="uxg-datatable-body-group-title uxg-datatable-body-row">
+        <div class="uxg-datatable-body-col checkbox-col pinnable" *ngIf="allowSelect">
+          <uxg-checkbox
+            [isMixed]="isMixedSelected(item)"
+            [(ngModel)]="item._selected"
+            [disabled]="item._disabled"
+            (ngModelChange)="togglePositions($event, item)"></uxg-checkbox>
+        </div>
+        <div class="uxg-datatable-body-col app-grow-1 pinnable" title="{{item.name}} ({{item.positionsTotalCount || 0}})">
+          Группа: <strong>{{ item.name }}</strong> ({{item.positionsTotalCount || 0}})
+        </div>
+        <div class="uxg-datatable-body-col app-grow-1"></div>
+        <div class="uxg-datatable-body-col uxg-datatable-body-group-placeholder"></div>
+        <div class="uxg-datatable-body-col uxg-datatable-body-group-arrow"
+            (click)="item._folded = !item._folded"
+            [class.rotated]="item._folded">
+          <uxg-icon shape="app-chevron"></uxg-icon>
+        </div>
+      </div>
+      <div class="uxg-datatable-body-group-items uxg-datatable-body-row"
+          [hidden]="item._folded"
+          *ngFor="let position of item.positions">
+        <ng-container *ngTemplateOutlet="rowTemplate; context: {item: position, parentItem: item}"></ng-container>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Шаблон 1 позиции -->
+  <ng-template #rowTemplate let-item="item" let-parentItem="parentItem" let-rowLast="rowLast" let-rowFirst="rowFirst">
+    <div class="uxg-datatable-body-col checkbox-col pinnable"
+      *ngIf="allowSelect"
+      [class.last]="rowLast"
+      [class.first]="rowFirst">
+      <uxg-checkbox
+        [(ngModel)]="item._selected"
+        [disabled]="item._disabled"
+        (ngModelChange)="changeParentCheckboxStatus(parentItem, item, $event)"></uxg-checkbox>
+    </div>
+    <ng-container *ngFor="let template of templates; let index = index; let first = first; let last = last; trackBy: trackByFn">
+      <div class="uxg-datatable-body-col"
+          [style]="columnHeaders[index].customStyles"
+          [class.pinnable]="isColumnPinnable(index)"
+          [class.last]="rowLast"
+          [class.first]="rowFirst"
+          *ngIf="isColumnVisible(index)">
+        <ng-container *ngTemplateOutlet="template; context: { data: item, isFirst: first, isLast: last }"></ng-container>
+      </div>
+    </ng-container>
+  </ng-template>
+
+  <ng-template #emptyList>
+    <ng-container *ngIf="isLoading; else emptyMessage">
+      <uxg-icon class="uxg-datatable-loader" shape="app-loader" size="30"></uxg-icon>
+    </ng-container>
+  </ng-template>
+  <ng-template #emptyMessage>
+    <div class="uxg-datatable-empty">
+      Нет данных
+    </div>
+  </ng-template>
+
+</div>
+
+<br>
+
+<uxg-pagination
+  *ngIf="isPaginationEnabled"
+  [pages$]="pages$"
+  [total]="totalItemsCount"
+  [pageSize]="pageSize"
+  [siblingLimit]="siblingPagesLimit"
+  (change)="pageIndexChanged($event)"
+  [pageSizeOptions]="pageSizeOptions"
+  [showSizeChanger]="showSizeChanger"
+  (onPageSizeChanged)="pageSizeChanged($event)"></uxg-pagination>
+
+<uxg-modal
+  [state]="isPopupVisible"
+  [closable]="true"
+  (stateChange)="toggleCustomizeColumnsPopup($event)">
+
+  <div class="uxg-datatable-modal">
+    <h1 class="uxg-datatable-modal-title">{{ modalTitle }}</h1>
+    <p class="uxg-datatable-modal-description">{{ modalDescription }}</p>
+    <br>
+    <div class="uxg-datatable-modal-items">
+      <!-- [hidden]="column.isAlwaysVisible" Запрещаем скрывать колонки, которые всегда видны -->
+      <div class="uxg-datatable-modal-item app-col" *ngFor="let column of clonedColumnHeaders" [hidden]="column.isAlwaysVisible">
+        <div class="app-row">
+          <uxg-checkbox class="app-control app-col app-grow-0"
+            #controlCheckbox
+            [(ngModel)]="column.isVisible"
+            (ngModelChange)="onToggleColumnVisibility($event)"></uxg-checkbox>
+          <label class="app-col" (click)="controlCheckbox.check($event)"> {{ column.name }}</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template uxgModalFooter>
+    <button uxgButton secondary lg (click)="discardChanges()">Отмена</button>
+    <button uxgButton primary lg (click)="applyChanges()">Применить</button>
+  </ng-template>
+</uxg-modal>

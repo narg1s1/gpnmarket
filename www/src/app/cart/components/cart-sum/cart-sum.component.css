@@ -1,0 +1,18 @@
+.cart-supplier-sum-label {
+  margin-right: 30px;
+  margin-top: 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.cart-supplier-sum-label .cart-value {
+  font-size: 24pt;
+}
+
+.cart-supplier-sum-label .cart-currency {
+  font-size: 24pt;
+}
+
+.cart-supplier-sum-label .cart-sum-label {
+  margin-right: 10px;
+}

@@ -1,0 +1,58 @@
+@import "../../../../../../../theme";
+
+.app-technical-commercial-proposal-list {
+  & > *:not(:last-child) {
+    display: block;
+    margin-bottom: 24px;
+  }
+
+  &.disabled {
+    opacity: .5;
+  }
+}
+
+.placeholder {
+  height: 160px;
+  background: #F2F2F2;
+  margin-bottom: 24px;
+  border-radius: uxg($theme, card-border-radius);
+}
+
+.template {
+  padding-bottom: 20px;
+}
+
+.app-table > .app-row {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.analytical-report {
+  margin-top: -26px;
+  position: relative;
+  top: -28px;
+}
+
+.position-row .position-item {
+  padding-bottom: 15px;
+}
+
+.doc-error-message {
+  width: 150px;
+  text-align: right;
+  font-weight: bold;
+  margin-right: 10px;
+  color: uxg($theme, color-control-invalid);
+}
+
+.grid-cell .app-control {
+  margin-right: 8px;
+}
+
+.grid-cell label {
+  margin-bottom: 4px;
+}
+
+.overflow-visible {
+  overflow: visible;
+}

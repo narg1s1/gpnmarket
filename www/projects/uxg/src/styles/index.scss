@@ -1,0 +1,39 @@
+@import
+  "uxg",
+  "core/theme",
+  "core/accordion",
+  "core/buttons",
+  "core/buttons-group",
+  "core/calendar",
+  "core/controls",
+  "core/grid",
+  "core/icon",
+  "core/aside-modal",
+  "core/tabs",
+  "core/typography",
+  "core/dropdown",
+  "core/breadcrumbs",
+  "core/helpers",
+  "core/modal",
+  "core/popover",
+  "core/scrollbar",
+  "core/wizzard";
+
+@mixin core($theme: ()) {
+  @include accordion($theme);
+  @include buttons($theme);
+  @include buttons-group($theme);
+  @include calendar($theme);
+  @include controls($theme);
+  @include grid($theme);
+  @include icon($theme);
+  @include asideModal($theme);
+  @include tabs($theme);
+  @include typography($theme);
+  @include dropdown($theme);
+  @include breadcrumbs($theme);
+  @include helpers($theme);
+  @include modal($theme);
+  @include popover($theme);
+  @include wizzard($theme);
+}
