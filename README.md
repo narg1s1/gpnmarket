@@ -230,7 +230,7 @@ ng e2e --port 4201
     - `editing` for editing
     - `creating` to create
     
-    **Пример**
+    **Example**
     ```bash
     Component naming:
     
@@ -246,7 +246,7 @@ ng e2e --port 4201
    entity name and action separated by a dot character `.`. The words denoting the action, 
    we use the same as for naming components.
 
-    **Пример**
+    **Example**
     ```js
     {path: 'users', component: UserListComponent, data: { routeId: 'users.list' }, children [
         {path: 'create', component: UserCreateComponent}, data: { routeId: 'users.create' }
@@ -257,7 +257,13 @@ ng e2e --port 4201
     
 - If the name of the root consists of several words, then we separate the words with the symbol ``-``
 
-    **Пример**
+    **Example**
     ```js
     {path: 'users-for-example', component: UserListComponent}
     ```
+
+
+Login in:
+
+cmfqgkwdd@mailinator.com
+!q2w3e4R1234
